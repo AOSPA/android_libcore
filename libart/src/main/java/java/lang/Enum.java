@@ -145,10 +145,12 @@ public abstract class Enum<E extends Enum<E>> implements Serializable, Comparabl
      *         values of this enum constant and {@code o} are equal; a positive
      *         value if the ordinal value of this enum constant is greater than
      *         the ordinal value of {@code o}.
+     * @throws ClassCastException
+     *             if the specified object can't be cast to an Enum
      * @see java.lang.Comparable
      */
-    public final int compareTo(E o) {
-        return ordinal - o.ordinal;
+    public final int compareTo(E o) throws ClassCastException {
+        return ordinal - ((Enum<?>) o).ordinal;
     }
 
     /**
