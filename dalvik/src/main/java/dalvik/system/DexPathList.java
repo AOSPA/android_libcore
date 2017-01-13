@@ -482,6 +482,23 @@ import static android.system.OsConstants.S_ISDIR;
     }
 
     /**
+     * Returns the list of all individual dex files paths from the current list.
+     * The list will contain only file paths (i.e. no directories).
+     */
+    /*package*/ List<String> getDexPaths() {
+        List<String> dexPaths = new ArrayList<String>();
+        for (Element e : dexElements) {
+            String dexPath = e.getDexPath();
+            if (dexPath != null) {
+                // Add the element to the list only if it is a file.
+                // A null dex path signals the element is a resource directory.
+                dexPaths.add(dexPath);
+            }
+        }
+        return dexPaths;
+    }
+
+    /**
      * Element of the dex/resource path. Note: should be called DexElement, but apps reflect on
      * this.
      */
@@ -499,7 +516,7 @@ import static android.system.OsConstants.S_ISDIR;
 
         /**
          * Element encapsulates a dex file. This may be a plain dex file (in which case dexZipPath
-         * should be null), or a jar (in which case dexZipPath should denote the zup file).
+         * should be null), or a jar (in which case dexZipPath should denote the zip file).
          */
         public Element(DexFile dexFile, File dexZipPath) {
             this.dexFile = dexFile;
@@ -509,6 +526,47 @@ import static android.system.OsConstants.S_ISDIR;
         public Element(File path) {
           this.path = path;
           this.dexFile = null;
+        }
+
+        /**
+         * Constructor for a bit of backwards compatibility. Some apps use reflection into
+         * internal APIs. Warn, and emulate old behavior if we can. See b/33399341.
+         *
+         * @deprecated The Element class has been split. Use new Element constructors for
+         *             classes and resources, and NativeLibraryElement for the library
+         *             search path.
+         */
+        @Deprecated
+        public Element(File dir, boolean isDirectory, File zip, DexFile dexFile) {
+            System.err.println("Warning: Using deprecated Element constructor. Do not use internal"
+                    + " APIs, this constructor will be removed in the future.");
+            if (dir != null && (zip != null || dexFile != null)) {
+                throw new IllegalArgumentException("Using dir and zip|dexFile no longer"
+                        + " supported.");
+            }
+            if (isDirectory && (zip != null || dexFile != null)) {
+                throw new IllegalArgumentException("Unsupported argument combination.");
+            }
+            if (dir != null) {
+                this.path = dir;
+                this.dexFile = null;
+            } else {
+                this.path = zip;
+                this.dexFile = dexFile;
+            }
+        }
+
+        /*
+         * Returns the dex path of this element or null if the element refers to a directory.
+         */
+        private String getDexPath() {
+            if (path != null) {
+                return path.isDirectory() ? null : path.getAbsolutePath();
+            } else if (dexFile != null) {
+                // DexFile.getName() returns the path of the dex file.
+                return dexFile.getName();
+            }
+            return null;
         }
 
         @Override

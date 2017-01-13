@@ -18,7 +18,6 @@ package libcore.java.nio.channels;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
-
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -28,6 +27,7 @@ import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
@@ -35,6 +35,10 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.MembershipKey;
 import java.util.ArrayList;
 import java.util.Enumeration;
+
+import libcore.io.IoBridge;
+
+import static android.system.OsConstants.POLLIN;
 
 /**
  * Tests associated with multicast behavior of DatagramChannel.
@@ -774,6 +778,7 @@ public class DatagramChannelMulticastTest extends TestCase {
         // Send a message. It should be received.
         String msg1 = "Hello1";
         sendMessage(sendingChannel, msg1, groupSocketAddress);
+        IoBridge.poll(receivingChannel.socket().getFileDescriptor$(), POLLIN, 1000);
         InetSocketAddress sourceAddress1 = (InetSocketAddress) receivingChannel.receive(receiveBuffer);
         assertEquals(sourceAddress1, sendingAddress);
         assertEquals(msg1, new String(receiveBuffer.array(), 0, receiveBuffer.position()));
@@ -784,6 +789,10 @@ public class DatagramChannelMulticastTest extends TestCase {
         // Send a message. It should be filtered.
         String msg2 = "Hello2";
         sendMessage(sendingChannel, msg2, groupSocketAddress);
+        try {
+            IoBridge.poll(receivingChannel.socket().getFileDescriptor$(), POLLIN, 1000);
+            fail();
+        } catch (SocketTimeoutException expected) { }
         receiveBuffer.position(0);
         InetSocketAddress sourceAddress2 = (InetSocketAddress) receivingChannel.receive(receiveBuffer);
         assertNull(sourceAddress2);
@@ -794,6 +803,7 @@ public class DatagramChannelMulticastTest extends TestCase {
         // Send a message. It should be received.
         String msg3 = "Hello3";
         sendMessage(sendingChannel, msg3, groupSocketAddress);
+        IoBridge.poll(receivingChannel.socket().getFileDescriptor$(), POLLIN, 1000);
         receiveBuffer.position(0);
         InetSocketAddress sourceAddress3 = (InetSocketAddress) receivingChannel.receive(receiveBuffer);
         assertEquals(sourceAddress3, sendingAddress);
@@ -1236,6 +1246,5 @@ public class DatagramChannelMulticastTest extends TestCase {
         }
         throw new AssertionFailedError("Unable to find local IPv6 address for " + networkInterface);
     }
-
 }
 
