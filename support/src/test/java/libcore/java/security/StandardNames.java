@@ -614,6 +614,7 @@ public final class StandardNames extends Assert {
             provideSslContextEnabledProtocols("TLSv1.2", TLSVersion.SSLv3, TLSVersion.TLSv12);
             provideSslContextEnabledProtocols("Default", TLSVersion.SSLv3, TLSVersion.TLSv1);
         } else {
+            provideSslContextEnabledProtocols("SSL", TLSVersion.TLSv1, TLSVersion.TLSv12);
             provideSslContextEnabledProtocols("TLS", TLSVersion.TLSv1, TLSVersion.TLSv12);
             provideSslContextEnabledProtocols("TLSv1", TLSVersion.TLSv1, TLSVersion.TLSv12);
             provideSslContextEnabledProtocols("TLSv1.1", TLSVersion.TLSv1, TLSVersion.TLSv12);
@@ -625,6 +626,7 @@ public final class StandardNames extends Assert {
     public static final String SSL_CONTEXT_PROTOCOLS_DEFAULT = "Default";
     public static final Set<String> SSL_CONTEXT_PROTOCOLS = new HashSet<String>(Arrays.asList(
         SSL_CONTEXT_PROTOCOLS_DEFAULT,
+        "SSL",
         "TLS",
         "TLSv1",
         "TLSv1.1",
@@ -1021,8 +1023,7 @@ public final class StandardNames extends Assert {
     public static final List<String> ELLIPTIC_CURVES_DEFAULT = Arrays.asList(
             "x25519 (29)",
             "secp256r1 (23)",
-            "secp384r1 (24)",
-            "secp521r1 (25)"
+            "secp384r1 (24)"
             );
 
     private static final Set<String> PERMITTED_DEFAULT_KEY_EXCHANGE_ALGS =
