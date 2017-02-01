@@ -182,7 +182,7 @@ LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_MODULE := core-test-rules-hostdex
 LOCAL_JAVA_LIBRARIES := core-oj-hostdex core-libart-hostdex
 LOCAL_STATIC_JAVA_LIBRARIES := junit-hostdex
-include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
+include $(BUILD_HOST_DALVIK_STATIC_JAVA_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(non_openjdk_java_files) $(android_icu4j_src_files)
@@ -215,7 +215,8 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
 	nist-pkix-tests \
 	slf4j-jdk14 \
 	sqlite-jdbc \
-	tzdata-testing
+	tzdata-testing \
+        junit-params
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_ERROR_PRONE_FLAGS := -Xep:TryFailThrowable:ERROR -Xep:ComparisonOutOfRange:ERROR
 LOCAL_JAVA_LANGUAGE_VERSION := 1.8
@@ -255,6 +256,7 @@ endif
 # Make the core-ojtests library.
 ifeq ($(LIBCORE_SKIP_TESTS),)
     include $(CLEAR_VARS)
+    LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
     LOCAL_NO_STANDARD_LIBRARIES := true
     LOCAL_JAVA_LIBRARIES := core-oj core-libart okhttp bouncycastle
     LOCAL_STATIC_JAVA_LIBRARIES := testng
@@ -272,10 +274,9 @@ endif
 ifeq ($(LIBCORE_SKIP_TESTS),)
     include $(CLEAR_VARS)
     # Filter out SerializedLambdaTest because it depends on stub classes and won't actually run.
-    # Temporarily filter out java.time tests until they stabilize (b/28832222)
-    LOCAL_SRC_FILES := $(filter-out ojluni/src/test/java/time/% %/DeserializeMethodTest.java %/SerializedLambdaTest.java ojluni/src/test/java/util/stream/boot%,$(ojtest_src_files)) # Do not include anything from the boot* directories. Those directories need a custom bootclasspath to run.
+    LOCAL_SRC_FILES := $(filter-out %/DeserializeMethodTest.java %/SerializedLambdaTest.java ojluni/src/test/java/util/stream/boot%,$(ojtest_src_files)) # Do not include anything from the boot* directories. Those directories need a custom bootclasspath to run.
     # Include source code as part of JAR
-    LOCAL_JAVA_RESOURCE_DIRS := ojluni/src/test/dist
+    LOCAL_JAVA_RESOURCE_DIRS := ojluni/src/test/dist $(test_resource_dirs)
     LOCAL_NO_STANDARD_LIBRARIES := true
     LOCAL_JAVA_LIBRARIES := \
         bouncycastle \
@@ -383,7 +384,8 @@ ifeq ($(LIBCORE_SKIP_TESTS),)
         nist-pkix-tests-host \
         slf4j-jdk14-hostdex \
         sqlite-jdbc-host \
-        tzdata-testing-hostdex
+        tzdata-testing-hostdex \
+        junit-params-hostdex
     LOCAL_JAVACFLAGS := $(local_javac_flags)
     LOCAL_MODULE_TAGS := optional
     LOCAL_JAVA_LANGUAGE_VERSION := 1.8

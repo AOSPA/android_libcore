@@ -457,6 +457,12 @@ public abstract class MethodHandle {
     private MethodType nominalType;
 
     /**
+     * The spread invoker associated with this type with zero trailing arguments.
+     * This is used to speed up invokeWithArguments.
+     */
+    private MethodHandle cachedSpreadInvoker;
+
+    /**
      * The INVOKE* constants and SGET/SPUT and IGET/IPUT constants specify the behaviour of this
      * method handle with respect to the ArtField* or the ArtMethod* that it operates on. These
      * behaviours are equivalent to the dex bytecode behaviour on the respective method_id or
@@ -630,8 +636,16 @@ public abstract class MethodHandle {
      * @hide
      */
     public Object invokeWithArguments(Object... arguments) throws Throwable {
-        // TODO(narayan): Implement invokeWithArguments, remove @hide.
-        throw new UnsupportedOperationException("invokeWithArguments(Object...)");
+        MethodHandle invoker = null;
+        synchronized (this) {
+            if (cachedSpreadInvoker == null) {
+                cachedSpreadInvoker = MethodHandles.spreadInvoker(this.type(), 0);
+            }
+
+            invoker = cachedSpreadInvoker;
+        }
+
+        return invoker.invoke(this, arguments);
     }
 
     /**
@@ -864,8 +878,12 @@ assertEquals("[A, B, C]", (String) caToString2.invokeExact('A', "BC".toCharArray
     public MethodHandle asSpreader(Class<?> arrayType, int arrayLength) {
         MethodType postSpreadType = asSpreaderChecks(arrayType, arrayLength);
 
-        // Android-changed, TODO(narayan): Implement asSpreader, remove @hide.
-        throw new UnsupportedOperationException("asSpreader(Class<?>, int)");
+        final int targetParamCount = postSpreadType.parameterCount();
+        MethodType dropArrayArgs = postSpreadType.dropParameterTypes(
+                (targetParamCount - arrayLength), targetParamCount);
+        MethodType adapterType = dropArrayArgs.appendParameterTypes(arrayType);
+
+        return new Transformers.Spreader(this, adapterType, arrayLength);
     }
 
     /**
@@ -988,8 +1006,7 @@ assertEquals("[123]", (String) longsToString.invokeExact((long)123));
     public MethodHandle asCollector(Class<?> arrayType, int arrayLength) {
         asCollectorChecks(arrayType, arrayLength);
 
-        // Android-changed, TODO(narayan): Implement asCollector, remove @hide.
-        throw new UnsupportedOperationException("asCollector(Class<?>, int)");
+        return new Transformers.Collector(this, arrayType, arrayLength);
     }
 
     /**

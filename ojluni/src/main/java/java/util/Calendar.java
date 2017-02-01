@@ -42,13 +42,9 @@ package java.util;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OptionalDataException;
 import java.io.Serializable;
 import java.security.AccessControlContext;
-import java.security.AccessController;
 import java.security.PermissionCollection;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.security.ProtectionDomain;
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
@@ -1653,6 +1649,14 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
         return createCalendar(zone, aLocale);
     }
 
+    /**
+     * Create a Japanese Imperial Calendar.
+     * @hide
+     */
+    public static Calendar getJapanesImperialInstance(TimeZone zone, Locale aLocale) {
+        return new JapaneseImperialCalendar(zone, aLocale);
+    }
+
     private static Calendar createCalendar(TimeZone zone,
                                            Locale aLocale)
     {
@@ -2030,6 +2034,11 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      * @since 1.6
      */
     public String getDisplayName(int field, int style, Locale locale) {
+        // Android-changed: Android has traditionally treated ALL_STYLES as SHORT, even though
+        // it's not documented to be a valid value for style.
+        if (style == ALL_STYLES) {
+            style = SHORT;
+        }
         if (!checkDisplayNameParams(field, style, SHORT, NARROW_FORMAT, locale,
                             ERA_MASK|MONTH_MASK|DAY_OF_WEEK_MASK|AM_PM_MASK)) {
             return null;
@@ -2168,6 +2177,10 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
         int baseStyle = getBaseStyle(style); // Ignore the standalone mask
         if (field < 0 || field >= fields.length ||
             baseStyle < minStyle || baseStyle > maxStyle) {
+            throw new IllegalArgumentException();
+        }
+        // Android-changed: 3 is not a valid base style (1, 2 and 4 are, though), throw if used.
+        if (baseStyle == 3) {
             throw new IllegalArgumentException();
         }
         if (locale == null) {
