@@ -1409,7 +1409,6 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/net/ftp/FtpReplyCode.java \
     ojluni/src/main/java/sun/net/ftp/impl/DefaultFtpClientProvider.java \
     ojluni/src/main/java/sun/net/ftp/impl/FtpClient.java \
-    ojluni/src/main/java/sun/net/InetAddressCachePolicy.java \
     ojluni/src/main/java/sun/net/NetHooks.java \
     ojluni/src/main/java/sun/net/NetProperties.java \
     ojluni/src/main/java/sun/net/NetworkClient.java \
@@ -1418,10 +1417,7 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/net/ProgressMeteringPolicy.java \
     ojluni/src/main/java/sun/net/ProgressMonitor.java \
     ojluni/src/main/java/sun/net/ProgressSource.java \
-    ojluni/src/main/java/sun/net/RegisteredDomain.java \
     ojluni/src/main/java/sun/net/ResourceManager.java \
-    ojluni/src/main/java/sun/net/smtp/SmtpClient.java \
-    ojluni/src/main/java/sun/net/smtp/SmtpProtocolException.java \
     ojluni/src/main/java/sun/net/SocksProxy.java \
     ojluni/src/main/java/sun/net/spi/DefaultProxySelector.java \
     ojluni/src/main/java/sun/net/spi/nameservice/NameServiceDescriptor.java \
@@ -1429,10 +1425,8 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/net/TelnetInputStream.java \
     ojluni/src/main/java/sun/net/TelnetOutputStream.java \
     ojluni/src/main/java/sun/net/TelnetProtocolException.java \
-    ojluni/src/main/java/sun/net/TransferProtocolClient.java \
     ojluni/src/main/java/sun/net/util/IPAddressUtil.java \
     ojluni/src/main/java/sun/net/util/URLUtil.java \
-    ojluni/src/main/java/sun/net/www/HeaderParser.java \
     ojluni/src/main/java/sun/net/www/MessageHeader.java \
     ojluni/src/main/java/sun/net/www/MeteredStream.java \
     ojluni/src/main/java/sun/net/www/ParseUtil.java \
@@ -1445,7 +1439,6 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/net/www/protocol/jar/JarFileFactory.java \
     ojluni/src/main/java/sun/net/www/protocol/jar/JarURLConnection.java \
     ojluni/src/main/java/sun/net/www/protocol/jar/URLJarFile.java \
-    ojluni/src/main/java/sun/net/www/protocol/jar/URLJarFileCallBack.java \
     ojluni/src/main/java/sun/nio/ByteBuffered.java \
     ojluni/src/main/java/sun/nio/ch/AbstractPollArrayWrapper.java \
     ojluni/src/main/java/sun/nio/ch/AbstractPollSelectorImpl.java \
