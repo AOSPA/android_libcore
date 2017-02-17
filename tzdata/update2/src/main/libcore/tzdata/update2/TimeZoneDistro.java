@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package libcore.tzdata.update;
+package libcore.tzdata.update2;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -25,33 +26,76 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * A configuration bundle. This is a thin wrapper around some in-memory bytes representing a zip
+ * A time zone distro. This is a thin wrapper around some in-memory bytes representing a zip
  * archive and logic for its safe extraction.
  */
-public final class ConfigBundle {
+public final class TimeZoneDistro {
 
-    /** The name of the file inside the bundle containing the TZ data version. */
-    public static final String TZ_DATA_VERSION_FILE_NAME = "tzdata_version";
+    /** The name of the file inside the distro containing bionic/libcore TZ data. */
+    public static final String TZDATA_FILE_NAME = "tzdata";
 
-    /** The name of the file inside the bundle containing the expected device checksums. */
-    public static final String CHECKSUMS_FILE_NAME = "checksums";
-
-    /** The name of the file inside the bundle containing bionic/libcore TZ data. */
-    public static final String ZONEINFO_FILE_NAME = "tzdata";
-
-    /** The name of the file inside the bundle containing ICU TZ data. */
+    /** The name of the file inside the distro containing ICU TZ data. */
     public static final String ICU_DATA_FILE_NAME = "icu/icu_tzdata.dat";
+
+    /**
+     * The name of the file inside the distro containing the distro version information.
+     * The content is ASCII bytes representing a set of version numbers. See {@link DistroVersion}.
+     * This constant must match the one in system/core/tzdatacheck/tzdatacheck.cpp.
+     */
+    public static final String DISTRO_VERSION_FILE_NAME = "distro_version";
 
     private static final int BUFFER_SIZE = 8192;
 
+    /**
+     * Maximum size of entry getEntryContents() will pull into a byte array. To avoid exhausting
+     * heap memory when encountering unexpectedly large entries. 128k should be enough for anyone.
+     */
+    private static final long MAX_GET_ENTRY_CONTENTS_SIZE = 128 * 1024;
+
     private final byte[] bytes;
 
-    public ConfigBundle(byte[] bytes) {
+    public TimeZoneDistro(byte[] bytes) {
         this.bytes = bytes;
     }
 
-    public byte[] getBundleBytes() {
+    public byte[] getBytes() {
         return bytes;
+    }
+
+    public DistroVersion getDistroVersion() throws DistroException, IOException {
+        byte[] contents = getEntryContents(
+                new ByteArrayInputStream(bytes), DISTRO_VERSION_FILE_NAME);
+        if (contents == null) {
+            throw new DistroException("Distro version file entry not found");
+        }
+        return DistroVersion.fromBytes(contents);
+    }
+
+    private static byte[] getEntryContents(InputStream is, String entryName) throws IOException {
+        try (ZipInputStream zipInputStream = new ZipInputStream(is)) {
+            ZipEntry entry;
+            while ((entry = zipInputStream.getNextEntry()) != null) {
+                String name = entry.getName();
+
+                if (!entryName.equals(name)) {
+                    continue;
+                }
+                // Guard against massive entries consuming too much heap memory.
+                if (entry.getSize() > MAX_GET_ENTRY_CONTENTS_SIZE) {
+                    throw new IOException("Entry " + entryName + " too large: " + entry.getSize());
+                }
+                byte[] buffer = new byte[BUFFER_SIZE];
+                try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                    int count;
+                    while ((count = zipInputStream.read(buffer)) != -1) {
+                        baos.write(buffer, 0, count);
+                    }
+                    return baos.toByteArray();
+                }
+            }
+            // Entry not found.
+            return null;
+        }
     }
 
     public void extractTo(File targetDir) throws IOException {
@@ -111,7 +155,7 @@ public final class ConfigBundle {
             return false;
         }
 
-        ConfigBundle that = (ConfigBundle) o;
+        TimeZoneDistro that = (TimeZoneDistro) o;
 
         if (!Arrays.equals(bytes, that.bytes)) {
             return false;
@@ -119,5 +163,4 @@ public final class ConfigBundle {
 
         return true;
     }
-
 }

@@ -16,10 +16,14 @@
 
 package libcore.java.security;
 
+import static org.junit.Assert.assertEquals;
+
 import com.android.org.bouncycastle.asn1.DEROctetString;
+import com.android.org.bouncycastle.asn1.x500.X500Name;
 import com.android.org.bouncycastle.asn1.x509.BasicConstraints;
 import com.android.org.bouncycastle.asn1.x509.CRLReason;
 import com.android.org.bouncycastle.asn1.x509.ExtendedKeyUsage;
+import com.android.org.bouncycastle.asn1.x509.Extension;
 import com.android.org.bouncycastle.asn1.x509.GeneralName;
 import com.android.org.bouncycastle.asn1.x509.GeneralNames;
 import com.android.org.bouncycastle.asn1.x509.GeneralSubtree;
@@ -27,23 +31,20 @@ import com.android.org.bouncycastle.asn1.x509.KeyPurposeId;
 import com.android.org.bouncycastle.asn1.x509.KeyUsage;
 import com.android.org.bouncycastle.asn1.x509.NameConstraints;
 import com.android.org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import com.android.org.bouncycastle.asn1.x509.X509Extensions;
 import com.android.org.bouncycastle.cert.X509CertificateHolder;
+import com.android.org.bouncycastle.cert.X509v3CertificateBuilder;
 import com.android.org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import com.android.org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import com.android.org.bouncycastle.cert.ocsp.BasicOCSPRespBuilder;
 import com.android.org.bouncycastle.cert.ocsp.CertificateID;
 import com.android.org.bouncycastle.cert.ocsp.CertificateStatus;
-import com.android.org.bouncycastle.cert.ocsp.OCSPException;
 import com.android.org.bouncycastle.cert.ocsp.OCSPResp;
 import com.android.org.bouncycastle.cert.ocsp.OCSPRespBuilder;
 import com.android.org.bouncycastle.cert.ocsp.RevokedStatus;
 import com.android.org.bouncycastle.jce.provider.BouncyCastleProvider;
 import com.android.org.bouncycastle.operator.DigestCalculatorProvider;
-import com.android.org.bouncycastle.operator.OperatorCreationException;
 import com.android.org.bouncycastle.operator.bc.BcDigestCalculatorProvider;
 import com.android.org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
-import com.android.org.bouncycastle.x509.X509V3CertificateGenerator;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -64,7 +65,6 @@ import java.security.Security;
 import java.security.UnrecoverableEntryException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -79,7 +79,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.security.auth.x500.X500Principal;
-import junit.framework.Assert;
 import libcore.javax.net.ssl.TestKeyManager;
 import libcore.javax.net.ssl.TestTrustManager;
 
@@ -90,7 +89,7 @@ import libcore.javax.net.ssl.TestTrustManager;
  * Creating a key store is relatively slow, so a singleton instance is
  * accessible via TestKeyStore.get().
  */
-public final class TestKeyStore extends Assert {
+public final class TestKeyStore {
     /** Size of DSA keys to generate for testing. */
     private static final int DSA_KEY_SIZE_BITS = 1024;
 
@@ -156,10 +155,8 @@ public final class TestKeyStore extends Assert {
         }
     }
 
-    private static final boolean TEST_MANAGERS = true;
     private static final byte[] LOCAL_HOST_ADDRESS = { 127, 0, 0, 1 };
     private static final String LOCAL_HOST_NAME = "localhost";
-
 
     public final KeyStore keyStore;
     public final char[] storePassword;
@@ -707,43 +704,40 @@ public final class TestKeyStore extends Assert {
             throw new IllegalArgumentException("Unknown key algorithm " + keyAlgorithm);
         }
 
-        X509V3CertificateGenerator x509cg = new X509V3CertificateGenerator();
-        x509cg.setSubjectDN(subject);
-        x509cg.setIssuerDN(issuer);
-        x509cg.setNotBefore(start);
-        x509cg.setNotAfter(end);
-        x509cg.setPublicKey(publicKey);
-        x509cg.setSignatureAlgorithm(signatureAlgorithm);
         if (serialNumber == null) {
             byte[] serialBytes = new byte[16];
             new SecureRandom().nextBytes(serialBytes);
             serialNumber = new BigInteger(1, serialBytes);
         }
-        x509cg.setSerialNumber(serialNumber);
+
+        X509v3CertificateBuilder x509cg = new X509v3CertificateBuilder(
+                X500Name.getInstance(issuer.getEncoded()), serialNumber, start, end,
+                X500Name.getInstance(subject.getEncoded()),
+                SubjectPublicKeyInfo.getInstance(publicKey.getEncoded()));
         if (keyUsage != 0) {
-            x509cg.addExtension(X509Extensions.KeyUsage,
+            x509cg.addExtension(Extension.keyUsage,
                                 true,
                                 new KeyUsage(keyUsage));
         }
         if (ca) {
-            x509cg.addExtension(X509Extensions.BasicConstraints,
+            x509cg.addExtension(Extension.basicConstraints,
                                 true,
                                 new BasicConstraints(true));
         }
         for (int i = 0; i < extendedKeyUsages.size(); i++) {
             KeyPurposeId keyPurposeId = extendedKeyUsages.get(i);
             boolean critical = criticalExtendedKeyUsages.get(i);
-            x509cg.addExtension(X509Extensions.ExtendedKeyUsage,
+            x509cg.addExtension(Extension.extendedKeyUsage,
                                 critical,
                                 new ExtendedKeyUsage(keyPurposeId));
         }
         for (GeneralName subjectAltName : subjectAltNames) {
-            x509cg.addExtension(X509Extensions.SubjectAlternativeName,
+            x509cg.addExtension(Extension.subjectAlternativeName,
                                 false,
                                 new GeneralNames(subjectAltName).getEncoded());
         }
         if (!permittedNameConstraints.isEmpty() || !excludedNameConstraints.isEmpty()) {
-            x509cg.addExtension(X509Extensions.NameConstraints,
+            x509cg.addExtension(Extension.nameConstraints,
                                 true,
                                 new NameConstraints(permittedNameConstraints.toArray(
                                                         new GeneralSubtree[
@@ -753,7 +747,12 @@ public final class TestKeyStore extends Assert {
                                                             excludedNameConstraints.size()])));
         }
 
-        X509Certificate x509c = x509cg.generateX509Certificate(privateKey);
+        X509CertificateHolder x509holder = x509cg.build(
+                new JcaContentSignerBuilder(signatureAlgorithm).build(privateKey));
+        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+        X509Certificate x509c = (X509Certificate) certFactory.generateCertificate(
+                new ByteArrayInputStream(x509holder.getEncoded()));
+
         if (StandardNames.IS_RI) {
             /*
              * The RI can't handle the BC EC signature algorithm

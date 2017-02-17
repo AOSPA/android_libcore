@@ -16,6 +16,10 @@
 
 package libcore.java.security;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.security.Security;
 import java.security.spec.DSAPrivateKeySpec;
 import java.security.spec.DSAPublicKeySpec;
@@ -36,7 +40,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.crypto.spec.DHPrivateKeySpec;
 import javax.crypto.spec.DHPublicKeySpec;
-import junit.framework.Assert;
 
 /**
  * This class defines expected string names for protocols, key types,
@@ -63,7 +66,7 @@ import junit.framework.Assert;
  * Java &trade; PKCS#11 Reference Guide
  * </a>.
  */
-public final class StandardNames extends Assert {
+public final class StandardNames {
 
     public static final boolean IS_RI
             = !"Dalvik Core Library".equals(System.getProperty("java.specification.name"));
@@ -107,7 +110,7 @@ public final class StandardNames extends Assert {
     private static void provide(String type, String algorithm) {
         Set<String> algorithms = PROVIDER_ALGORITHMS.get(type);
         if (algorithms == null) {
-            algorithms = new HashSet();
+            algorithms = new HashSet<String>();
             PROVIDER_ALGORITHMS.put(type, algorithms);
         }
         assertTrue("Duplicate " + type + " " + algorithm,
@@ -529,6 +532,20 @@ public final class StandardNames extends Assert {
             provide("Cipher", "AES/OFB/NOPADDING");
             provide("Cipher", "AES/OFB/PKCS5PADDING");
             provide("Cipher", "AES/OFB/PKCS7PADDING");
+            provide("Cipher", "AES_128/CBC/NOPADDING");
+            provide("Cipher", "AES_128/CBC/PKCS5PADDING");
+            provide("Cipher", "AES_128/CBC/PKCS7PADDING");
+            provide("Cipher", "AES_128/ECB/NOPADDING");
+            provide("Cipher", "AES_128/ECB/PKCS5PADDING");
+            provide("Cipher", "AES_128/ECB/PKCS7PADDING");
+            provide("Cipher", "AES_128/GCM/NOPADDING");
+            provide("Cipher", "AES_256/CBC/NOPADDING");
+            provide("Cipher", "AES_256/CBC/PKCS5PADDING");
+            provide("Cipher", "AES_256/CBC/PKCS7PADDING");
+            provide("Cipher", "AES_256/ECB/NOPADDING");
+            provide("Cipher", "AES_256/ECB/PKCS5PADDING");
+            provide("Cipher", "AES_256/ECB/PKCS7PADDING");
+            provide("Cipher", "AES_256/GCM/NOPADDING");
             provide("Cipher", "DESEDE/CBC/NOPADDING");
             provide("Cipher", "DESEDE/CBC/PKCS5PADDING");
             provide("Cipher", "DESEDE/CBC/PKCS7PADDING");
