@@ -493,6 +493,16 @@ public final class StandardNames {
             provide("Cipher", "PBEWITHSHAAND40BITRC2-CBC");
             provide("Cipher", "PBEWITHSHAAND40BITRC4");
             provide("Cipher", "PBEWITHSHAANDTWOFISH-CBC");
+            provide("Cipher", "PBEWithHmacSHA1AndAES_128");
+            provide("Cipher", "PBEWithHmacSHA224AndAES_128");
+            provide("Cipher", "PBEWithHmacSHA256AndAES_128");
+            provide("Cipher", "PBEWithHmacSHA384AndAES_128");
+            provide("Cipher", "PBEWithHmacSHA512AndAES_128");
+            provide("Cipher", "PBEWithHmacSHA1AndAES_256");
+            provide("Cipher", "PBEWithHmacSHA224AndAES_256");
+            provide("Cipher", "PBEWithHmacSHA256AndAES_256");
+            provide("Cipher", "PBEWithHmacSHA384AndAES_256");
+            provide("Cipher", "PBEWithHmacSHA512AndAES_256");
             provide("Mac", "PBEWITHHMACSHA");
             provide("Mac", "PBEWITHHMACSHA1");
             provide("SecretKeyFactory", "PBEWITHHMACSHA1");
@@ -593,7 +603,7 @@ public final class StandardNames {
             unprovide("AlgorithmParameters", "PBEWithMD5AndDES"); // 1.2.840.113549.1.5.3
 
             // EC support
-            // provide("AlgorithmParameters", "EC");
+            provide("AlgorithmParameters", "EC");
             provide("KeyAgreement", "ECDH");
             provide("KeyFactory", "EC");
             provide("KeyPairGenerator", "EC");

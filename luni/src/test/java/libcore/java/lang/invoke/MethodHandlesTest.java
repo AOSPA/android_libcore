@@ -412,17 +412,25 @@ public class MethodHandlesTest extends TestCase {
         public String bar();
     }
 
-    public static class BarSuper {
+    public static abstract class BarAbstractSuper {
+        public abstract String abstractSuperPublicMethod();
+    }
+
+    public static class BarSuper extends BarAbstractSuper {
         public String superPublicMethod() {
             return "superPublicMethod";
         }
 
-        public String superProtectedMethod() {
+        protected String superProtectedMethod() {
             return "superProtectedMethod";
         }
 
         String superPackageMethod() {
             return "superPackageMethod";
+        }
+
+        public String abstractSuperPublicMethod() {
+            return "abstractSuperPublicMethod";
         }
     }
 
@@ -506,7 +514,6 @@ public class MethodHandlesTest extends TestCase {
                     BarImpl.class, "add",
                     MethodType.methodType(String.class, Integer.class, int.class));
         } catch (NoSuchMethodException expected) {
-
         }
 
         // .. and their super-interfaces.
@@ -515,13 +522,16 @@ public class MethodHandlesTest extends TestCase {
         str = (String) mh.invoke(new BarImpl());
         assertEquals("bar", str);
 
-        // TODO(narayan): Fix this case, we're using the wrong ArtMethod for the
-        // invoke resulting in a failing check in the interpreter.
-        //
-        // mh = MethodHandles.lookup().findVirtual(Bar.class, "bar",
-        //    MethodType.methodType(String.class));
-        // str = (String) mh.invoke(new BarImpl());
-        // assertEquals("bar", str);
+
+        mh = MethodHandles.lookup().findVirtual(BarImpl.class, "bar",
+                                                MethodType.methodType(String.class));
+        str = (String) mh.invoke(new BarImpl());
+        assertEquals("bar", str);
+
+        mh = MethodHandles.lookup().findVirtual(BarAbstractSuper.class, "abstractSuperPublicMethod",
+                                                MethodType.methodType(String.class));
+        str = (String) mh.invoke(new BarImpl());
+        assertEquals("abstractSuperPublicMethod", str);
 
         // We should also be able to lookup public / protected / package methods in
         // the super class, given sufficient access privileges.
@@ -548,7 +558,7 @@ public class MethodHandlesTest extends TestCase {
         }
     }
 
-    public static void testfindStatic() throws Throwable {
+    public void testfindStatic() throws Throwable {
         MethodHandles.lookup().findStatic(BarImpl.class, "staticMethod",
                 MethodType.methodType(String.class));
         try {
@@ -617,9 +627,11 @@ public class MethodHandlesTest extends TestCase {
         public String publicVarArgsMethod(String... args) {
             return "publicVarArgsMethod";
         }
+
+        public static final Lookup lookup = MethodHandles.lookup();
     }
 
-    public static void testUnreflects_publicMethods() throws Throwable {
+    public void testUnreflects_publicMethods() throws Throwable {
         UnreflectTester instance = new UnreflectTester("unused");
         Method publicMethod = UnreflectTester.class.getMethod("publicMethod");
 
@@ -633,7 +645,7 @@ public class MethodHandlesTest extends TestCase {
         assertEquals("publicStaticMethod", (String) mh.invokeExact());
     }
 
-    public static void testUnreflects_privateMethods() throws Throwable {
+    public void testUnreflects_privateMethods() throws Throwable {
         Method privateMethod = UnreflectTester.class.getDeclaredMethod("privateMethod");
 
         try {
@@ -662,7 +674,7 @@ public class MethodHandlesTest extends TestCase {
         assertEquals("privateStaticMethod", (String) mh.invokeExact());
     }
 
-    public static void testUnreflects_constructors() throws Throwable {
+    public void testUnreflects_constructors() throws Throwable {
         Constructor privateConstructor = UnreflectTester.class.getDeclaredConstructor(String.class);
 
         try {
@@ -686,7 +698,7 @@ public class MethodHandlesTest extends TestCase {
         assertEquals("def", instance.publicField);
     }
 
-    public static void testUnreflects_publicFields() throws Throwable {
+    public void testUnreflects_publicFields() throws Throwable {
         Field publicField = UnreflectTester.class.getField("publicField");
         MethodHandle mh = MethodHandles.lookup().unreflectGetter(publicField);
         UnreflectTester instance = new UnreflectTester("instanceValue");
@@ -708,7 +720,7 @@ public class MethodHandlesTest extends TestCase {
         assertEquals("updatedStaticValue2", UnreflectTester.publicStaticField);
     }
 
-    public static void testUnreflects_privateFields() throws Throwable {
+    public void testUnreflects_privateFields() throws Throwable {
         Field privateField = UnreflectTester.class.getDeclaredField("privateField");
         try {
             MethodHandles.lookup().unreflectGetter(privateField);
@@ -760,7 +772,7 @@ public class MethodHandlesTest extends TestCase {
         return "foo";
     }
 
-    public static void testAsType() throws Throwable {
+    public void testAsType() throws Throwable {
         // The type of this handle is (String, String)String.
         MethodHandle mh = MethodHandles.lookup().findVirtual(String.class,
                 "concat", MethodType.methodType(String.class, String.class));
@@ -803,7 +815,7 @@ public class MethodHandlesTest extends TestCase {
         }
     }
 
-    public static void testConstructors() throws Throwable {
+    public void testConstructors() throws Throwable {
         MethodHandle mh =
                 MethodHandles.lookup().findConstructor(Float.class,
                         MethodType.methodType(void.class,
@@ -872,7 +884,7 @@ public class MethodHandlesTest extends TestCase {
         }
     }
 
-    public static void testStringConstructors() throws Throwable {
+    public void testStringConstructors() throws Throwable {
         final String testPattern = "The system as we know it is broken";
 
         // String()
@@ -965,7 +977,7 @@ public class MethodHandlesTest extends TestCase {
         assertEquals(testPattern, s);
     }
 
-    private static void testReferenceReturnValueConversions() throws Throwable {
+    public void testReferenceReturnValueConversions() throws Throwable {
         MethodHandle mh = MethodHandles.lookup().findStatic(
                 Float.class, "valueOf", MethodType.methodType(Float.class, String.class));
 
@@ -1023,7 +1035,7 @@ public class MethodHandlesTest extends TestCase {
         assertEquals(0, c.compareTo(Float.valueOf(2.125f)));
     }
 
-    private static void testPrimitiveReturnValueConversions() throws Throwable {
+    public void testPrimitiveReturnValueConversions() throws Throwable {
         MethodHandle mh = MethodHandles.lookup().findStatic(
                 Math.class, "min", MethodType.methodType(int.class, int.class, int.class));
 
@@ -1153,11 +1165,6 @@ public class MethodHandlesTest extends TestCase {
             fail();
         } catch (WrongMethodTypeException expected) {
         }
-    }
-
-    public static void testReturnValueConversions() throws Throwable {
-        testReferenceReturnValueConversions();
-        testPrimitiveReturnValueConversions();
     }
 
     public static class BaseVariableArityTester {
@@ -1858,6 +1865,72 @@ public class MethodHandlesTest extends TestCase {
         assertEquals(MethodHandleInfo.REF_getField, info.getReferenceKind());
         assertEquals(field, info.reflectAs(Field.class, MethodHandles.lookup()));
         assertEquals(MethodType.methodType(String.class), info.getMethodType());
+    }
+
+    public void testReflectAs() throws Throwable {
+        // Test with a virtual method :
+        MethodType type = MethodType.methodType(String.class);
+        MethodHandle handle = MethodHandles.lookup().findVirtual(
+                UnreflectTester.class, "publicMethod", type);
+
+        Method reflected = MethodHandles.reflectAs(Method.class, handle);
+        Method meth = UnreflectTester.class.getMethod("publicMethod");
+        assertEquals(meth, reflected);
+
+        try {
+            MethodHandles.reflectAs(Field.class, handle);
+            fail();
+        } catch (ClassCastException expected) {
+        }
+
+        try {
+            MethodHandles.reflectAs(Constructor.class, handle);
+            fail();
+        } catch (ClassCastException expected) {
+        }
+
+        // Test with a private instance method, unlike the "checked crack" (lol..) API exposed
+        // by revealDirect, this doesn't perform any access checks.
+        handle = UnreflectTester.lookup.findSpecial(
+                UnreflectTester.class, "privateMethod", type, UnreflectTester.class);
+        meth = UnreflectTester.class.getDeclaredMethod("privateMethod");
+        reflected = MethodHandles.reflectAs(Method.class, handle);
+        assertEquals(meth, reflected);
+
+        // Test with a constructor :
+        type = MethodType.methodType(void.class, String.class, boolean.class);
+        handle = MethodHandles.lookup().findConstructor(UnreflectTester.class, type);
+
+        Constructor cons = UnreflectTester.class.getConstructor(String.class, boolean.class);
+        Constructor reflectedCons = MethodHandles.reflectAs(Constructor.class, handle);
+        assertEquals(cons, reflectedCons);
+
+        try {
+            MethodHandles.reflectAs(Method.class, handle);
+            fail();
+        } catch (ClassCastException expected) {
+        }
+
+        // Test with an instance field :
+        handle = MethodHandles.lookup().findSetter(
+                UnreflectTester.class, "publicField", String.class);
+
+        Field field = UnreflectTester.class.getField("publicField");
+        Field reflectedField = MethodHandles.reflectAs(Field.class, handle);
+        assertEquals(field, reflectedField);
+
+        try {
+            MethodHandles.reflectAs(Method.class, handle);
+            fail();
+        } catch (ClassCastException expected) {
+        }
+
+        // Test with a non-direct method handle.
+        try {
+            MethodHandles.reflectAs(Method.class, MethodHandles.constant(String.class, "foo"));
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
     }
 
     public static class Inner1 {

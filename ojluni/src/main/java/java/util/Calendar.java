@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2014 The Android Open Source Project
- * Copyright (c) 1996, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -1161,12 +1161,13 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
             return this;
         }
 
+        // Android-changed: fix typo in example code.
         /**
          * Sets field parameters to their values given by
          * {@code fieldValuePairs} that are pairs of a field and its value.
          * For example,
          * <pre>
-         *   setFeilds(Calendar.YEAR, 2013,
+         *   setFields(Calendar.YEAR, 2013,
          *             Calendar.MONTH, Calendar.DECEMBER,
          *             Calendar.DAY_OF_MONTH, 23);</pre>
          * is equivalent to the sequence of the following
@@ -1464,12 +1465,17 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
                 type = locale.getUnicodeLocaleType("ca");
             }
             if (type == null) {
+                // Android-changed: don't switch to buddhist calendar based on locale.
+                // See http://b/35138741
+                /*
                 if (locale.getCountry() == "TH"
-                    && locale.getLanguage() == "th") {
+                        && locale.getLanguage() == "th") {
                     type = "buddhist";
                 } else {
                     type = "gregory";
                 }
+                */
+                type = "gregory";
             }
             switch (type) {
             case "gregory":
@@ -1483,6 +1489,15 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
                 setWeekDefinition(MONDAY, 4);
                 cal = gcal;
                 break;
+// Android-changed BEGIN: removed support for "buddhist" and "japanese".
+//            case "buddhist":
+//                cal = new BuddhistCalendar(zone, locale);
+//                cal.clear();
+//                break;
+//            case "japanese":
+//                cal = new JapaneseImperialCalendar(zone, locale, true);
+//                break;
+// Android-changed END: removed support for "buddhist" and "japanese".
             default:
                 throw new IllegalArgumentException("unknown calendar type: " + type);
             }
@@ -1579,6 +1594,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      */
     protected Calendar(TimeZone zone, Locale aLocale)
     {
+        // Android-added BEGIN: Allow aLocale == null
         // http://b/16938922.
         //
         // TODO: This is for backwards compatibility only. Seems like a better idea to throw
@@ -1586,6 +1602,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
         if (aLocale == null) {
             aLocale = Locale.getDefault();
         }
+        // Android-added END: Allow aLocale == null
         fields = new int[FIELD_COUNT];
         isSet = new boolean[FIELD_COUNT];
         stamp = new int[FIELD_COUNT];
@@ -1649,18 +1666,22 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
         return createCalendar(zone, aLocale);
     }
 
+    // Android-added BEGIN: add getJapaneseImperialInstance()
     /**
      * Create a Japanese Imperial Calendar.
      * @hide
      */
-    public static Calendar getJapanesImperialInstance(TimeZone zone, Locale aLocale) {
+    public static Calendar getJapaneseImperialInstance(TimeZone zone, Locale aLocale) {
         return new JapaneseImperialCalendar(zone, aLocale);
     }
+    // Android-added END: add getJapaneseImperialInstance()
 
     private static Calendar createCalendar(TimeZone zone,
                                            Locale aLocale)
     {
+        // Android-changed BEGIN: only support GregorianCalendar here
         return new GregorianCalendar(zone, aLocale);
+        // Android-changed END: only support GregorianCalendar here
     }
 
     /**
@@ -1751,7 +1772,12 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
     public void setTimeInMillis(long millis) {
         // If we don't need to recalculate the calendar field values,
         // do nothing.
+// Android-changed BEGIN: Removed ZoneInfo support
         if (time == millis && isTimeSet && areFieldsSet && areAllFieldsSet) {
+//        if (time == millis && isTimeSet && areFieldsSet && areAllFieldsSet
+//            && (zone instanceof ZoneInfo) && !((ZoneInfo)zone).isDirty()) {
+// Android-changed END: Removed ZoneInfo support
+
             return;
         }
         time = millis;
@@ -2034,11 +2060,13 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      * @since 1.6
      */
     public String getDisplayName(int field, int style, Locale locale) {
-        // Android-changed: Android has traditionally treated ALL_STYLES as SHORT, even though
+        // Android-changed BEGIN: Treat ALL_STYLES as SHORT
+        // Android has traditionally treated ALL_STYLES as SHORT, even though
         // it's not documented to be a valid value for style.
         if (style == ALL_STYLES) {
             style = SHORT;
         }
+        // Android-changed END: Treat ALL_STYLES as SHORT
         if (!checkDisplayNameParams(field, style, SHORT, NARROW_FORMAT, locale,
                             ERA_MASK|MONTH_MASK|DAY_OF_WEEK_MASK|AM_PM_MASK)) {
             return null;
@@ -2132,6 +2160,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
                                     ERA_MASK|MONTH_MASK|DAY_OF_WEEK_MASK|AM_PM_MASK)) {
             return null;
         }
+        // Android-added: Add complete() here to fix leniency, see http://b/35382060
         complete();
 
         String calendarType = getCalendarType();
@@ -2179,10 +2208,12 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
             baseStyle < minStyle || baseStyle > maxStyle) {
             throw new IllegalArgumentException();
         }
-        // Android-changed: 3 is not a valid base style (1, 2 and 4 are, though), throw if used.
+        // Android-added BEGIN: Check for invalid baseStyle == 3
+        // 3 is not a valid base style (unlike 1, 2 and 4). Throw if used.
         if (baseStyle == 3) {
             throw new IllegalArgumentException();
         }
+        // Android-added END: Check for invalid baseStyle == 3
         if (locale == null) {
             throw new NullPointerException();
         }
@@ -2595,6 +2626,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
         static {
             Set<String> set = new HashSet<>(3);
             set.add("gregory");
+            // Android-changed: removed "buddhist" and "japanese".
             SET = Collections.unmodifiableSet(set);
         }
         private AvailableCalendarTypes() {

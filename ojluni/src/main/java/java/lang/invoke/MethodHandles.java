@@ -139,7 +139,7 @@ public class MethodHandles {
         MethodHandleImpl directTarget = getMethodHandleImpl(target);
         // Given that this is specified to be an "unchecked" crack, we can directly allocate
         // a member from the underlying ArtField / Method and bypass all associated access checks.
-        return (T) directTarget.getMemberInternal();
+        return expected.cast(directTarget.getMemberInternal());
     }
 
     /**
@@ -664,6 +664,9 @@ public class MethodHandles {
          *  publicly accessible members.
          */
         static final Lookup PUBLIC_LOOKUP = new Lookup(Object.class, PUBLIC);
+
+        /** Package-private version of lookup which is trusted. */
+        static final Lookup IMPL_LOOKUP = new Lookup(Object.class, ALL_MODES);
 
         private static void checkUnprivilegedlookupClass(Class<?> lookupClass, int allowedModes) {
             String name = lookupClass.getName();
@@ -1656,7 +1659,7 @@ return mh1;
             }
         }
 
-        public void throwMakeAccessException(String message, Object from) throws
+        private void throwMakeAccessException(String message, Object from) throws
                 IllegalAccessException{
             message = message + ": "+ toString();
             if (from != null)  message += ", from " + from;
