@@ -440,7 +440,7 @@ public final class System {
                                         int length);
 
 
-    // ----- BEGIN android -----
+    // BEGIN Android-changed
     /**
      * The char array length threshold below which to use a Java
      * (non-native) version of arraycopy() instead of the native
@@ -872,7 +872,7 @@ public final class System {
     @FastNative
     private static native void arraycopyBooleanUnchecked(boolean[] src, int srcPos,
         boolean[] dst, int dstPos, int length);
-    // ----- END android -----
+    // END Android-changed
 
     /**
      * Returns the same hash code for the given object as
@@ -885,8 +885,12 @@ public final class System {
      * @return  the hashCode
      * @since   JDK1.1
      */
-    @FastNative
-    public static native int identityHashCode(Object x);
+    public static int identityHashCode(Object x) {
+        if (x == null) {
+            return 0;
+        }
+        return Object.identityHashCode(x);
+    }
 
     /**
      * System properties. The following properties are guaranteed to be defined:
@@ -1726,7 +1730,10 @@ public final class System {
         FileInputStream fdIn = new FileInputStream(FileDescriptor.in);
         FileOutputStream fdOut = new FileOutputStream(FileDescriptor.out);
         FileOutputStream fdErr = new FileOutputStream(FileDescriptor.err);
-        in = new BufferedInputStream(fdIn);
+        // BEGIN Android-changed: lower buffer size.
+        // in = new BufferedInputStream(fdIn);
+        in = new BufferedInputStream(fdIn, 128);
+        // END Android-changed: lower buffer size.
         out = newPrintStream(fdOut, props.getProperty("sun.stdout.encoding"));
         err = newPrintStream(fdErr, props.getProperty("sun.stderr.encoding"));
 

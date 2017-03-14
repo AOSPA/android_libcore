@@ -121,7 +121,7 @@ public class TreeMap<K,V>
      */
     private final Comparator<? super K> comparator;
 
-    private transient TreeMapEntry<K,V> root = null;
+    private transient TreeMapEntry<K,V> root;
 
     /**
      * The number of entries in the tree
@@ -536,6 +536,7 @@ public class TreeMap<K,V>
     public V put(K key, V value) {
         TreeMapEntry<K,V> t = root;
         if (t == null) {
+            // BEGIN Android-changed: Work around buggy comparators. http://b/34084348
             // We could just call compare(key, key) for its side effect of checking the type and
             // nullness of the input key. However, several applications seem to have written comparators
             // that only expect to be called on elements that aren't equal to each other (after
@@ -546,9 +547,10 @@ public class TreeMap<K,V>
             // As a temporary work around, we perform the null & instanceof checks by hand so that
             // we can guarantee that elements are never compared against themselves.
             //
-            // compare(key, key);
-            //
             // **** THIS CHANGE WILL BE REVERTED IN A FUTURE ANDROID RELEASE ****
+            //
+            // Upstream code was:
+            // compare(key, key); // type (and possibly null) check
             if (comparator != null) {
                 if (key == null) {
                     comparator.compare(key, key);
@@ -561,7 +563,7 @@ public class TreeMap<K,V>
                             "Cannot cast" + key.getClass().getName() + " to Comparable.");
                 }
             }
-
+            // END Android-changed: Work around buggy comparators. http://b/34084348
             root = new TreeMapEntry<>(key, value, null);
             size = 1;
             modCount++;
@@ -1901,12 +1903,11 @@ public class TreeMap<K,V>
         }
 
         public NavigableMap<K,V> headMap(K toKey, boolean inclusive) {
-            /* Android-changed BEGIN
-               Fix for edge cases
-               if (!inRange(toKey, inclusive)) */
+            // BEGIN Android-changed: Fix for edge cases
+            // if (!inRange(toKey, inclusive))
             if (!inRange(toKey) && !(!toEnd && m.compare(toKey, hi) == 0 &&
                 !hiInclusive && !inclusive))
-            /* Android-changed END */
+            // END Android-changed: Fix for edge cases
                 throw new IllegalArgumentException("toKey out of range");
             return new AscendingSubMap<>(m,
                                          fromStart, lo,    loInclusive,
@@ -1914,12 +1915,11 @@ public class TreeMap<K,V>
         }
 
         public NavigableMap<K,V> tailMap(K fromKey, boolean inclusive) {
-            /* Android-changed BEGIN
-               Fix for edge cases
-               if (!inRange(fromKey, inclusive)) */
+            // BEGIN Android-changed: Fix for edge cases
+            // if (!inRange(fromKey, inclusive))
             if (!inRange(fromKey) && !(!fromStart && m.compare(fromKey, lo) == 0 &&
                 !loInclusive && !inclusive))
-            /* Android-changed END */
+            // END Android-changed: Fix for edge cases
                 throw new IllegalArgumentException("fromKey out of range");
             return new AscendingSubMap<>(m,
                                          false, fromKey, inclusive,
@@ -1996,12 +1996,11 @@ public class TreeMap<K,V>
         }
 
         public NavigableMap<K,V> headMap(K toKey, boolean inclusive) {
-            /* Android-changed BEGIN
-               Fix for edge cases
-               if (!inRange(toKey, inclusive)) */
+            // BEGIN Android-changed: Fix for edge cases
+            // if (!inRange(toKey, inclusive))
             if (!inRange(toKey) && !(!fromStart && m.compare(toKey, lo) == 0 &&
                 !loInclusive && !inclusive))
-            /* Android-changed END */
+            // END Android-changed: Fix for edge cases
                 throw new IllegalArgumentException("toKey out of range");
             return new DescendingSubMap<>(m,
                                           false, toKey, inclusive,
@@ -2009,12 +2008,11 @@ public class TreeMap<K,V>
         }
 
         public NavigableMap<K,V> tailMap(K fromKey, boolean inclusive) {
-            /* Android-changed BEGIN
-               Fix for edge cases
-               if (!inRange(fromKey, inclusive)) */
+            // BEGIN Android-changed: Fix for edge cases
+            // if (!inRange(fromKey, inclusive))
             if (!inRange(fromKey) && !(!toEnd && m.compare(fromKey, hi) == 0 &&
                 !hiInclusive && !inclusive))
-            /* Android-changed END */
+            // END Android-changed
                 throw new IllegalArgumentException("fromKey out of range");
             return new DescendingSubMap<>(m,
                                           fromStart, lo, loInclusive,
@@ -2099,14 +2097,15 @@ public class TreeMap<K,V>
      * Node in the Tree.  Doubles as a means to pass key-value pairs back to
      * user (see Map.Entry).
      */
-    /*
-     * Android-changed BEGIN
-     * TreeMapEntry should not be renamed, specifically it must not
-     * be called "Entry" because that would hide Map.Entry and break
-     * source compatibility with earlier versions of Android.
-     * See LinkedHashMap$LinkedHashMapEntry for more details.
-     * Android-changed END
-     */
+    // BEGIN Android-changed: Renamed Entry -> TreeMapEntry.
+    // Code references to "TreeMap.Entry" must mean Map.Entry
+    //
+    // This mirrors the corresponding rename of LinkedHashMap's
+    // Entry->LinkedHashMapEntry.
+    //
+    // This is for source compatibility with earlier versions of Android.
+    // Otherwise, it would hide Map.Entry.
+    // END Android-changed: Renamed Entry -> TreeMapEntry.
     static final class TreeMapEntry<K,V> implements Map.Entry<K,V> {
         K key;
         V value;

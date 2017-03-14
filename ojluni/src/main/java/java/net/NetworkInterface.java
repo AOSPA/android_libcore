@@ -175,15 +175,20 @@ public final class NetworkInterface {
      */
     public java.util.List<InterfaceAddress> getInterfaceAddresses() {
         java.util.List<InterfaceAddress> lst = new java.util.ArrayList<InterfaceAddress>(1);
-        SecurityManager sec = System.getSecurityManager();
-        for (int j=0; j<bindings.length; j++) {
-            try {
-                if (sec != null) {
-                    sec.checkConnect(bindings[j].getAddress().getHostAddress(), -1);
-                }
-                lst.add(bindings[j]);
-            } catch (SecurityException e) { }
+        // BEGIN Android-changed: Cherry-picked upstream OpenJDK9 change rev 59a110a38cea
+        // http://b/30628919
+        if (bindings != null) {
+            SecurityManager sec = System.getSecurityManager();
+            for (int j=0; j<bindings.length; j++) {
+                try {
+                    if (sec != null) {
+                        sec.checkConnect(bindings[j].getAddress().getHostAddress(), -1);
+                    }
+                    lst.add(bindings[j]);
+                } catch (SecurityException e) { }
+            }
         }
+        // END Android-changed: Cherry-picked upstream OpenJDK9 change rev 59a110a38cea
         return lst;
     }
 
@@ -520,8 +525,8 @@ public final class NetworkInterface {
     public int getMTU() throws SocketException {
         FileDescriptor fd = null;
         try {
-            fd = Libcore.os.socket(AF_INET, SOCK_DGRAM, 0);
-            return Libcore.os.ioctlMTU(fd, name);
+            fd = Libcore.rawOs.socket(AF_INET, SOCK_DGRAM, 0);
+            return Libcore.rawOs.ioctlMTU(fd, name);
         } catch (ErrnoException e) {
             throw e.rethrowAsSocketException();
         } catch (Exception ex) {
@@ -551,8 +556,8 @@ public final class NetworkInterface {
     private int getFlags() throws SocketException {
         FileDescriptor fd = null;
         try {
-            fd = Libcore.os.socket(AF_INET, SOCK_DGRAM, 0);
-            return Libcore.os.ioctlFlags(fd, name);
+            fd = Libcore.rawOs.socket(AF_INET, SOCK_DGRAM, 0);
+            return Libcore.rawOs.ioctlFlags(fd, name);
         } catch (ErrnoException e) {
             throw e.rethrowAsSocketException();
         } catch (Exception ex) {

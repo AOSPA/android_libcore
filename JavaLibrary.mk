@@ -102,7 +102,10 @@ LOCAL_SRC_FILES := $(openjdk_java_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVACFLAGS := $(local_javac_flags)
-LOCAL_DX_FLAGS := --core-library
+# TODO(oth): Remove --min-sdk-version=26 when the O SDK version is determined.
+# For now it represents the minimum sdk version required for invoke-polymorphic.
+# This is only needed when ANDROID_COMPILE_WITH_JACK=false (b/36118520).
+LOCAL_DX_FLAGS := --core-library --min-sdk-version=26
 LOCAL_MODULE_TAGS := optional
 LOCAL_JAVA_LANGUAGE_VERSION := 1.8
 LOCAL_MODULE := core-oj
@@ -153,8 +156,9 @@ LOCAL_UNINSTALLABLE_MODULE := true
 include $(BUILD_JAVA_LIBRARY)
 
 ifeq ($(LIBCORE_SKIP_TESTS),)
-# A guaranteed unstripped version of core-oj and core-libart. This is required for ART testing in
-# preopted configurations. See b/24535627.
+# A guaranteed unstripped version of core-oj and core-libart.
+# The build system may or may not strip the core-oj and core-libart jars,
+# but these will not be stripped. See b/24535627.
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(openjdk_java_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
@@ -208,16 +212,32 @@ include $(BUILD_JAVA_LIBRARY)
 endif
 
 ifeq ($(LIBCORE_SKIP_TESTS),)
+# Build a library just containing files from luni/src/test/filesystems for use in tests.
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(call all-java-files-under, luni/src/test/filesystems/src)
+LOCAL_JAVA_RESOURCE_DIRS := luni/src/test/filesystems/resources
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_MODULE := filesystemstest
+LOCAL_JAVA_LIBRARIES := core-oj core-libart
+LOCAL_DEX_PREOPT := false
+include $(BUILD_JAVA_LIBRARY)
+endif
+
+ifeq ($(LIBCORE_SKIP_TESTS),)
 # Make the core-tests library.
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(test_src_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
+# Include individual dex.jar files (jars containing resources and a classes.dex) so that they
+# be loaded by tests using ClassLoaders but are not in the main classes.dex.
+LOCAL_JAVA_RESOURCE_FILES := $(TARGET_OUT)/framework/filesystemstest.jar
 LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := core-oj core-libart okhttp junit bouncycastle mockito-target
+LOCAL_JAVA_LIBRARIES := core-oj core-libart okhttp bouncycastle
 LOCAL_STATIC_JAVA_LIBRARIES := \
 	core-test-rules \
 	core-tests-support \
 	mockftpserver \
+	mockito-target \
 	mockwebserver \
 	nist-pkix-tests \
 	slf4j-jdk14 \
@@ -440,6 +460,7 @@ ifeq ($(LIBCORE_SKIP_TESTS),)
         okhttp-hostdex
     LOCAL_STATIC_JAVA_LIBRARIES := testng-hostdex
     LOCAL_JAVACFLAGS := $(local_javac_flags)
+    LOCAL_DX_FLAGS := --core-library
     LOCAL_MODULE_TAGS := optional
     LOCAL_JAVA_LANGUAGE_VERSION := 1.8
     LOCAL_MODULE := core-ojtests-hostdex

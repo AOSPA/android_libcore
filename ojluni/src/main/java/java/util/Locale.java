@@ -59,6 +59,7 @@ import sun.util.locale.LocaleSyntaxException;
 import sun.util.locale.LocaleUtils;
 import sun.util.locale.ParseStatus;
 
+// Android-added: documentation about ICU data & warning of default locale.
 /**
  * A <code>Locale</code> object represents a specific geographical, political,
  * or cultural region. An operation that requires a <code>Locale</code> to perform
@@ -638,9 +639,7 @@ public final class Locale implements Cloneable, Serializable {
      */
     static public final Locale CANADA_FRENCH = createConstant("fr", "CA");
 
-    /**
-     * ISO 639-3 generic code for undetermined languages.
-     */
+    // Android-added: (internal only): ISO 639-3 generic code for undetermined languages.
     private static final String UNDETERMINED_LANGUAGE = "und";
 
     /**
@@ -887,6 +886,7 @@ public final class Locale implements Cloneable, Serializable {
     public static Locale getDefault() {
         // do not synchronize this method - see 4071298
         // Android-changed: Add NoImagePreloadHolder to allow compile-time initialization.
+        // return defaultLocale;
         return NoImagePreloadHolder.defaultLocale;
     }
 
@@ -933,7 +933,7 @@ public final class Locale implements Cloneable, Serializable {
         return getDefault();
     }
 
-    // Android-changed BEGIN:
+    // BEGIN Android-changed: initDefault changes
     //  1.) In initDefault(), user.locale gets priority
     //  2.) In both initDefault methods, use System.getProperty() instead
     //      of legacy AccessController / GetPropertyAction security code.
@@ -982,7 +982,7 @@ public final class Locale implements Cloneable, Serializable {
             System.getProperty(category.variantKey, defaultLocale.getVariant()),
             null);
     }
-    // Android-changed END
+    // END Android-changed: initDefault changes
 
     /**
      * Sets the default locale for this instance of the Java Virtual Machine.
@@ -1016,6 +1016,7 @@ public final class Locale implements Cloneable, Serializable {
         setDefault(Category.DISPLAY, newLocale);
         setDefault(Category.FORMAT, newLocale);
         // Android-changed: Add NoImagePreloadHolder to allow compile-time initialization.
+        // defaultLocale = newLocale;
         NoImagePreloadHolder.defaultLocale = newLocale;
         // Android-added: Keep ICU state in sync with java.util.
         ICU.setDefaultLocale(newLocale.toLanguageTag());
@@ -1071,14 +1072,15 @@ public final class Locale implements Cloneable, Serializable {
         }
     }
 
-    // Android-changed: Removed references to LocaleServiceProvider.
+    // Android-changed: Removed documentation references to LocaleServiceProvider.
     /**
      * Returns an array of all installed locales.
      *
      * @return An array of installed locales.
      */
     public static Locale[] getAvailableLocales() {
-        // Android-changed: Removed used of LocaleServiceProviderPool. Switched to use ICU.
+        // Android-changed: Switched to use ICU.
+        // return LocaleServiceProviderPool.getAllAvailableLocales();
         return ICU.getAvailableLocales();
     }
 
@@ -1662,19 +1664,19 @@ public final class Locale implements Cloneable, Serializable {
         if (lang.length() == 3) {
             return lang;
         }
-        // Android-added BEGIN
+        // BEGIN Android-added
         // return "" for empty languages for the sake of backwards compatibility.
         else if (lang.isEmpty()) {
             return "";
         }
-        // Android-added END
+        // END Android-added
 
-        // Android-changed BEGIN: Use ICU.
+        // BEGIN Android-changed: Use ICU.
         // String language3 = getISO3Code(lang, LocaleISOData.isoLanguageTable);
         // if (language3 == null) {
         String language3 = ICU.getISO3Language(lang);
         if (!lang.isEmpty() && language3.isEmpty()) {
-        // Android-changed END
+        // END Android-changed
             throw new MissingResourceException("Couldn't find 3-letter language code for "
                     + lang, "FormatData_" + toString(), "ShortLanguage");
         }
@@ -1695,7 +1697,7 @@ public final class Locale implements Cloneable, Serializable {
      * three-letter country abbreviation is not available for this locale.
      */
     public String getISO3Country() throws MissingResourceException {
-        // Android-changed BEGIN: Use ICU. Also return "" for missing regions.
+        // BEGIN Android-changed: Use ICU. Also return "" for missing regions.
         final String region = baseLocale.getRegion();
         // Note that this will return an UN.M49 region code
         if (region.length() == 3) {
@@ -1710,7 +1712,7 @@ public final class Locale implements Cloneable, Serializable {
             throw new MissingResourceException("Couldn't find 3-letter country code for "
                     + baseLocale.getRegion(), "FormatData_" + toString(), "ShortCountry");
         }
-        // Android-changed END
+        // END Android-changed
         return country3;
     }
 
@@ -1736,7 +1738,7 @@ public final class Locale implements Cloneable, Serializable {
         return getDisplayLanguage(getDefault(Category.DISPLAY));
     }
 
-    // Android-changed BEGIN: Use ICU; documentation; backwards compatibility hacks;
+    // BEGIN Android-changed: Use ICU; documentation; backwards compatibility hacks;
     // added private helper methods.
     /**
      * Returns the name of this locale's language, localized to {@code locale}.
@@ -1802,7 +1804,7 @@ public final class Locale implements Cloneable, Serializable {
 
         return true;
     }
-    // Android-changed END
+    // END Android-changed
 
     /**
      * Returns a name for the the locale's script that is appropriate for display to
@@ -1831,7 +1833,7 @@ public final class Locale implements Cloneable, Serializable {
      * @since 1.7
      */
     public String getDisplayScript(Locale inLocale) {
-        // Android-changed BEGIN: Use ICU.
+        // BEGIN Android-changed: Use ICU.
         String scriptCode = baseLocale.getScript();
         if (scriptCode.isEmpty()) {
             return "";
@@ -1843,7 +1845,7 @@ public final class Locale implements Cloneable, Serializable {
         }
 
         return result;
-        // Android-changed END
+        // END Android-changed
     }
 
     /**
@@ -1868,7 +1870,7 @@ public final class Locale implements Cloneable, Serializable {
         return getDisplayCountry(getDefault(Category.DISPLAY));
     }
 
-    // Android-changed BEGIN: Use ICU; documentation; added private helper methods.
+    // BEGIN Android-changed: Use ICU; documentation; added private helper methods.
     /**
      * Returns the name of this locale's country, localized to {@code locale}.
      * Returns the empty string if this locale does not correspond to a specific
@@ -1945,7 +1947,7 @@ public final class Locale implements Cloneable, Serializable {
 
         return true;
     }
-    // Android-changed END
+    // END Android-changed: Use ICU; documentation; added private helper methods.
 
     /**
      * Returns a name for the locale's variant code that is appropriate for display to the
@@ -1968,7 +1970,7 @@ public final class Locale implements Cloneable, Serializable {
      * @return The name of the display variant code appropriate to the given locale.
      * @exception NullPointerException if <code>inLocale</code> is <code>null</code>
      */
-    // Android-changed BEGIN: Use ICU; added private helper methods.
+    // BEGIN Android-changed: Use ICU; added private helper methods.
     public String getDisplayVariant(Locale inLocale) {
         String variantCode = baseLocale.getVariant();
         if (variantCode.isEmpty()) {
@@ -2032,7 +2034,7 @@ public final class Locale implements Cloneable, Serializable {
 
         return false;
     }
-    // Android-changed END
+    // END Android-changed
 
     /**
      * Returns a name for the locale that is appropriate for display to the
@@ -2057,7 +2059,7 @@ public final class Locale implements Cloneable, Serializable {
         return getDisplayName(getDefault(Category.DISPLAY));
     }
 
-    // Android-changed BEGIN: Use ICU.
+    // BEGIN Android-changed: Use ICU.
     /**
      * Returns this locale's language name, country name, and variant, localized
      * to {@code locale}. The exact output form depends on whether this locale
@@ -2119,7 +2121,7 @@ public final class Locale implements Cloneable, Serializable {
         }
         return buffer.toString();
     }
-    // Android-changed END
+    // END Android-changed: Use ICU.
 
     /**
      * Overrides Cloneable.
@@ -2332,7 +2334,7 @@ public final class Locale implements Cloneable, Serializable {
         String extStr = (String)fields.get("extensions", "");
         baseLocale = BaseLocale.getInstance(convertOldISOCodes(language), script, country, variant);
         // Android-changed: Handle null for backwards compatible deserialization. http://b/26387905
-        // was: if (extStr.length() > 0) {
+        // if (extStr.length() > 0) {
         if (extStr != null && extStr.length() > 0) {
             try {
                 InternalLocaleBuilder bldr = new InternalLocaleBuilder();
@@ -2407,7 +2409,7 @@ public final class Locale implements Cloneable, Serializable {
     }
 
     // Android-removed: Drop nested private class LocaleNameGetter.
-    // Android-added BEGIN: Add adjustLanguageCode(); for internal use only.
+    // BEGIN Android-added: Add adjustLanguageCode(); for internal use only.
     /** @hide for internal use only. */
     public static String adjustLanguageCode(String languageCode) {
         String adjusted = languageCode.toLowerCase(Locale.US);
@@ -2423,7 +2425,7 @@ public final class Locale implements Cloneable, Serializable {
 
         return adjusted;
     }
-    // Android-added END
+    // END Android-added
 
     /**
      * Enum for locale categories.  These locale categories are used to get/set
@@ -2761,11 +2763,11 @@ public final class Locale implements Cloneable, Serializable {
          * @see #setExtension(char, String)
          */
         public Builder removeUnicodeLocaleAttribute(String attribute) {
-            // Android-added BEGIN
+            // BEGIN Android-added: removeUnicodeLocaleAttribute(null) is documented to throw NPE
             if (attribute == null) {
                 throw new NullPointerException("attribute == null");
             }
-            // Android-added END
+            // END Android-added: removeUnicodeLocaleAttribute(null) is documented to throw NPE
 
             try {
                 localeBuilder.removeUnicodeLocaleAttribute(attribute);
