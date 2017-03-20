@@ -14,13 +14,13 @@
 
 LOCAL_PATH:= $(call my-dir)
 
-# Library of support classes for tzdata updates. Shared between update generation and
-# on-device code.
+# The classes needed to handle installation of time zone updates.
 include $(CLEAR_VARS)
 LOCAL_MODULE := tzdata_update2
 LOCAL_MODULE_TAGS := optional
 LOCAL_SRC_FILES := $(call all-java-files-under, src/main)
 LOCAL_JAVACFLAGS := -encoding UTF-8
+LOCAL_JAVA_LIBRARIES := tzdata_shared2
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/Android.mk
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -30,6 +30,6 @@ LOCAL_MODULE := tzdata_update2-tests
 LOCAL_MODULE_TAGS := optional
 LOCAL_SRC_FILES := $(call all-java-files-under, src/test)
 LOCAL_JAVACFLAGS := -encoding UTF-8
-LOCAL_STATIC_JAVA_LIBRARIES := tzdata_update2 tzdata_tools2 tzdata-testing junit
+LOCAL_STATIC_JAVA_LIBRARIES := tzdata_shared2 tzdata_update2 tzdata_tools2 tzdata-testing junit
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/Android.mk
 include $(BUILD_STATIC_JAVA_LIBRARY)
