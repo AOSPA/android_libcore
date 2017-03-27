@@ -6,6 +6,8 @@ non_openjdk_javadoc_files := \
   luni/src/main/java/android/system/OsConstants.java \
   luni/src/main/java/android/system/PacketSocketAddress.java \
   luni/src/main/java/android/system/StructAddrinfo.java \
+  luni/src/main/java/android/system/StructCapUserData.java \
+  luni/src/main/java/android/system/StructCapUserHeader.java \
   luni/src/main/java/android/system/StructFlock.java \
   luni/src/main/java/android/system/StructGroupReq.java \
   luni/src/main/java/android/system/StructGroupSourceReq.java \
@@ -235,31 +237,6 @@ non_openjdk_javadoc_files := \
   xml/src/main/java/org/xmlpull/v1/sax2/Driver.java \
 
 non_openjdk_java_files := \
-  dex/src/main/java/com/android/dex/Annotation.java \
-  dex/src/main/java/com/android/dex/ClassData.java \
-  dex/src/main/java/com/android/dex/ClassDef.java \
-  dex/src/main/java/com/android/dex/Code.java \
-  dex/src/main/java/com/android/dex/Dex.java \
-  dex/src/main/java/com/android/dex/DexException.java \
-  dex/src/main/java/com/android/dex/DexFormat.java \
-  dex/src/main/java/com/android/dex/DexIndexOverflowException.java \
-  dex/src/main/java/com/android/dex/EncodedValue.java \
-  dex/src/main/java/com/android/dex/EncodedValueCodec.java \
-  dex/src/main/java/com/android/dex/EncodedValueReader.java \
-  dex/src/main/java/com/android/dex/FieldId.java \
-  dex/src/main/java/com/android/dex/Leb128.java \
-  dex/src/main/java/com/android/dex/MethodId.java \
-  dex/src/main/java/com/android/dex/Mutf8.java \
-  dex/src/main/java/com/android/dex/ProtoId.java \
-  dex/src/main/java/com/android/dex/SizeOf.java \
-  dex/src/main/java/com/android/dex/TableOfContents.java \
-  dex/src/main/java/com/android/dex/TypeList.java \
-  dex/src/main/java/com/android/dex/util/ByteArrayByteInput.java \
-  dex/src/main/java/com/android/dex/util/ByteInput.java \
-  dex/src/main/java/com/android/dex/util/ByteOutput.java \
-  dex/src/main/java/com/android/dex/util/ExceptionWithContext.java \
-  dex/src/main/java/com/android/dex/util/FileUtils.java \
-  dex/src/main/java/com/android/dex/util/Unsigned.java \
   dalvik/src/main/java/dalvik/system/profiler/AsciiHprofWriter.java \
   dalvik/src/main/java/dalvik/system/profiler/BinaryHprof.java \
   dalvik/src/main/java/dalvik/system/profiler/BinaryHprofReader.java \
