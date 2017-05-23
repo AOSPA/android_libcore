@@ -1154,6 +1154,7 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/util/RegularEnumSet.java \
     ojluni/src/main/java/java/util/ResourceBundle.java \
     ojluni/src/main/java/java/util/Scanner.java \
+    ojluni/src/main/java/java/util/SeempLog.java \
     ojluni/src/main/java/java/util/ServiceConfigurationError.java \
     ojluni/src/main/java/java/util/ServiceLoader.java \
     ojluni/src/main/java/java/util/Set.java \
@@ -1596,13 +1597,10 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/security/provider/certpath/PKIXMasterCertPathValidator.java \
     ojluni/src/main/java/sun/security/provider/certpath/PolicyChecker.java \
     ojluni/src/main/java/sun/security/provider/certpath/PolicyNodeImpl.java \
-    ojluni/src/main/java/sun/security/provider/certpath/ReverseBuilder.java \
-    ojluni/src/main/java/sun/security/provider/certpath/ReverseState.java \
     ojluni/src/main/java/sun/security/provider/certpath/RevocationChecker.java \
     ojluni/src/main/java/sun/security/provider/certpath/State.java \
     ojluni/src/main/java/sun/security/provider/certpath/SunCertPathBuilder.java \
     ojluni/src/main/java/sun/security/provider/certpath/SunCertPathBuilderException.java \
-    ojluni/src/main/java/sun/security/provider/certpath/SunCertPathBuilderParameters.java \
     ojluni/src/main/java/sun/security/provider/certpath/SunCertPathBuilderResult.java \
     ojluni/src/main/java/sun/security/provider/certpath/URICertStore.java \
     ojluni/src/main/java/sun/security/provider/certpath/Vertex.java \
@@ -1610,6 +1608,8 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/security/provider/certpath/X509CertificatePair.java \
     ojluni/src/main/java/sun/security/provider/X509Factory.java \
     ojluni/src/main/java/sun/security/timestamp/TimestampToken.java \
+    ojluni/src/main/java/sun/security/util/AnchorCertificates.java \
+    ojluni/src/main/java/sun/security/util/CertConstraintParameters.java \
     ojluni/src/main/java/sun/security/util/AbstractAlgorithmConstraints.java \
     ojluni/src/main/java/sun/security/util/AlgorithmDecomposer.java \
     ojluni/src/main/java/sun/security/util/BitArray.java \

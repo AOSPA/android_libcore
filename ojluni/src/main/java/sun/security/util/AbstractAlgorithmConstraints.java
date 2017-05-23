@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2016 Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -29,7 +29,6 @@ import java.security.AccessController;
 import java.security.AlgorithmConstraints;
 import java.security.PrivilegedAction;
 import java.security.Security;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -45,22 +44,25 @@ public abstract class AbstractAlgorithmConstraints
     }
 
     // Get algorithm constraints from the specified security property.
-    private static void loadAlgorithmsMap(Map<String, String[]> algorithmsMap,
-            String propertyName) {
+    static String[] getAlgorithms(String propertyName) {
         String property = AccessController.doPrivileged(
-                (PrivilegedAction<String>) () -> Security.getProperty(
-                        propertyName));
+                new PrivilegedAction<String>() {
+                    @Override
+                    public String run() {
+                        return Security.getProperty(propertyName);
+                    }
+                });
+
 
         String[] algorithmsInProperty = null;
         if (property != null && !property.isEmpty()) {
             // remove double quote marks from beginning/end of the property
-            if (property.charAt(0) == '"'
-                    && property.charAt(property.length() - 1) == '"') {
+            if (property.length() >= 2 && property.charAt(0) == '"' &&
+                    property.charAt(property.length() - 1) == '"') {
                 property = property.substring(1, property.length() - 1);
             }
             algorithmsInProperty = property.split(",");
-            for (int i = 0; i < algorithmsInProperty.length;
-                    i++) {
+            for (int i = 0; i < algorithmsInProperty.length; i++) {
                 algorithmsInProperty[i] = algorithmsInProperty[i].trim();
             }
         }
@@ -69,18 +71,7 @@ public abstract class AbstractAlgorithmConstraints
         if (algorithmsInProperty == null) {
             algorithmsInProperty = new String[0];
         }
-        algorithmsMap.put(propertyName, algorithmsInProperty);
-    }
-
-    static String[] getAlgorithms(Map<String, String[]> algorithmsMap,
-            String propertyName) {
-        synchronized (algorithmsMap) {
-            if (!algorithmsMap.containsKey(propertyName)) {
-                loadAlgorithmsMap(algorithmsMap, propertyName);
-            }
-
-            return algorithmsMap.get(propertyName);
-        }
+        return algorithmsInProperty;
     }
 
     static boolean checkAlgorithm(String[] algorithms, String algorithm,
