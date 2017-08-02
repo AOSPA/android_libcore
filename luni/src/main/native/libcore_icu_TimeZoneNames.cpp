@@ -18,14 +18,15 @@
 
 #include <memory>
 
+#include <nativehelper/JNIHelp.h>
+#include <nativehelper/JniConstants.h>
+#include <nativehelper/ScopedLocalRef.h>
+#include <nativehelper/ScopedUtfChars.h>
+
 #include "IcuUtilities.h"
-#include "JNIHelp.h"
-#include "JniConstants.h"
 #include "JniException.h"
 #include "ScopedIcuLocale.h"
 #include "ScopedJavaUnicodeString.h"
-#include "ScopedLocalRef.h"
-#include "ScopedUtfChars.h"
 #include "unicode/calendar.h"
 #include "unicode/timezone.h"
 #include "unicode/tznames.h"
@@ -49,7 +50,7 @@ static bool setStringArrayElement(JNIEnv* env, jobjectArray array, int i, const 
   // Don't use "GMT" string, for backwards compatibility.
   static const icu::UnicodeString kGmt("GMT", 3, US_INV);
   if (!s.isBogus() && !s.startsWith(kGmt)) {
-    ScopedLocalRef<jstring> javaString(env, env->NewString(s.getBuffer(), s.length()));
+    ScopedLocalRef<jstring> javaString(env, jniCreateString(env, s.getBuffer(), s.length()));
     if (javaString.get() == NULL) {
       return false;
     }
@@ -134,7 +135,7 @@ static jstring TimeZoneNames_getExemplarLocation(JNIEnv* env, jclass, jstring ja
   icu::UnicodeString s;
   const UDate now(icu::Calendar::getNow());
   names->getDisplayName(tz.unicodeString(), UTZNM_EXEMPLAR_LOCATION, now, s);
-  return env->NewString(s.getBuffer(), s.length());
+  return jniCreateString(env, s.getBuffer(), s.length());
 }
 
 static JNINativeMethod gMethods[] = {

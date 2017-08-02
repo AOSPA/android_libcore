@@ -107,7 +107,8 @@ public final class ZipOutputStreamTest extends TestCaseWithRules {
      * if the entry has no set modification time.
      */
     public void testPutNextEntryUsingCurrentTime() throws IOException {
-        long timeBeforeZip = System.currentTimeMillis();
+        // Zip file truncates time into 1s (before 1980) or 2s precision.
+        long timeBeforeZip = System.currentTimeMillis() / 2000 * 2000;
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try (ZipOutputStream out = new ZipOutputStream(bos)) {
             ZipEntry entryWithoutExplicitTime = new ZipEntry("name");
@@ -117,6 +118,9 @@ public final class ZipOutputStreamTest extends TestCaseWithRules {
             out.closeEntry();
             out.finish();
         }
+        // timeAfterZip will normally be rounded down to  1 / 2 seconds boundary as well, but this
+        // test accepts either exact or rounded-down values because the rounding behavior is outside
+        // of this test's purpose
         long timeAfterZip = System.currentTimeMillis();
 
         // Read it back, and check the modification time is almost the system clock value
