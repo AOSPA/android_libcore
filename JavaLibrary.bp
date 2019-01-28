@@ -158,11 +158,6 @@ java_library {
     static_libs: ["android_icu4j_resources_lib"],
     java_version: "1.9",
 
-    required: [
-        "tzdata",
-        "tzlookup.xml",
-    ],
-
     installable: false,
 }
 
@@ -217,11 +212,6 @@ java_library {
 
     notice: "ojluni/NOTICE",
 
-    required: [
-        "tzdata",
-        "tzlookup.xml",
-    ],
-
 }
 
 // Contains parts of core library not associated with OpenJDK. Contains not
@@ -252,8 +242,16 @@ java_library {
     },
 
     required: [
+        // Device files put in /system.
         "tzdata",
-        "tzlookup.xml",
+        "tz_version",
+        // Files used to simulate the /system and runtime APEX dir
+        // structure on host.
+        "tzdata_host",
+        "tzdata_host_runtime_apex",
+        "tzlookup.xml_host_runtime_apex",
+        "tz_version_host",
+        "tz_version_host_runtime_apex",
     ],
 }
 
@@ -294,10 +292,6 @@ java_library {
     },
     java_version: "1.9",
     notice: "ojluni/NOTICE",
-    required: [
-        "tzdata",
-        "tzlookup.xml",
-    ],
 }
 
 java_library {
@@ -312,10 +306,6 @@ java_library {
         enabled: false,
     },
     notice: "ojluni/NOTICE",
-    required: [
-        "tzdata",
-        "tzlookup.xml",
-    ],
 }
 
 
@@ -435,6 +425,9 @@ java_test {
 java_library {
     name: "filesystemstest",
     compile_dex: true,
+    dex_preopt: {
+        enabled: false,
+    },
     srcs: ["luni/src/test/filesystems/src/**/*.java"],
     java_resource_dirs: ["luni/src/test/filesystems/resources"],
     no_framework_libs: true,
@@ -448,6 +441,9 @@ java_library {
 java_library {
     name: "parameter-metadata-test",
     compile_dex: true,
+    dex_preopt: {
+        enabled: false,
+    },
     srcs: ["luni/src/test/parameter_metadata/src/**/*.java"],
     no_framework_libs: true,
     javacflags: ["-parameters"],
@@ -509,6 +505,7 @@ java_test {
         "slf4j-jdk14",
         "sqlite-jdbc",
         "tzdata-testing",
+        "truth-prebuilt",
     ],
 
     errorprone: {
@@ -659,6 +656,9 @@ droidstubs {
         // N.B. Stubs in this filegroup will be validated:
         "ojluni-annotated-nullability-stubs",
     ],
+    // The list of classes which have nullability annotations included in the source.
+    // (This is in addition to those which have annotations in the merged stubs.)
+    validate_nullability_from_list: "nullability_annotated_classes.txt",
     // The expected set of warnings about missing annotations:
     check_nullability_warnings: "nullability_warnings.txt",
 }
@@ -680,4 +680,12 @@ java_library {
     },
     no_standard_libs: true,
     system_modules: "none",
+}
+
+// A host library containing time zone related classes. Used for
+// host-side tools and tests that have to deal with Android
+// time zone data.
+java_library_host {
+    name: "timezone-host",
+    srcs: [":timezone_host_files"],
 }

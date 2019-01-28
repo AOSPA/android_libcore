@@ -32,6 +32,10 @@ import java.io.File;
 public final class ZygoteHooks {
     private long token;
 
+    @libcore.api.CorePlatformApi
+    public ZygoteHooks() {
+    }
+
     /**
      * Called by the zygote when starting up. It marks the point when any thread
      * start should be an error, as only internal daemon threads are allowed there.
@@ -99,8 +103,8 @@ public final class ZygoteHooks {
     @libcore.api.CorePlatformApi
     public void preFork() {
         Daemons.stop();
-        waitUntilAllThreadsStopped();
         token = nativePreFork();
+        waitUntilAllThreadsStopped();
     }
 
     /**
@@ -133,12 +137,15 @@ public final class ZygoteHooks {
     @libcore.api.CorePlatformApi
     public void postForkCommon() {
         Daemons.startPostZygoteFork();
+        nativePostZygoteFork();
     }
 
-    private static native long nativePreFork();
 
     // Hook for SystemServer specific early initialization post-forking.
     private static native void nativePostForkSystemServer();
+
+    private static native long nativePreFork();
+    private static native void nativePostZygoteFork();
 
     // Hook for all child processes post forking.
     private static native void nativePostForkChild(long token, int runtimeFlags,
