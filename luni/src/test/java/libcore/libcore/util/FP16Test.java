@@ -174,6 +174,13 @@ public class FP16Test extends TestCase {
         assertEquals(-124.0f, toFloat(FP16.ceil(toHalf(-124.7f))), 1e-6f);
         assertEquals(125.0f, toFloat(FP16.ceil(toHalf(124.2f))), 1e-6f);
         assertEquals(-124.0f, toFloat(FP16.ceil(toHalf(-124.2f))), 1e-6f);
+        // ceil for NaN values
+        // These test check whether the ceil function acheives bit level
+        // compatibility with FRINTP ARM instruction
+        assertShortEquals((short) 0x7e01, FP16.ceil((short) 0x7c01));
+        assertShortEquals((short) 0x7f00, FP16.ceil((short) 0x7d00));
+        assertShortEquals((short) 0xfe01, FP16.ceil((short) 0xfc01));
+        assertShortEquals((short) 0xff00, FP16.ceil((short) 0xfd00));
     }
 
     public void testEquals() {
