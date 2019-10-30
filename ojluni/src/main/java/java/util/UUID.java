@@ -189,9 +189,22 @@ public final class UUID implements java.io.Serializable, Comparable<UUID> {
      *
      */
     public static UUID fromString(String name) {
+        // BEGIN Motorola, linzj1, 2019-10-30, IKSWQ-24229
+        // Support convert string similar to FE87-9640 to UUID
         String[] components = name.split("-");
-        if (components.length != 5)
+        if (components.length != 5 && components.length != 2)
             throw new IllegalArgumentException("Invalid UUID string: "+name);
+
+        if (components.length == 2) {
+            for (int i=0; i<2; i++)
+                components[i] = "0x"+components[i];
+
+            long mostSigBits = Long.decode(components[0]).longValue();
+            long leastSigBits = Long.decode(components[1]).longValue();
+            return new UUID(mostSigBits, leastSigBits);
+        }
+        // END IKSWQ-24229
+
         for (int i=0; i<5; i++)
             components[i] = "0x"+components[i];
 
@@ -373,6 +386,13 @@ public final class UUID implements java.io.Serializable, Comparable<UUID> {
      * @return  A string representation of this {@code UUID}
      */
     public String toString() {
+        // BEGIN Motorola, linzj1, 2019-10-30, IKSWQ-24229
+        // Support convert string similar to FE87-9640 to UUID
+        if ((mostSigBits >> 16) == 0 && (leastSigBits >> 16) == 0) {
+            return (digits(mostSigBits, 4) + "-" +
+                    digits(leastSigBits, 4));
+        }
+        // END IKSWQ-24229
         return (digits(mostSigBits >> 32, 8) + "-" +
                 digits(mostSigBits >> 16, 4) + "-" +
                 digits(mostSigBits, 4) + "-" +
