@@ -235,8 +235,10 @@ public class FP16Test extends TestCase {
         assertShortEquals(NEGATIVE_ZERO, FP16.rint(toHalf(-0.2f)));
         assertEquals(1.0f, toFloat(FP16.rint(toHalf(0.7f))), 1e-6f);
         assertEquals(-1.0f, toFloat(FP16.rint(toHalf(-0.7f))), 1e-6f);
-        assertEquals(1.0f, toFloat(FP16.rint(toHalf(0.5f))), 1e-6f);
-        assertEquals(-1.0f, toFloat(FP16.rint(toHalf(-0.5f))), 1e-6f);
+        assertEquals(0.0f, toFloat(FP16.rint(toHalf(0.5f))), 0.0f);
+        assertEquals(-0.0f, toFloat(FP16.rint(toHalf(-0.5f))), 0.0f);
+        assertEquals(1022.0f, toFloat(FP16.rint(toHalf(1022.5f))), 0.0f);
+        assertEquals(-1022.0f, toFloat(FP16.rint(toHalf(-1022.5f))), 0.0f);
         assertEquals(125.0f, toFloat(FP16.rint(toHalf(124.7f))), 1e-6f);
         assertEquals(-125.0f, toFloat(FP16.rint(toHalf(-124.7f))), 1e-6f);
         assertEquals(124.0f, toFloat(FP16.rint(toHalf(124.2f))), 1e-6f);
