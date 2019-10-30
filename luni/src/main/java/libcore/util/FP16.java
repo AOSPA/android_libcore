@@ -249,7 +249,11 @@ public class FP16 {
             result += (1 << (e - 1));
             result &= ~mask;
         }
-
+        if (isNaN((short) result)) {
+            // if result is NaN mask with qNaN
+            // i.e. (Mask the most significant mantissa bit with 1)
+            result |= NaN;
+        }
         return (short) result;
     }
 
