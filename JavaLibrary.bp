@@ -163,7 +163,7 @@ java_library {
         // Use the source code for the I18N module intra core API as using the
         // compiled version does not work due to limitations in either soong or the javac
         // toolchain. See http://b/142056316 for more details.
-        ":i18n-module-intra-core-api-stubs-source",
+        ":i18n.module.intra.core.api{.public.stubs.source}",
         ":core_oj_java_files",
         ":core_libart_java_files",
         ":openjdk_lambda_stub_files",
@@ -207,6 +207,7 @@ java_system_modules {
     // Visibility is deliberately restricted to a small set of build modules that
     // the core library team control.
     visibility: [
+        "//art/test:__subpackages__",
         "//external/apache-harmony:__subpackages__",
         "//external/apache-xml",
         "//external/okhttp",
@@ -343,40 +344,6 @@ java_library {
     system_modules: "core-all-system-modules",
     patch_module: "java.base",
     plugins: ["unsupportedappusage-annotation-processor"],
-}
-
-//
-// Guaranteed unstripped versions of core-oj and core-libart.
-//
-// The build system may or may not strip the core-oj and core-libart jars,
-// but these will not be stripped. See b/24535627.
-//
-
-java_library {
-    name: "core-oj-testdex",
-    installable: true,
-    static_libs: ["core-oj"],
-    sdk_version: "none",
-    system_modules: "core-all-system-modules",
-    dxflags: ["--core-library"],
-    dex_preopt: {
-        enabled: false,
-    },
-    java_version: "1.9",
-    notice: "ojluni/NOTICE",
-}
-
-java_library {
-    name: "core-libart-testdex",
-    installable: true,
-    static_libs: ["core-libart"],
-    sdk_version: "none",
-    system_modules: "core-all-system-modules",
-    dxflags: ["--core-library"],
-    dex_preopt: {
-        enabled: false,
-    },
-    notice: "ojluni/NOTICE",
 }
 
 java_defaults {
@@ -1020,7 +987,10 @@ java_library_host {
         "//art/build/sdk",
         "//system/timezone/distro/core",
     ],
-    srcs: [":timezone_host_files"],
+    srcs: [
+        ":timezone_host_files",
+        ":timezone_host_libcore_files",
+    ],
 }
 
 // A special set of system modules for building the following library for use

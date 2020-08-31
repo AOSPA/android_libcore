@@ -1,12 +1,12 @@
 // Signature format: 2.0
 package android.compat {
 
-  @libcore.api.CorePlatformApi @libcore.api.IntraCoreApi public final class Compatibility {
-    method @libcore.api.CorePlatformApi @libcore.api.IntraCoreApi public static boolean isChangeEnabled(long);
-    method @libcore.api.CorePlatformApi @libcore.api.IntraCoreApi public static void reportChange(long);
+  @libcore.api.CorePlatformApi(status=libcore.api.CorePlatformApi.Status.STABLE) @libcore.api.IntraCoreApi public final class Compatibility {
+    method @libcore.api.CorePlatformApi(status=libcore.api.CorePlatformApi.Status.STABLE) @libcore.api.IntraCoreApi public static boolean isChangeEnabled(long);
+    method @libcore.api.CorePlatformApi(status=libcore.api.CorePlatformApi.Status.STABLE) @libcore.api.IntraCoreApi public static void reportChange(long);
   }
 
-  @libcore.api.CorePlatformApi @libcore.api.IntraCoreApi public static final class Compatibility.ChangeConfig {
+  @libcore.api.CorePlatformApi(status=libcore.api.CorePlatformApi.Status.STABLE) @libcore.api.IntraCoreApi public static final class Compatibility.ChangeConfig {
     ctor public Compatibility.ChangeConfig(java.util.Set<java.lang.Long>, java.util.Set<java.lang.Long>);
     method public long[] forceDisabledChangesArray();
     method public java.util.Set<java.lang.Long> forceDisabledSet();
@@ -15,6 +15,14 @@ package android.compat {
     method public boolean isEmpty();
     method public boolean isForceDisabled(long);
     method public boolean isForceEnabled(long);
+  }
+
+}
+
+package android.system {
+
+  public final class Os {
+    method @libcore.api.CorePlatformApi @libcore.api.IntraCoreApi public static String realpath(String) throws android.system.ErrnoException;
   }
 
 }
@@ -30,6 +38,9 @@ package dalvik.annotation.compat {
 }
 
 package dalvik.annotation.optimization {
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) @libcore.api.CorePlatformApi @libcore.api.IntraCoreApi public @interface FastNative {
+  }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) @libcore.api.IntraCoreApi public @interface ReachabilitySensitive {
   }
@@ -53,28 +64,26 @@ package dalvik.system {
     method @libcore.api.CorePlatformApi @libcore.api.IntraCoreApi public void warnIfOpen();
   }
 
+  @libcore.api.CorePlatformApi(status=libcore.api.CorePlatformApi.Status.STABLE) @libcore.api.IntraCoreApi public final class VMRuntime {
+    method @dalvik.annotation.optimization.FastNative @libcore.api.CorePlatformApi @libcore.api.IntraCoreApi public long addressOf(Object);
+    method @libcore.api.CorePlatformApi @libcore.api.IntraCoreApi public static dalvik.system.VMRuntime getRuntime();
+    method @dalvik.annotation.optimization.FastNative @libcore.api.CorePlatformApi @libcore.api.IntraCoreApi public Object newNonMovableArray(Class<?>, int);
+  }
+
 }
 
 package java.net {
 
   public class Socket implements java.io.Closeable {
-    method public java.io.FileDescriptor getFileDescriptor$();
+    method @libcore.api.IntraCoreApi public java.io.FileDescriptor getFileDescriptor$();
   }
 
 }
 
 package java.nio.charset {
 
-  public abstract class Charset implements java.lang.Comparable<java.nio.charset.Charset> {
-    ctor @libcore.api.IntraCoreApi protected Charset(String, String[]);
-  }
-
-  public abstract class CharsetDecoder {
-    ctor protected CharsetDecoder(java.nio.charset.Charset, float, float);
-  }
-
   public abstract class CharsetEncoder {
-    ctor protected CharsetEncoder(java.nio.charset.Charset, float, float, byte[], boolean);
+    ctor @libcore.api.IntraCoreApi protected CharsetEncoder(java.nio.charset.Charset, float, float, byte[], boolean);
   }
 
 }
@@ -82,8 +91,8 @@ package java.nio.charset {
 package java.security.spec {
 
   public class ECParameterSpec implements java.security.spec.AlgorithmParameterSpec {
-    method public String getCurveName();
-    method public void setCurveName(String);
+    method @libcore.api.IntraCoreApi public String getCurveName();
+    method @libcore.api.IntraCoreApi public void setCurveName(String);
   }
 
 }
@@ -91,6 +100,12 @@ package java.security.spec {
 package libcore.api {
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.ANNOTATION_TYPE}) @libcore.api.IntraCoreApi public @interface CorePlatformApi {
+    method @libcore.api.IntraCoreApi public abstract libcore.api.CorePlatformApi.Status status() default libcore.api.CorePlatformApi.Status.LEGACY_ONLY;
+  }
+
+  @libcore.api.IntraCoreApi public enum CorePlatformApi.Status {
+    enum_constant @libcore.api.IntraCoreApi public static final libcore.api.CorePlatformApi.Status LEGACY_ONLY;
+    enum_constant @libcore.api.IntraCoreApi public static final libcore.api.CorePlatformApi.Status STABLE;
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.ANNOTATION_TYPE}) @libcore.api.IntraCoreApi public @interface IntraCoreApi {
@@ -133,18 +148,18 @@ package libcore.util {
 
 package sun.security.util {
 
-  public interface DerEncoder {
-    method public void derEncode(java.io.OutputStream) throws java.io.IOException;
+  @libcore.api.IntraCoreApi public interface DerEncoder {
+    method @libcore.api.IntraCoreApi public void derEncode(java.io.OutputStream) throws java.io.IOException;
   }
 
 }
 
 package sun.security.x509 {
 
-  public class AlgorithmId implements sun.security.util.DerEncoder java.io.Serializable {
-    method public void derEncode(java.io.OutputStream) throws java.io.IOException;
-    method public static sun.security.x509.AlgorithmId get(String) throws java.security.NoSuchAlgorithmException;
-    method public String getName();
+  @libcore.api.IntraCoreApi public class AlgorithmId implements sun.security.util.DerEncoder java.io.Serializable {
+    method @libcore.api.IntraCoreApi public void derEncode(java.io.OutputStream) throws java.io.IOException;
+    method @libcore.api.IntraCoreApi public static sun.security.x509.AlgorithmId get(String) throws java.security.NoSuchAlgorithmException;
+    method @libcore.api.IntraCoreApi public String getName();
   }
 
 }

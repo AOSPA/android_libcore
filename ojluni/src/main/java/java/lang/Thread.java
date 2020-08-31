@@ -430,28 +430,27 @@ class Thread implements Runnable {
         }
 
         final int nanosPerMilli = 1000000;
-        long start = System.nanoTime();
-        long duration = (millis * nanosPerMilli) + nanos;
+        final long durationNanos;
+        if (millis >= Long.MAX_VALUE / nanosPerMilli - 1L) {
+          // > 292 years. Avoid overflow by capping it at roughly 292 years.
+          durationNanos = Long.MAX_VALUE;
+        } else {
+          durationNanos = (millis * nanosPerMilli) + nanos;
+        }
+        long startNanos = System.nanoTime();
 
         Object lock = currentThread().lock;
 
-        // The native sleep(...) method actually performs a special type of wait, which may return
-        // early, so loop until sleep duration passes.
+        // The native sleep(...) method actually does a monitor wait, which may return
+        // early, so loop until sleep duration passes. The monitor is only notified when
+        // we exit, which can't happen while we're sleeping.
         synchronized (lock) {
-            while (true) {
+            for (long elapsed = 0L; elapsed < durationNanos;
+                    elapsed = System.nanoTime() - startNanos) {
+                final long remaining = durationNanos - elapsed;
+                millis = remaining / nanosPerMilli;
+                nanos = (int) (remaining % nanosPerMilli);
                 sleep(lock, millis, nanos);
-
-                long now = System.nanoTime();
-                long elapsed = now - start;
-
-                if (elapsed >= duration) {
-                    break;
-                }
-
-                duration -= elapsed;
-                start = now;
-                millis = duration / nanosPerMilli;
-                nanos = (int) (duration % nanosPerMilli);
             }
         }
         // END Android-changed: Implement sleep() methods using a shared native implementation.
@@ -486,10 +485,10 @@ class Thread implements Runnable {
         this.name = name;
 
         Thread parent = currentThread();
-        // Android-removed: SecurityManager stubbed out on Android
+        // Android-removed: SecurityManager stubbed out on Android.
         // SecurityManager security = System.getSecurityManager();
         if (g == null) {
-            // Android-changed: SecurityManager stubbed out on Android
+            // Android-changed: SecurityManager stubbed out on Android.
             /*
             /* Determine if it's an applet or not *
 
@@ -507,7 +506,7 @@ class Thread implements Runnable {
             // }
         }
 
-        // Android-removed: SecurityManager stubbed out on Android
+        // Android-removed: SecurityManager stubbed out on Android.
         /*
         /* checkAccess regardless of whether or not threadgroup is
            explicitly passed in. *
@@ -1422,6 +1421,8 @@ class Thread implements Runnable {
      *          cleared when this exception is thrown.
      */
     // BEGIN Android-changed: Synchronize on separate lock object not this Thread.
+    // nativePeer and hence isAlive() can change asynchronously, but Thread::Destroy
+    // will always acquire and notify lock after isAlive() changes to false.
     // public final synchronized void join(long millis)
     public final void join(long millis)
     throws InterruptedException {
@@ -1578,7 +1579,7 @@ class Thread implements Runnable {
      * @see        SecurityManager#checkAccess(Thread)
      */
     public final void checkAccess() {
-        // Android-removed: SecurityManager stubbed out on Android
+        // Android-removed: SecurityManager stubbed out on Android.
         // SecurityManager security = System.getSecurityManager();
         // if (security != null) {
         //     security.checkAccess(this);
@@ -1630,7 +1631,7 @@ class Thread implements Runnable {
      */
     @CallerSensitive
     public ClassLoader getContextClassLoader() {
-        // Android-removed: SecurityManager stubbed out on Android
+        // Android-removed: SecurityManager stubbed out on Android.
         /*
         if (contextClassLoader == null)
             return null;
@@ -1666,7 +1667,7 @@ class Thread implements Runnable {
      * @since 1.2
      */
     public void setContextClassLoader(ClassLoader cl) {
-        // Android-removed: SecurityManager stubbed out on Android
+        // Android-removed: SecurityManager stubbed out on Android.
         // SecurityManager sm = System.getSecurityManager();
         // if (sm != null) {
         //     sm.checkPermission(new RuntimePermission("setContextClassLoader"));
@@ -1773,7 +1774,7 @@ class Thread implements Runnable {
      * @since 1.5
      */
     public static Map<Thread, StackTraceElement[]> getAllStackTraces() {
-        // Android-removed: SecurityManager stubbed out on Android
+        // Android-removed: SecurityManager stubbed out on Android.
         /*
         // check for getStackTrace permission
         SecurityManager security = System.getSecurityManager();
@@ -2097,7 +2098,7 @@ class Thread implements Runnable {
      * @since 1.5
      */
     public static void setDefaultUncaughtExceptionHandler(UncaughtExceptionHandler eh) {
-        // Android-removed: SecurityManager stubbed out on Android
+        // Android-removed: SecurityManager stubbed out on Android.
         /*
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {

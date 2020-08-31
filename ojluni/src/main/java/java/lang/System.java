@@ -25,11 +25,11 @@
  */
 package java.lang;
 
+import com.android.i18n.timezone.TimeZoneDataFiles;
 import com.android.icu.util.Icu4cMetadata;
 import dalvik.annotation.optimization.CriticalNative;
 import dalvik.annotation.optimization.FastNative;
 import android.system.ErrnoException;
-import android.system.StructPasswd;
 import android.system.StructUtsname;
 import dalvik.system.VMRuntime;
 import java.io.*;
@@ -39,7 +39,6 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.PropertyPermission;
 import libcore.io.Libcore;
-import libcore.timezone.TimeZoneDataFiles;
 
 import sun.reflect.CallerSensitive;
 import sun.reflect.Reflection;
@@ -982,12 +981,13 @@ public final class System {
 
         p.put("java.vm.version", runtime.vmVersion());
 
+        String userName;
         try {
-            StructPasswd passwd = Libcore.os.getpwuid(Libcore.os.getuid());
-            p.put("user.name", passwd.pw_name);
+            userName = Libcore.os.getpwuid(Libcore.os.getuid()).pw_name;
         } catch (ErrnoException exception) {
-            throw new AssertionError(exception);
+            userName = "unknown";
         }
+        p.put("user.name", userName);
 
         StructUtsname info = Libcore.os.uname();
         p.put("os.arch", info.machine);

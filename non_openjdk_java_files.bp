@@ -35,8 +35,6 @@ filegroup {
         "dalvik/src/main/java/dalvik/system/BaseDexClassLoader.java",
         "dalvik/src/main/java/dalvik/system/BlockGuard.java",
         "dalvik/src/main/java/dalvik/system/CloseGuard.java",
-        "dalvik/src/main/java/dalvik/system/DalvikLogHandler.java",
-        "dalvik/src/main/java/dalvik/system/DalvikLogging.java",
         "dalvik/src/main/java/dalvik/system/DelegateLastClassLoader.java",
         "dalvik/src/main/java/dalvik/system/DexClassLoader.java",
         "dalvik/src/main/java/dalvik/system/DexFile.java",
@@ -235,7 +233,6 @@ filegroup {
         "luni/src/main/java/libcore/icu/DateIntervalFormat.java",
         "luni/src/main/java/libcore/icu/ICU.java",
         "luni/src/main/java/libcore/icu/LocaleData.java",
-        "luni/src/main/java/libcore/icu/RelativeDateTimeFormatter.java",
         "luni/src/main/java/libcore/icu/TimeZoneNames.java",
         "luni/src/main/java/libcore/internal/StringPool.java",
         "luni/src/main/java/libcore/io/AsynchronousCloseMonitor.java",
@@ -249,20 +246,8 @@ filegroup {
         "luni/src/main/java/libcore/net/InetAddressUtils.java",
         "luni/src/main/java/libcore/net/NetworkSecurityPolicy.java",
         "luni/src/main/java/libcore/net/event/NetworkEventDispatcher.java",
-        "luni/src/main/java/libcore/timezone/CountryTimeZones.java",
-        "luni/src/main/java/libcore/timezone/CountryZonesFinder.java",
-        "luni/src/main/java/libcore/timezone/TelephonyLookup.java",
-        "luni/src/main/java/libcore/timezone/TelephonyNetwork.java",
-        "luni/src/main/java/libcore/timezone/TelephonyNetworkFinder.java",
-        "luni/src/main/java/libcore/timezone/TimeZoneDataFiles.java",
-        "luni/src/main/java/libcore/timezone/TimeZoneFinder.java",
-        "luni/src/main/java/libcore/timezone/TzDataSetVersion.java",
-        "luni/src/main/java/libcore/timezone/XmlUtils.java",
-        "luni/src/main/java/libcore/timezone/ZoneInfoDb.java",
         "luni/src/main/java/libcore/util/ArrayUtils.java",
         "luni/src/main/java/libcore/util/BasicLruCache.java",
-        "luni/src/main/java/libcore/util/CoreLibraryDebug.java",
-        "luni/src/main/java/libcore/util/DebugInfo.java",
         "luni/src/main/java/libcore/util/EmptyArray.java",
         "luni/src/main/java/libcore/util/FP16.java",
         "luni/src/main/java/libcore/util/HexEncoding.java",
@@ -374,7 +359,6 @@ filegroup {
     srcs: [
         "luni/src/main/java/java/net/AddressCache.java",
         "luni/src/main/java/libcore/icu/CollationKeyICU.java",
-        "luni/src/main/java/libcore/icu/DateTimeFormat.java",
         "luni/src/main/java/libcore/icu/DateUtilsBridge.java",
         "luni/src/main/java/libcore/internal/Java9LanguageFeatures.java",
         "luni/src/main/java/libcore/io/ClassPathURLStreamHandler.java",
@@ -442,11 +426,9 @@ filegroup {
 // timezone-related source that is also used in host tests / tools and its
 // dependencies.
 filegroup {
-    name: "timezone_host_files",
+    name: "timezone_host_libcore_files",
     srcs: [
         "luni/src/main/java/libcore/api/CorePlatformApi.java",
         "luni/src/main/java/libcore/api/IntraCoreApi.java",
-        "luni/src/main/java/libcore/timezone/TimeZoneDataFiles.java",
-        "luni/src/main/java/libcore/timezone/TzDataSetVersion.java",
     ],
 }

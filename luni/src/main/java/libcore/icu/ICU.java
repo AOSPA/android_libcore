@@ -17,12 +17,17 @@
 package libcore.icu;
 
 import android.compat.annotation.UnsupportedAppUsage;
+import android.icu.text.CurrencyMetaInfo;
+import android.icu.text.CurrencyMetaInfo.CurrencyFilter;
+import android.icu.text.DateTimePatternGenerator;
 import android.icu.util.ULocale;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -33,7 +38,6 @@ import libcore.util.BasicLruCache;
  * Makes ICU data accessible to Java.
  * @hide
  */
-@libcore.api.CorePlatformApi
 public final class ICU {
 
   @UnsupportedAppUsage
@@ -45,6 +49,20 @@ public final class ICU {
   private static String[] isoCountries;
 
   private static String[] isoLanguages;
+
+  static {
+    // Fill CACHED_PATTERNS with the patterns from default locale and en-US initially.
+    // Likely, this is initialized in Zygote and the initial values in the cache can be shared
+    // among app. The cache was filled by LocaleData in the older Android platform, but moved to
+    // here, due to an performance issue http://b/161846393.
+    // It initializes 2 x 4 = 8 values in the CACHED_PATTERNS whose max size should be >= 8.
+    for (Locale locale : new Locale[] {Locale.US, Locale.getDefault()}) {
+      getTimePattern(locale, false, false);
+      getTimePattern(locale, false, true);
+      getTimePattern(locale, true, false);
+      getTimePattern(locale, true, true);
+    }
+  }
 
   private ICU() {
   }
@@ -268,26 +286,41 @@ public final class ICU {
     return availableLocalesCache.clone();
   }
 
+  /* package */ static String getTimePattern(Locale locale, boolean is24Hour, boolean withSecond) {
+    final String skeleton;
+    if (withSecond) {
+      skeleton = is24Hour ? "Hms" : "hms";
+    } else {
+      skeleton = is24Hour ? "Hm" : "hm";
+    }
+    return getBestDateTimePattern(skeleton, locale);
+  }
+
   @UnsupportedAppUsage
-  @libcore.api.CorePlatformApi
   public static String getBestDateTimePattern(String skeleton, Locale locale) {
     String languageTag = locale.toLanguageTag();
     String key = skeleton + "\t" + languageTag;
     synchronized (CACHED_PATTERNS) {
       String pattern = CACHED_PATTERNS.get(key);
       if (pattern == null) {
-        pattern = getBestDateTimePatternNative(skeleton, languageTag);
+        pattern = getBestDateTimePattern0(skeleton, locale);
         CACHED_PATTERNS.put(key, pattern);
       }
       return pattern;
     }
   }
 
-  @UnsupportedAppUsage
-  private static native String getBestDateTimePatternNative(String skeleton, String languageTag);
+  private static String getBestDateTimePattern0(String skeleton, Locale locale) {
+      DateTimePatternGenerator dtpg = DateTimePatternGenerator.getInstance(locale);
+      return dtpg.getBestPattern(skeleton);
+  }
 
   @UnsupportedAppUsage
-  @libcore.api.CorePlatformApi
+  private static String getBestDateTimePatternNative(String skeleton, String languageTag) {
+    return getBestDateTimePattern0(skeleton, Locale.forLanguageTag(languageTag));
+  }
+
+  @UnsupportedAppUsage
   public static char[] getDateFormatOrder(String pattern) {
     char[] result = new char[3];
     int resultIndex = 0;
@@ -335,7 +368,18 @@ public final class ICU {
 
   private static native String[] getAvailableLocalesNative();
 
-  public static native String getCurrencyCode(String countryCode);
+    /**
+     * Query ICU for the currency being used in the country right now.
+     * @param countryCode ISO 3166 two-letter country code
+     * @return ISO 4217 3-letter currency code if found, otherwise null.
+     */
+  public static String getCurrencyCode(String countryCode) {
+      CurrencyFilter filter = CurrencyFilter.onRegion(countryCode)
+          .withDate(new Date());
+      List<String> currencies = CurrencyMetaInfo.getInstance().currencies(filter);
+      return currencies.isEmpty() ? null : currencies.get(0);
+  }
+
 
   public static native String getISO3Country(String languageTag);
 
@@ -372,8 +416,6 @@ public final class ICU {
 
   private static native String[] getISOLanguagesNative();
   private static native String[] getISOCountriesNative();
-
-  static native boolean initLocaleDataNative(String languageTag, LocaleData result);
 
   /**
    * Takes a BCP-47 language tag (Locale.toLanguageTag()). e.g. en-US, not en_US
