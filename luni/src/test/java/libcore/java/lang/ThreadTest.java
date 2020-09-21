@@ -360,7 +360,7 @@ public final class ThreadTest extends TestCase {
         // - ThreadTestHelper.{debugInfo,noDebugInfo}
         StackTraceElement result = stes[3];
 
-        // Sanity check before we return
+        // Confidence check before we return
         assertEquals(result.getClassName(), className);
         assertEquals(result.getMethodName(), methodName);
         assertFalse(result.isNativeMethod());
@@ -423,6 +423,45 @@ public final class ThreadTest extends TestCase {
         watchdog.interrupt();
         watchdog.join();
     }
+
+    private class LongParker {
+        long nanos;
+        Thread parkerThread;
+        volatile boolean shouldPark = true;
+        LongParker(long nanos) {
+            this.nanos = nanos;
+            parkerThread = new Thread() {
+                @Override public void run() {
+                    while (shouldPark) {
+                        LockSupport.parkNanos(nanos);
+                    }
+                }
+            };
+            parkerThread.start();
+        }
+        void quit() throws InterruptedException {
+            shouldPark = false;
+            LockSupport.unpark(parkerThread);
+            parkerThread.join();
+        }
+    }
+
+    /**
+     * Test that large timeout arguments don't cause crashes. b/161006928 .
+     */
+    public void testParkNanosHugeTimeout() throws InterruptedException {
+        for (long i = 0; i < 5; ++i) {
+            LongParker p = new LongParker(Long.MAX_VALUE - 800_000_000L * i);
+            Thread.sleep(10);
+            p.quit();
+        }
+        for (long i = 0; i < 5; ++i) {
+            LongParker p = new LongParker(Long.MAX_VALUE - 800_000_000_000_000_000L * i);
+            Thread.sleep(10);
+            p.quit();
+        }
+    }
+
 
     /**
      * Check that call Thread.start for already started thread
