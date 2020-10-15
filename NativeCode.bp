@@ -63,10 +63,10 @@ cc_library_shared {
         "dalvik/src/main/native/org_apache_harmony_dalvik_NativeTestTarget.cpp",
     ],
     shared_libs: [
-        "libandroidicu",
         "libandroidio",
         "libbase",
         "libcrypto",
+        "libicu",
         "libexpat",
         "libnativehelper",
         "libz",
@@ -130,6 +130,7 @@ cc_defaults {
     shared_libs: [
         "libandroidio",
         "libcrypto",
+        "libicu",
         "libnativehelper",
         "libz",
     ],
@@ -146,13 +147,7 @@ cc_defaults {
         },
         android: {
             shared_libs: [
-                "libandroidicu",
                 "libdl_android",
-            ],
-        },
-        host: {
-            shared_libs: [
-                "libicuuc",
             ],
         },
     },
@@ -232,9 +227,17 @@ cc_test {
     // Add -fno-builtin so that the compiler doesn't attempt to inline
     // memcpy calls that are not really aligned.
     cflags: ["-fno-builtin"],
-    srcs: ["luni/src/test/native/libcore_io_Memory_test.cpp"],
+    srcs: [
+        "luni/src/test/native/libcore_io_Memory_test.cpp",
+        // libcore_io_Memory_test.cpp includes libcore_io_Memory.cpp which
+        // depends on JniConstants.cpp (but these are not used in the tests).
+        "luni/src/main/native/JniConstants.cpp",
+    ],
 
-    shared_libs: ["libnativehelper"],
+    shared_libs: [
+        "liblog",
+        "libnativehelper",
+    ],
 }
 
 // Set of benchmarks for libjavacore functions.
@@ -242,8 +245,16 @@ cc_benchmark {
     name: "libjavacore-benchmarks",
     defaults: ["core_native_default_flags"],
 
-    srcs: ["luni/src/benchmark/native/libcore_io_Memory_bench.cpp"],
+    srcs: [
+        "luni/src/benchmark/native/libcore_io_Memory_bench.cpp",
+        // libcore_io_Memory_bench.cpp includes libcore_io_Memory.cpp which
+        // depends on JniConstants.cpp (but these are not used in the benchmark).
+        "luni/src/main/native/JniConstants.cpp",
+    ],
     test_suites: ["device-tests"],
 
-    shared_libs: ["libnativehelper"],
+    shared_libs: [
+        "liblog",
+        "libnativehelper",
+    ],
 }
