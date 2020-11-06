@@ -16,13 +16,12 @@
 
 package dalvik.system;
 
-import android.icu.impl.CacheValue;
-import android.icu.text.DateFormatSymbols;
-import android.icu.text.DecimalFormatSymbols;
-import android.icu.util.ULocale;
-
 import java.io.File;
 import java.io.FileDescriptor;
+import java.lang.reflect.Method;
+import java.lang.ClassNotFoundException;
+import java.lang.NoSuchMethodException;
+import java.lang.ReflectiveOperationException;
 
 /**
  * Provides hooks for the zygote to call back into the runtime to perform
@@ -33,6 +32,7 @@ import java.io.FileDescriptor;
 @libcore.api.CorePlatformApi
 public final class ZygoteHooks {
     private static long token;
+    private static Method enableMemoryMappedDataMethod;
 
     /** All methods are static, no need to instantiate. */
     private ZygoteHooks() {
@@ -50,23 +50,20 @@ public final class ZygoteHooks {
      */
     @libcore.api.CorePlatformApi
     public static void onBeginPreload() {
-        // Pin ICU data in memory from this point that would normally be held by soft references.
-        // Without this, any references created immediately below or during class preloading
-        // would be collected when the Zygote GC runs in gcAndFinalize().
-        CacheValue.setStrength(CacheValue.Strength.STRONG);
+        com.android.i18n.system.ZygoteHooks.onBeginPreload();
 
-        // Explicitly exercise code to cache data apps/framework are likely to need.
-        ULocale[] localesToPin = { ULocale.ROOT, ULocale.US, ULocale.getDefault() };
-        for (ULocale uLocale : localesToPin) {
-            new DecimalFormatSymbols(uLocale);
-            new DateFormatSymbols(uLocale);
+        // Look up JaCoCo on the boot classpath, if it exists. This will be used later for enabling
+        // memory-mapped Java coverage.
+        try {
+          Class<?> jacocoOfflineClass = Class.forName("org.jacoco.agent.rt.internal.Offline");
+          enableMemoryMappedDataMethod = jacocoOfflineClass.getMethod("enableMemoryMappedData");
+        } catch (ClassNotFoundException e) {
+          // JaCoCo was not on the boot classpath, so this is not a coverage build.
+        } catch (NoSuchMethodException e) {
+          // Method was not found in the JaCoCo Offline class. The version of JaCoCo is not
+          // compatible with memory-mapped coverage.
+          throw new RuntimeException(e);
         }
-
-        // Framework's LocalLog is used during app start-up. It indirectly uses the current ICU time
-        // zone. Pre-loading the current time zone in ICU improves app startup time. b/150605074
-        // We're being explicit about the fully qualified name of the TimeZone class to avoid
-        // confusion with java.util.TimeZome.getDefault().
-        android.icu.util.TimeZone.getDefault();
     }
 
     /**
@@ -74,8 +71,7 @@ public final class ZygoteHooks {
      */
     @libcore.api.CorePlatformApi
     public static void onEndPreload() {
-        // All cache references created by ICU from this point will be soft.
-        CacheValue.setStrength(CacheValue.Strength.SOFT);
+        com.android.i18n.system.ZygoteHooks.onEndPreload();
 
         // Clone standard descriptors as originals closed / rebound during zygote post fork.
         FileDescriptor.in.cloneForFork();
@@ -147,6 +143,16 @@ public final class ZygoteHooks {
         nativePostForkChild(token, runtimeFlags, isSystemServer, isChildZygote, instructionSet);
 
         Math.setRandomSeedInternal(System.currentTimeMillis());
+
+        // Enable memory-mapped coverage if JaCoCo is in the boot classpath. system_server is
+        // skipped due to being persistent and having its own coverage writing mechanism.
+        if (!isSystemServer && enableMemoryMappedDataMethod != null) {
+          try {
+            enableMemoryMappedDataMethod.invoke(null);
+          } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+          }
+        }
     }
 
     /**

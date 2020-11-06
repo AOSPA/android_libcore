@@ -61,7 +61,6 @@
  */
 package java.time.format;
 
-import android.icu.impl.ZoneMeta;
 import android.icu.text.LocaleDisplayNames;
 import android.icu.text.TimeZoneFormat;
 import android.icu.text.TimeZoneNames;
@@ -3698,9 +3697,9 @@ public final class DateTimeFormatterBuilder {
                 names = new String[TYPES.length + 1];
                 // Zeroth index used for id, other indexes based on NameType constant + 1.
                 names[0] = id;
-                String canonicalId = ZoneMeta.getCanonicalCLDRID(id);
-                timeZoneNames.getDisplayNames(canonicalId, TYPES, System.currentTimeMillis(),
-                        /* dest */ names, /* destoffset */ 1);
+                String canonicalId = ZoneName.getSystemCanonicalID(id);
+                libcore.icu.TimeZoneNames.getDisplayNames(timeZoneNames, canonicalId, TYPES,
+                        System.currentTimeMillis(), /* dest */ names, /* destoffset */ 1);
                 if (names == null) {
                     return null;
                 }
@@ -3826,7 +3825,8 @@ public final class DateTimeFormatterBuilder {
                 for (String zid : regionIds) {
                     tree.add(zid, zid);    // don't convert zid -> metazone
                     zid = ZoneName.toZid(zid, locale);
-                    timeZoneNames.getDisplayNames(zid, types, now, names, 0);
+                    libcore.icu.TimeZoneNames.getDisplayNames(timeZoneNames, zid, types, now,
+                            names, 0);
                     for (int i = 0; i < names.length; i++) {
                         if (names[i] != null) {
                             tree.add(names[i], zid);
@@ -3841,7 +3841,8 @@ public final class DateTimeFormatterBuilder {
                             continue;
                         }
                         String canonicalId = ZoneName.toZid(zid, locale);
-                        timeZoneNames.getDisplayNames(canonicalId, types, now, names, 0);
+                        libcore.icu.TimeZoneNames.getDisplayNames(timeZoneNames, canonicalId, types,
+                                now, names, 0);
                         for (int i = 0; i < names.length; i++) {
                             if (names[i] != null) {
                                 tree.add(names[i], zid);
