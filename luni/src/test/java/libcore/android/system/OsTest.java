@@ -1103,8 +1103,8 @@ public class OsTest extends TestCase {
     }
 
     public void test_socket_setSockoptTimeval_effective() throws Exception {
-        int timeoutValueMillis = 50;
-        int allowedTimeoutMillis = 500;
+        int timeoutValueMillis = 250;
+        int allowedTimeoutMillis = 3000;
 
         FileDescriptor fd = Os.socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
         try {
@@ -1116,8 +1116,15 @@ public class OsTest extends TestCase {
             long startTime = System.nanoTime();
             expectException(() -> Os.read(fd, request, 0, request.length),
                     ErrnoException.class, EAGAIN, "Expected timeout");
-            long endTime = System.nanoTime();
-            assertTrue(Duration.ofNanos(endTime - startTime).toMillis() < allowedTimeoutMillis);
+            long durationMillis = Duration.ofNanos(System.nanoTime() - startTime).toMillis();
+            // TODO(b/176104885): Sometimes returns 1 msec early. It's unclear that's correct.
+            // We haven't seen this on modern devices, and allow it for now. Needs investigation.
+            assertTrue("Timeout of " + timeoutValueMillis + "ms returned after "
+                    + durationMillis +"ms",
+                durationMillis >= timeoutValueMillis - 1);
+            assertTrue("Timeout of " + timeoutValueMillis + "ms failed to return within "
+                    + allowedTimeoutMillis  + "ms",
+                durationMillis < allowedTimeoutMillis);
         } finally {
             Os.close(fd);
         }
