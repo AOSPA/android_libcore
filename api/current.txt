@@ -2266,10 +2266,11 @@ package java.lang {
   }
 
   public final class Byte extends java.lang.Number implements java.lang.Comparable<java.lang.Byte> {
-    ctor public Byte(byte);
-    ctor public Byte(@NonNull String) throws java.lang.NumberFormatException;
+    ctor @Deprecated public Byte(byte);
+    ctor @Deprecated public Byte(@NonNull String) throws java.lang.NumberFormatException;
     method public static int compare(byte, byte);
     method public int compareTo(@NonNull Byte);
+    method public static int compareUnsigned(byte, byte);
     method @NonNull public static Byte decode(@NonNull String) throws java.lang.NumberFormatException;
     method public double doubleValue();
     method public float floatValue();
@@ -2934,7 +2935,9 @@ package java.lang {
     method public static void enable();
   }
 
-  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target({java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PACKAGE, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.TYPE}) public @interface Deprecated {
+  @Deprecated @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target({java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PACKAGE, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.TYPE}) public @interface Deprecated {
+    method @Deprecated public abstract boolean forRemoval() default false;
+    method @Deprecated public abstract String since() default "";
   }
 
   public final class Double extends java.lang.Number implements java.lang.Comparable<java.lang.Double> {
@@ -3271,8 +3274,10 @@ package java.lang {
     method public static double expm1(double);
     method public static double floor(double);
     method public static int floorDiv(int, int);
+    method public static long floorDiv(long, int);
     method public static long floorDiv(long, long);
     method public static int floorMod(int, int);
+    method public static int floorMod(long, int);
     method public static long floorMod(long, long);
     method public static int getExponent(float);
     method public static int getExponent(double);
@@ -3291,7 +3296,10 @@ package java.lang {
     method public static float min(float, float);
     method public static double min(double, double);
     method public static int multiplyExact(int, int);
+    method public static long multiplyExact(long, int);
     method public static long multiplyExact(long, long);
+    method public static long multiplyFull(int, int);
+    method public static long multiplyHigh(long, long);
     method public static int negateExact(int);
     method public static long negateExact(long);
     method public static double nextAfter(double, double);
@@ -3586,10 +3594,11 @@ package java.lang {
   }
 
   public final class Short extends java.lang.Number implements java.lang.Comparable<java.lang.Short> {
-    ctor public Short(short);
-    ctor public Short(String) throws java.lang.NumberFormatException;
+    ctor @Deprecated public Short(short);
+    ctor @Deprecated public Short(String) throws java.lang.NumberFormatException;
     method public static int compare(short, short);
     method public int compareTo(Short);
+    method public static int compareUnsigned(short, short);
     method public static Short decode(String) throws java.lang.NumberFormatException;
     method public double doubleValue();
     method public float floatValue();
@@ -3648,8 +3657,10 @@ package java.lang {
     method public static double expm1(double);
     method public static double floor(double);
     method public static int floorDiv(int, int);
+    method public static long floorDiv(long, int);
     method public static long floorDiv(long, long);
     method public static int floorMod(int, int);
+    method public static int floorMod(long, int);
     method public static long floorMod(long, long);
     method public static int getExponent(float);
     method public static int getExponent(double);
@@ -3666,7 +3677,10 @@ package java.lang {
     method public static float min(float, float);
     method public static double min(double, double);
     method public static int multiplyExact(int, int);
+    method public static long multiplyExact(long, int);
     method public static long multiplyExact(long, long);
+    method public static long multiplyFull(int, int);
+    method public static long multiplyHigh(long, long);
     method public static double nextAfter(double, double);
     method public static float nextAfter(float, double);
     method public static double nextDown(double);
@@ -10805,6 +10819,7 @@ package java.time {
     method public static java.time.LocalTime of(int, int);
     method public static java.time.LocalTime of(int, int, int);
     method public static java.time.LocalTime of(int, int, int, int);
+    method public static java.time.LocalTime ofInstant(java.time.Instant, java.time.ZoneId);
     method public static java.time.LocalTime ofNanoOfDay(long);
     method public static java.time.LocalTime ofSecondOfDay(long);
     method public static java.time.LocalTime parse(CharSequence);
@@ -10815,6 +10830,7 @@ package java.time {
     method public java.time.LocalTime plusMinutes(long);
     method public java.time.LocalTime plusNanos(long);
     method public java.time.LocalTime plusSeconds(long);
+    method public long toEpochSecond(java.time.LocalDate, java.time.ZoneOffset);
     method public long toNanoOfDay();
     method public int toSecondOfDay();
     method public java.time.LocalTime truncatedTo(java.time.temporal.TemporalUnit);
@@ -13629,6 +13645,7 @@ package java.util {
   }
 
   public interface Set<E> extends java.util.Collection<E> {
+    method public static <E> java.util.Set<E> copyOf(java.util.Collection<? extends E>);
     method @NonNull public static <E> java.util.Set<E> of();
     method @NonNull public static <E> java.util.Set<E> of(@NonNull E);
     method @NonNull public static <E> java.util.Set<E> of(@NonNull E, @NonNull E);

@@ -22,6 +22,7 @@ import android.icu.util.Currency;
 import android.icu.util.IllformedLocaleException;
 import android.icu.util.ULocale;
 
+import com.android.icu.util.ExtendedCalendar;
 import com.android.icu.util.LocaleNative;
 
 import java.util.Collections;
@@ -48,6 +49,7 @@ public final class ICU {
   private static Locale[] availableLocalesCache;
 
   private static String[] isoCountries;
+  private static Set<String> isoCountriesSet;
 
   private static String[] isoLanguages;
 
@@ -91,11 +93,32 @@ public final class ICU {
    * Returns an array of two-letter ISO 3166 country codes, either from ICU or our cache.
    */
   public static String[] getISOCountries() {
+    return getISOCountriesInternal().clone();
+  }
+
+  /**
+   * Returns true if the string is a 2-letter ISO 3166 country code.
+   */
+  public static boolean isIsoCountry(String country) {
+    if (isoCountriesSet == null) {
+      String[] isoCountries = getISOCountriesInternal();
+      Set<String> newSet = new HashSet<>(isoCountries.length);
+      for (String isoCountry : isoCountries) {
+        newSet.add(isoCountry);
+      }
+      isoCountriesSet = newSet;
+    }
+    return country != null && isoCountriesSet.contains(country);
+  }
+
+  private static String[] getISOCountriesInternal() {
     if (isoCountries == null) {
       isoCountries = getISOCountriesNative();
     }
-    return isoCountries.clone();
+    return isoCountries;
   }
+
+
 
   private static final int IDX_LANGUAGE = 0;
   private static final int IDX_SCRIPT = 1;
@@ -555,4 +578,14 @@ public final class ICU {
    * Returns a locale name, not a BCP-47 language tag. e.g. en_US not en-US.
    */
   public static native String getDefaultLocale();
+
+
+  /**
+   * @param calendarType LDML-defined legacy calendar type. See keyTypeData.txt in ICU.
+   */
+  public static ExtendedCalendar getExtendedCalendar(Locale locale, String calendarType) {
+      ULocale uLocale = ULocale.forLocale(locale)
+              .setKeywordValue("calendar", calendarType);
+      return ExtendedCalendar.getInstance(uLocale);
+  }
 }
