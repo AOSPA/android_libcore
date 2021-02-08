@@ -595,7 +595,6 @@ java_test {
         "nist-pkix-tests",
         "slf4j-jdk14",
         "sqlite-jdbc",
-        "tzdata-testing",
         "truth-prebuilt-jar",
     ],
 
@@ -1019,6 +1018,9 @@ java_system_modules {
 // avoid introducing compile time cycles.
 java_library {
     name: "art.module.api.annotations.for.system.modules",
+    visibility: [
+        "//art/libartservice",
+    ],
     srcs: [
         ":api_surface_annotation_files",
     ],
