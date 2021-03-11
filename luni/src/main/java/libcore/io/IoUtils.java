@@ -37,7 +37,7 @@ import static android.system.OsConstants.O_NONBLOCK;
 import static android.system.OsConstants.O_RDONLY;
 
 /** @hide */
-@libcore.api.CorePlatformApi
+@libcore.api.CorePlatformApi(status = libcore.api.CorePlatformApi.Status.STABLE)
 public final class IoUtils {
     private IoUtils() {
     }
@@ -156,19 +156,24 @@ public final class IoUtils {
     }
 
     /**
-     * Calls close(2) on 'fd'. Also resets the internal int to -1. Does nothing if 'fd' is null
-     * or invalid.
+     * Closes a file descriptor, so that it no longer refers to any file and may
+     * be reused. Also resets the internal int to -1.
+     *
+     * @param fd is {@link FileDescriptor} instance, invalid value is ignored.
+     * @throws IOException if an I/O error occurred.
      */
-    @libcore.api.CorePlatformApi
+    @libcore.api.CorePlatformApi(status = libcore.api.CorePlatformApi.Status.STABLE)
     public static void close(FileDescriptor fd) throws IOException {
         IoBridge.closeAndSignalBlockedThreads(fd);
     }
 
     /**
-     * Closes 'closeable', ignoring any checked exceptions. Does nothing if 'closeable' is null.
+     * Closes {@link AutoClosable} instance, ignoring any checked exceptions.
+     *
+     * @param close is AutoClosable instance, null value is ignored.
      */
     @UnsupportedAppUsage
-    @libcore.api.CorePlatformApi
+    @libcore.api.CorePlatformApi(status = libcore.api.CorePlatformApi.Status.STABLE)
     public static void closeQuietly(AutoCloseable closeable) {
         if (closeable != null) {
             try {
@@ -181,10 +186,12 @@ public final class IoUtils {
     }
 
     /**
-     * Closes 'fd', ignoring any exceptions. Does nothing if 'fd' is null or invalid.
+     * Calls {@link #close(FileDescriptor)}, ignoring any exceptions.
+     *
+     *  @param fd is {@link FileDescriptor} instance, invalid value is ignored.
      */
     @UnsupportedAppUsage
-    @libcore.api.CorePlatformApi
+    @libcore.api.CorePlatformApi(status = libcore.api.CorePlatformApi.Status.STABLE)
     public static void closeQuietly(FileDescriptor fd) {
         try {
             IoUtils.close(fd);
@@ -193,24 +200,32 @@ public final class IoUtils {
     }
 
     /**
-     * Closes 'socket', ignoring any exceptions. Does nothing if 'socket' is null.
+     * Closes socket, ignoring any exceptions.
+     *
+     * @param socket is {@link Socket} instance, null value is ignored.
      */
     @UnsupportedAppUsage
-    @libcore.api.CorePlatformApi
+    @libcore.api.CorePlatformApi(status = libcore.api.CorePlatformApi.Status.STABLE)
     public static void closeQuietly(Socket socket) {
         if (socket != null) {
             try {
                 socket.close();
+            } catch (RuntimeException rethrown) {
+                throw rethrown;
             } catch (Exception ignored) {
             }
         }
     }
 
     /**
-     * Sets 'fd' to be blocking or non-blocking, according to the state of 'blocking'.
+     * Sets file descriptor to be blocking or non-blocking.
+     *
+     * @param fd is {@link FileDescriptor} instance
+     * @param blocking is a boolean that defines whether fd should be blocking or non-blocking
+     * @throws IOException if system API call fails
      */
     @UnsupportedAppUsage
-    @libcore.api.CorePlatformApi
+    @libcore.api.CorePlatformApi(status = libcore.api.CorePlatformApi.Status.STABLE)
     public static void setBlocking(FileDescriptor fd, boolean blocking) throws IOException {
         try {
             int flags = Libcore.os.fcntlVoid(fd, F_GETFL);

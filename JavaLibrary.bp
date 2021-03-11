@@ -146,6 +146,7 @@ java_defaults {
             "-Xep:ConstantOverflow:WARN", // Known constant overflow in SplittableRandom
         ],
     },
+    min_sdk_version: "31",
 }
 
 //
@@ -527,6 +528,14 @@ genrule {
     tools: ["smali"],
 }
 
+filegroup {
+    name: "core-ojtests-javax-resources",
+    // Set path to keep the resources and .class files in the same directory in the jar file.
+    path: "ojluni/src",
+    srcs: ["ojluni/src/test/javax/**/*"],
+    exclude_srcs: ["ojluni/src/test/javax/**/*.java"],
+}
+
 // Builds the core-tests library.
 java_test {
     name: "core-tests",
@@ -561,6 +570,7 @@ java_test {
     ],
     exclude_java_resource_dirs: [
         "ojluni/src/test/java",
+        "ojluni/src/test/javax",
         "ojluni/src/test/resources",
     ],
 
@@ -646,10 +656,15 @@ java_test {
 
     srcs: [
         "ojluni/src/test/java/**/*.java",
+        "ojluni/src/test/javax/**/*.java",
     ],
     java_resource_dirs: [
         "ojluni/src/test/java",
         "ojluni/src/test/resources",
+    ],
+
+    java_resources: [
+        ":core-ojtests-javax-resources",
     ],
 
     sdk_version: "none",
@@ -659,7 +674,10 @@ java_test {
         "bouncycastle",
     ],
 
-    static_libs: ["testng"],
+    static_libs: [
+        "junit",
+        "testng",
+    ],
 
     // ojluni/src/test/java/util/stream/{bootlib,boottest}
     // contains tests that are in packages from java.base;
@@ -689,6 +707,7 @@ java_test {
     defaults: ["libcore_java_defaults"],
     srcs: [
         "ojluni/src/test/java/**/*.java",
+        "ojluni/src/test/javax/**/*.java",
     ],
     // Filter out the following:
     // 1.) DeserializeMethodTest and SerializedLambdaTest, because they depends on stub classes
@@ -707,10 +726,15 @@ java_test {
         "ojluni/src/test/dist",
     ],
 
+    java_resources: [
+        ":core-ojtests-javax-resources",
+    ],
+
     sdk_version: "none",
     system_modules: "core-all-system-modules",
     libs: [
         "bouncycastle",
+        "junit",
         "okhttp",
         "testng",
     ],
