@@ -664,6 +664,20 @@ package libcore.net.event {
 
 }
 
+package libcore.net.http {
+
+  public interface Dns extends com.android.okhttp.internalandroidapi.Dns {
+  }
+
+  public class HttpURLConnectionFactory {
+    method public static libcore.net.http.HttpURLConnectionFactory createInstance();
+    method public java.net.URLConnection openConnection(java.net.URL, javax.net.SocketFactory, java.net.Proxy) throws java.io.IOException;
+    method public void setDns(libcore.net.http.Dns);
+    method public void setNewConnectionPool(int, long, java.util.concurrent.TimeUnit);
+  }
+
+}
+
 package libcore.util {
 
   public final class EmptyArray {
@@ -781,12 +795,6 @@ package org.apache.harmony.dalvik.ddmc {
 
   public class DdmVmInternal {
     method public static void enableRecentAllocations(boolean);
-    method @dalvik.annotation.optimization.FastNative public static boolean getRecentAllocationStatus();
-    method @dalvik.annotation.optimization.FastNative public static byte[] getRecentAllocations();
-    method public static StackTraceElement[] getStackTraceById(int);
-    method public static byte[] getThreadStats();
-    method @dalvik.annotation.optimization.FastNative public static boolean heapInfoNotify(int);
-    method public static boolean heapSegmentNotify(int, int, boolean);
     method public static void threadNotify(boolean);
   }
 

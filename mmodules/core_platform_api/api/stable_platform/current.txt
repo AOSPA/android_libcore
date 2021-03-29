@@ -42,6 +42,12 @@ package android.system {
 
 package dalvik.system {
 
+  public class AnnotatedStackTraceElement {
+    method public Object getBlockedOn();
+    method public Object[] getHeldLocks();
+    method public StackTraceElement getStackTraceElement();
+  }
+
   public abstract class SocketTagger {
     ctor public SocketTagger();
     method public static dalvik.system.SocketTagger get();
@@ -145,6 +151,46 @@ package dalvik.system {
     field public static final int ACCESS_METHOD_REFLECTION = 1; // 0x1
   }
 
+  public final class ZygoteHooks {
+    method public static void gcAndFinalize();
+    method public static boolean indefiniteThreadSuspensionOK();
+    method public static void onBeginPreload();
+    method public static void onEndPreload();
+    method public static void postForkChild(int, boolean, boolean, String);
+    method public static void postForkCommon();
+    method public static void postForkSystemServer(int);
+    method public static void preFork();
+    method public static void startZygoteNoThreadCreation();
+    method public static void stopZygoteNoThreadCreation();
+  }
+
+}
+
+package java.net {
+
+  public class InetAddress implements java.io.Serializable {
+    method public static void clearDnsCache();
+    method public static java.net.InetAddress[] getAllByNameOnNet(String, int) throws java.net.UnknownHostException;
+    method public static java.net.InetAddress getByNameOnNet(String, int) throws java.net.UnknownHostException;
+  }
+
+}
+
+package java.util.concurrent {
+
+  public class CompletableFuture<T> implements java.util.concurrent.CompletionStage<T> java.util.concurrent.Future<T> {
+    method public java.util.concurrent.CompletableFuture<T> completeOnTimeout(T, long, java.util.concurrent.TimeUnit);
+    method public static <U> java.util.concurrent.CompletableFuture<U> failedFuture(Throwable);
+  }
+
+}
+
+package java.util.zip {
+
+  public class ZipEntry implements java.lang.Cloneable {
+    method public long getDataOffset();
+  }
+
 }
 
 package libcore.content.type {
@@ -211,6 +257,21 @@ package libcore.net.event {
   public class NetworkEventDispatcher {
     method public static libcore.net.event.NetworkEventDispatcher getInstance();
     method public void onNetworkConfigurationChanged();
+  }
+
+}
+
+package libcore.net.http {
+
+  public interface Dns {
+    method public java.util.List<java.net.InetAddress> lookup(String) throws java.net.UnknownHostException;
+  }
+
+  public class HttpURLConnectionFactory {
+    method public static libcore.net.http.HttpURLConnectionFactory createInstance();
+    method public java.net.URLConnection openConnection(java.net.URL, javax.net.SocketFactory, java.net.Proxy) throws java.io.IOException;
+    method public void setDns(libcore.net.http.Dns);
+    method public void setNewConnectionPool(int, long, java.util.concurrent.TimeUnit);
   }
 
 }
