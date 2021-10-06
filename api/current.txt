@@ -2240,8 +2240,8 @@ package java.lang {
 
   public class ArrayIndexOutOfBoundsException extends java.lang.IndexOutOfBoundsException {
     ctor public ArrayIndexOutOfBoundsException();
-    ctor public ArrayIndexOutOfBoundsException(int);
     ctor public ArrayIndexOutOfBoundsException(String);
+    ctor public ArrayIndexOutOfBoundsException(int);
   }
 
   public class ArrayStoreException extends java.lang.RuntimeException {
@@ -2266,8 +2266,8 @@ package java.lang {
   }
 
   public final class Boolean implements java.lang.Comparable<java.lang.Boolean> java.io.Serializable {
-    ctor public Boolean(boolean);
-    ctor public Boolean(@Nullable String);
+    ctor @Deprecated public Boolean(boolean);
+    ctor @Deprecated public Boolean(@Nullable String);
     method public boolean booleanValue();
     method public static int compare(boolean, boolean);
     method public int compareTo(@NonNull Boolean);
@@ -2954,12 +2954,12 @@ package java.lang {
     method public int compareTo(T);
   }
 
-  public final class Compiler {
-    method public static Object command(Object);
-    method public static boolean compileClass(Class<?>);
-    method public static boolean compileClasses(String);
-    method public static void disable();
-    method public static void enable();
+  @Deprecated public final class Compiler {
+    method @Deprecated public static Object command(Object);
+    method @Deprecated public static boolean compileClass(Class<?>);
+    method @Deprecated public static boolean compileClasses(String);
+    method @Deprecated public static void disable();
+    method @Deprecated public static void enable();
   }
 
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target({java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PACKAGE, java.lang.annotation.ElementType.MODULE, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.TYPE}) public @interface Deprecated {
@@ -2968,8 +2968,8 @@ package java.lang {
   }
 
   public final class Double extends java.lang.Number implements java.lang.Comparable<java.lang.Double> {
-    ctor public Double(double);
-    ctor public Double(@NonNull String) throws java.lang.NumberFormatException;
+    ctor @Deprecated public Double(double);
+    ctor @Deprecated public Double(@NonNull String) throws java.lang.NumberFormatException;
     method public static int compare(double, double);
     method public int compareTo(@NonNull Double);
     method public static long doubleToLongBits(double);
@@ -3049,9 +3049,9 @@ package java.lang {
   }
 
   public final class Float extends java.lang.Number implements java.lang.Comparable<java.lang.Float> {
-    ctor public Float(float);
-    ctor public Float(double);
-    ctor public Float(@NonNull String) throws java.lang.NumberFormatException;
+    ctor @Deprecated public Float(float);
+    ctor @Deprecated public Float(double);
+    ctor @Deprecated public Float(@NonNull String) throws java.lang.NumberFormatException;
     method public static int compare(float, float);
     method public int compareTo(@NonNull Float);
     method public double doubleValue();
@@ -3133,6 +3133,7 @@ package java.lang {
   public class IndexOutOfBoundsException extends java.lang.RuntimeException {
     ctor public IndexOutOfBoundsException();
     ctor public IndexOutOfBoundsException(String);
+    ctor public IndexOutOfBoundsException(int);
   }
 
   public class InheritableThreadLocal<T> extends java.lang.ThreadLocal<T> {
@@ -3306,6 +3307,8 @@ package java.lang {
     method public static int floorMod(int, int);
     method public static int floorMod(long, int);
     method public static long floorMod(long, long);
+    method public static double fma(double, double, double);
+    method public static float fma(float, float, float);
     method public static int getExponent(float);
     method public static int getExponent(double);
     method public static double hypot(double, double);
@@ -3689,6 +3692,8 @@ package java.lang {
     method public static int floorMod(int, int);
     method public static int floorMod(long, int);
     method public static long floorMod(long, long);
+    method public static double fma(double, double, double);
+    method public static float fma(float, float, float);
     method public static int getExponent(float);
     method public static int getExponent(double);
     method public static double hypot(double, double);
@@ -3986,6 +3991,7 @@ package java.lang {
     ctor public Thread(@Nullable Runnable, @NonNull String);
     ctor public Thread(@Nullable ThreadGroup, @Nullable Runnable, @NonNull String);
     ctor public Thread(@Nullable ThreadGroup, @Nullable Runnable, @NonNull String, long);
+    ctor public Thread(@Nullable ThreadGroup, @Nullable Runnable, @NonNull String, long, boolean);
     method public static int activeCount();
     method public final void checkAccess();
     method @Deprecated public int countStackFrames();
@@ -4012,6 +4018,7 @@ package java.lang {
     method public final void join(long) throws java.lang.InterruptedException;
     method public final void join(long, int) throws java.lang.InterruptedException;
     method public final void join() throws java.lang.InterruptedException;
+    method public static void onSpinWait();
     method @Deprecated public final void resume();
     method public void run();
     method public void setContextClassLoader(@Nullable ClassLoader);
@@ -12695,6 +12702,7 @@ package java.util {
     method @NonNull public default java.util.stream.Stream<E> stream();
     method @NonNull public Object[] toArray();
     method @NonNull public <T> T[] toArray(@NonNull T[]);
+    method @NonNull public default <T> T[] toArray(@NonNull java.util.function.IntFunction<T[]>);
   }
 
   public class Collections {
@@ -12921,6 +12929,7 @@ package java.util {
   }
 
   public interface Enumeration<E> {
+    method public default java.util.Iterator<E> asIterator();
     method public boolean hasMoreElements();
     method public E nextElement();
   }
@@ -13108,6 +13117,7 @@ package java.util {
 
   public class IntSummaryStatistics implements java.util.function.IntConsumer {
     ctor public IntSummaryStatistics();
+    ctor public IntSummaryStatistics(long, int, int, long) throws java.lang.IllegalArgumentException;
     method public void accept(int);
     method public void combine(java.util.IntSummaryStatistics);
     method public final double getAverage();
@@ -13332,6 +13342,7 @@ package java.util {
 
   public class LongSummaryStatistics implements java.util.function.IntConsumer java.util.function.LongConsumer {
     ctor public LongSummaryStatistics();
+    ctor public LongSummaryStatistics(long, long, long, long) throws java.lang.IllegalArgumentException;
     method public void accept(int);
     method public void accept(long);
     method public void combine(java.util.LongSummaryStatistics);
@@ -13472,69 +13483,86 @@ package java.util {
     method @NonNull public static String toString(@Nullable Object, @NonNull String);
   }
 
-  public class Observable {
-    ctor public Observable();
-    method public void addObserver(java.util.Observer);
-    method protected void clearChanged();
-    method public int countObservers();
-    method public void deleteObserver(java.util.Observer);
-    method public void deleteObservers();
-    method public boolean hasChanged();
-    method public void notifyObservers();
-    method public void notifyObservers(Object);
-    method protected void setChanged();
+  @Deprecated public class Observable {
+    ctor @Deprecated public Observable();
+    method @Deprecated public void addObserver(java.util.Observer);
+    method @Deprecated protected void clearChanged();
+    method @Deprecated public int countObservers();
+    method @Deprecated public void deleteObserver(java.util.Observer);
+    method @Deprecated public void deleteObservers();
+    method @Deprecated public boolean hasChanged();
+    method @Deprecated public void notifyObservers();
+    method @Deprecated public void notifyObservers(Object);
+    method @Deprecated protected void setChanged();
   }
 
-  public interface Observer {
-    method public void update(java.util.Observable, Object);
+  @Deprecated public interface Observer {
+    method @Deprecated public void update(java.util.Observable, Object);
   }
 
   public final class Optional<T> {
     method public static <T> java.util.Optional<T> empty();
     method public java.util.Optional<T> filter(java.util.function.Predicate<? super T>);
-    method public <U> java.util.Optional<U> flatMap(java.util.function.Function<? super T,java.util.Optional<U>>);
+    method public <U> java.util.Optional<U> flatMap(java.util.function.Function<? super T,? extends java.util.Optional<? extends U>>);
     method public T get();
     method public void ifPresent(java.util.function.Consumer<? super T>);
+    method public void ifPresentOrElse(java.util.function.Consumer<? super T>, Runnable);
+    method public boolean isEmpty();
     method public boolean isPresent();
     method public <U> java.util.Optional<U> map(java.util.function.Function<? super T,? extends U>);
     method public static <T> java.util.Optional<T> of(T);
     method public static <T> java.util.Optional<T> ofNullable(T);
+    method public java.util.Optional<T> or(java.util.function.Supplier<? extends java.util.Optional<? extends T>>);
     method public T orElse(T);
     method public T orElseGet(java.util.function.Supplier<? extends T>);
+    method public T orElseThrow();
     method public <X extends java.lang.Throwable> T orElseThrow(java.util.function.Supplier<? extends X>) throws X;
+    method public java.util.stream.Stream<T> stream();
   }
 
   public final class OptionalDouble {
     method public static java.util.OptionalDouble empty();
     method public double getAsDouble();
     method public void ifPresent(java.util.function.DoubleConsumer);
+    method public void ifPresentOrElse(java.util.function.DoubleConsumer, Runnable);
+    method public boolean isEmpty();
     method public boolean isPresent();
     method public static java.util.OptionalDouble of(double);
     method public double orElse(double);
     method public double orElseGet(java.util.function.DoubleSupplier);
-    method public <X extends java.lang.Throwable> double orElseThrow(java.util.function.Supplier<X>) throws X;
+    method public double orElseThrow();
+    method public <X extends java.lang.Throwable> double orElseThrow(java.util.function.Supplier<? extends X>) throws X;
+    method public java.util.stream.DoubleStream stream();
   }
 
   public final class OptionalInt {
     method public static java.util.OptionalInt empty();
     method public int getAsInt();
     method public void ifPresent(java.util.function.IntConsumer);
+    method public void ifPresentOrElse(java.util.function.IntConsumer, Runnable);
+    method public boolean isEmpty();
     method public boolean isPresent();
     method public static java.util.OptionalInt of(int);
     method public int orElse(int);
     method public int orElseGet(java.util.function.IntSupplier);
-    method public <X extends java.lang.Throwable> int orElseThrow(java.util.function.Supplier<X>) throws X;
+    method public int orElseThrow();
+    method public <X extends java.lang.Throwable> int orElseThrow(java.util.function.Supplier<? extends X>) throws X;
+    method public java.util.stream.IntStream stream();
   }
 
   public final class OptionalLong {
     method public static java.util.OptionalLong empty();
     method public long getAsLong();
     method public void ifPresent(java.util.function.LongConsumer);
+    method public void ifPresentOrElse(java.util.function.LongConsumer, Runnable);
+    method public boolean isEmpty();
     method public boolean isPresent();
     method public static java.util.OptionalLong of(long);
     method public long orElse(long);
     method public long orElseGet(java.util.function.LongSupplier);
-    method public <X extends java.lang.Throwable> long orElseThrow(java.util.function.Supplier<X>) throws X;
+    method public long orElseThrow();
+    method public <X extends java.lang.Throwable> long orElseThrow(java.util.function.Supplier<? extends X>) throws X;
+    method public java.util.stream.LongStream stream();
   }
 
   public interface PrimitiveIterator<T, T_CONS> extends java.util.Iterator<T> {
@@ -13949,6 +13977,7 @@ package java.util {
     method public java.util.stream.LongStream longs(long, long, long);
     method public java.util.stream.LongStream longs(long, long);
     method public boolean nextBoolean();
+    method public void nextBytes(byte[]);
     method public double nextDouble();
     method public double nextDouble(double);
     method public double nextDouble(double, double);
@@ -15223,12 +15252,25 @@ package java.util.concurrent.atomic {
   public class AtomicBoolean implements java.io.Serializable {
     ctor public AtomicBoolean(boolean);
     ctor public AtomicBoolean();
+    method public final boolean compareAndExchange(boolean, boolean);
+    method public final boolean compareAndExchangeAcquire(boolean, boolean);
+    method public final boolean compareAndExchangeRelease(boolean, boolean);
     method public final boolean compareAndSet(boolean, boolean);
     method public final boolean get();
+    method public final boolean getAcquire();
     method public final boolean getAndSet(boolean);
+    method public final boolean getOpaque();
+    method public final boolean getPlain();
     method public final void lazySet(boolean);
     method public final void set(boolean);
-    method public boolean weakCompareAndSet(boolean, boolean);
+    method public final void setOpaque(boolean);
+    method public final void setPlain(boolean);
+    method public final void setRelease(boolean);
+    method @Deprecated public boolean weakCompareAndSet(boolean, boolean);
+    method public final boolean weakCompareAndSetAcquire(boolean, boolean);
+    method public boolean weakCompareAndSetPlain(boolean, boolean);
+    method public final boolean weakCompareAndSetRelease(boolean, boolean);
+    method public final boolean weakCompareAndSetVolatile(boolean, boolean);
   }
 
   public class AtomicInteger extends java.lang.Number implements java.io.Serializable {
@@ -15236,24 +15278,37 @@ package java.util.concurrent.atomic {
     ctor public AtomicInteger();
     method public final int accumulateAndGet(int, java.util.function.IntBinaryOperator);
     method public final int addAndGet(int);
+    method public final int compareAndExchange(int, int);
+    method public final int compareAndExchangeAcquire(int, int);
+    method public final int compareAndExchangeRelease(int, int);
     method public final boolean compareAndSet(int, int);
     method public final int decrementAndGet();
     method public double doubleValue();
     method public float floatValue();
     method public final int get();
+    method public final int getAcquire();
     method public final int getAndAccumulate(int, java.util.function.IntBinaryOperator);
     method public final int getAndAdd(int);
     method public final int getAndDecrement();
     method public final int getAndIncrement();
     method public final int getAndSet(int);
     method public final int getAndUpdate(java.util.function.IntUnaryOperator);
+    method public final int getOpaque();
+    method public final int getPlain();
     method public final int incrementAndGet();
     method public int intValue();
     method public final void lazySet(int);
     method public long longValue();
     method public final void set(int);
+    method public final void setOpaque(int);
+    method public final void setPlain(int);
+    method public final void setRelease(int);
     method public final int updateAndGet(java.util.function.IntUnaryOperator);
-    method public final boolean weakCompareAndSet(int, int);
+    method @Deprecated public final boolean weakCompareAndSet(int, int);
+    method public final boolean weakCompareAndSetAcquire(int, int);
+    method public final boolean weakCompareAndSetPlain(int, int);
+    method public final boolean weakCompareAndSetRelease(int, int);
+    method public final boolean weakCompareAndSetVolatile(int, int);
   }
 
   public class AtomicIntegerArray implements java.io.Serializable {
@@ -15261,21 +15316,34 @@ package java.util.concurrent.atomic {
     ctor public AtomicIntegerArray(int[]);
     method public final int accumulateAndGet(int, int, java.util.function.IntBinaryOperator);
     method public final int addAndGet(int, int);
+    method public final int compareAndExchange(int, int, int);
+    method public final int compareAndExchangeAcquire(int, int, int);
+    method public final int compareAndExchangeRelease(int, int, int);
     method public final boolean compareAndSet(int, int, int);
     method public final int decrementAndGet(int);
     method public final int get(int);
+    method public final int getAcquire(int);
     method public final int getAndAccumulate(int, int, java.util.function.IntBinaryOperator);
     method public final int getAndAdd(int, int);
     method public final int getAndDecrement(int);
     method public final int getAndIncrement(int);
     method public final int getAndSet(int, int);
     method public final int getAndUpdate(int, java.util.function.IntUnaryOperator);
+    method public final int getOpaque(int);
+    method public final int getPlain(int);
     method public final int incrementAndGet(int);
     method public final void lazySet(int, int);
     method public final int length();
     method public final void set(int, int);
+    method public final void setOpaque(int, int);
+    method public final void setPlain(int, int);
+    method public final void setRelease(int, int);
     method public final int updateAndGet(int, java.util.function.IntUnaryOperator);
-    method public final boolean weakCompareAndSet(int, int, int);
+    method @Deprecated public final boolean weakCompareAndSet(int, int, int);
+    method public final boolean weakCompareAndSetAcquire(int, int, int);
+    method public final boolean weakCompareAndSetPlain(int, int, int);
+    method public final boolean weakCompareAndSetRelease(int, int, int);
+    method public final boolean weakCompareAndSetVolatile(int, int, int);
   }
 
   public abstract class AtomicIntegerFieldUpdater<T> {
@@ -15304,24 +15372,37 @@ package java.util.concurrent.atomic {
     ctor public AtomicLong();
     method public final long accumulateAndGet(long, java.util.function.LongBinaryOperator);
     method public final long addAndGet(long);
+    method public final long compareAndExchange(long, long);
+    method public final long compareAndExchangeAcquire(long, long);
+    method public final long compareAndExchangeRelease(long, long);
     method public final boolean compareAndSet(long, long);
     method public final long decrementAndGet();
     method public double doubleValue();
     method public float floatValue();
     method public final long get();
+    method public final long getAcquire();
     method public final long getAndAccumulate(long, java.util.function.LongBinaryOperator);
     method public final long getAndAdd(long);
     method public final long getAndDecrement();
     method public final long getAndIncrement();
     method public final long getAndSet(long);
     method public final long getAndUpdate(java.util.function.LongUnaryOperator);
+    method public final long getOpaque();
+    method public final long getPlain();
     method public final long incrementAndGet();
     method public int intValue();
     method public final void lazySet(long);
     method public long longValue();
     method public final void set(long);
+    method public final void setOpaque(long);
+    method public final void setPlain(long);
+    method public final void setRelease(long);
     method public final long updateAndGet(java.util.function.LongUnaryOperator);
-    method public final boolean weakCompareAndSet(long, long);
+    method @Deprecated public final boolean weakCompareAndSet(long, long);
+    method public final boolean weakCompareAndSetAcquire(long, long);
+    method public final boolean weakCompareAndSetPlain(long, long);
+    method public final boolean weakCompareAndSetRelease(long, long);
+    method public final boolean weakCompareAndSetVolatile(long, long);
   }
 
   public class AtomicLongArray implements java.io.Serializable {
@@ -15329,21 +15410,34 @@ package java.util.concurrent.atomic {
     ctor public AtomicLongArray(long[]);
     method public final long accumulateAndGet(int, long, java.util.function.LongBinaryOperator);
     method public long addAndGet(int, long);
+    method public final long compareAndExchange(int, long, long);
+    method public final long compareAndExchangeAcquire(int, long, long);
+    method public final long compareAndExchangeRelease(int, long, long);
     method public final boolean compareAndSet(int, long, long);
     method public final long decrementAndGet(int);
     method public final long get(int);
+    method public final long getAcquire(int);
     method public final long getAndAccumulate(int, long, java.util.function.LongBinaryOperator);
     method public final long getAndAdd(int, long);
     method public final long getAndDecrement(int);
     method public final long getAndIncrement(int);
     method public final long getAndSet(int, long);
     method public final long getAndUpdate(int, java.util.function.LongUnaryOperator);
+    method public final long getOpaque(int);
+    method public final long getPlain(int);
     method public final long incrementAndGet(int);
     method public final void lazySet(int, long);
     method public final int length();
     method public final void set(int, long);
+    method public final void setOpaque(int, long);
+    method public final void setPlain(int, long);
+    method public final void setRelease(int, long);
     method public final long updateAndGet(int, java.util.function.LongUnaryOperator);
-    method public final boolean weakCompareAndSet(int, long, long);
+    method @Deprecated public final boolean weakCompareAndSet(int, long, long);
+    method public final boolean weakCompareAndSetAcquire(int, long, long);
+    method public final boolean weakCompareAndSetPlain(int, long, long);
+    method public final boolean weakCompareAndSetRelease(int, long, long);
+    method public final boolean weakCompareAndSetVolatile(int, long, long);
   }
 
   public abstract class AtomicLongFieldUpdater<T> {
@@ -15382,31 +15476,57 @@ package java.util.concurrent.atomic {
     ctor public AtomicReference(V);
     ctor public AtomicReference();
     method public final V accumulateAndGet(V, java.util.function.BinaryOperator<V>);
+    method public final V compareAndExchange(V, V);
+    method public final V compareAndExchangeAcquire(V, V);
+    method public final V compareAndExchangeRelease(V, V);
     method public final boolean compareAndSet(V, V);
     method public final V get();
+    method public final V getAcquire();
     method public final V getAndAccumulate(V, java.util.function.BinaryOperator<V>);
     method public final V getAndSet(V);
     method public final V getAndUpdate(java.util.function.UnaryOperator<V>);
+    method public final V getOpaque();
+    method public final V getPlain();
     method public final void lazySet(V);
     method public final void set(V);
+    method public final void setOpaque(V);
+    method public final void setPlain(V);
+    method public final void setRelease(V);
     method public final V updateAndGet(java.util.function.UnaryOperator<V>);
-    method public final boolean weakCompareAndSet(V, V);
+    method @Deprecated public final boolean weakCompareAndSet(V, V);
+    method public final boolean weakCompareAndSetAcquire(V, V);
+    method public final boolean weakCompareAndSetPlain(V, V);
+    method public final boolean weakCompareAndSetRelease(V, V);
+    method public final boolean weakCompareAndSetVolatile(V, V);
   }
 
   public class AtomicReferenceArray<E> implements java.io.Serializable {
     ctor public AtomicReferenceArray(int);
     ctor public AtomicReferenceArray(E[]);
     method public final E accumulateAndGet(int, E, java.util.function.BinaryOperator<E>);
+    method public final E compareAndExchange(int, E, E);
+    method public final E compareAndExchangeAcquire(int, E, E);
+    method public final E compareAndExchangeRelease(int, E, E);
     method public final boolean compareAndSet(int, E, E);
     method public final E get(int);
+    method public final E getAcquire(int);
     method public final E getAndAccumulate(int, E, java.util.function.BinaryOperator<E>);
     method public final E getAndSet(int, E);
     method public final E getAndUpdate(int, java.util.function.UnaryOperator<E>);
+    method public final E getOpaque(int);
+    method public final E getPlain(int);
     method public final void lazySet(int, E);
     method public final int length();
     method public final void set(int, E);
+    method public final void setOpaque(int, E);
+    method public final void setPlain(int, E);
+    method public final void setRelease(int, E);
     method public final E updateAndGet(int, java.util.function.UnaryOperator<E>);
-    method public final boolean weakCompareAndSet(int, E, E);
+    method @Deprecated public final boolean weakCompareAndSet(int, E, E);
+    method public final boolean weakCompareAndSetAcquire(int, E, E);
+    method public final boolean weakCompareAndSetPlain(int, E, E);
+    method public final boolean weakCompareAndSetRelease(int, E, E);
+    method public final boolean weakCompareAndSetVolatile(int, E, E);
   }
 
   public abstract class AtomicReferenceFieldUpdater<T, V> {
@@ -15698,7 +15818,11 @@ package java.util.concurrent.locks {
     method public java.util.concurrent.locks.ReadWriteLock asReadWriteLock();
     method public java.util.concurrent.locks.Lock asWriteLock();
     method public int getReadLockCount();
+    method public static boolean isLockStamp(long);
+    method public static boolean isOptimisticReadStamp(long);
+    method public static boolean isReadLockStamp(long);
     method public boolean isReadLocked();
+    method public static boolean isWriteLockStamp(long);
     method public boolean isWriteLocked();
     method public long readLock();
     method public long readLockInterruptibly() throws java.lang.InterruptedException;
@@ -15895,6 +16019,7 @@ package java.util.function {
     method public default java.util.function.Predicate<T> and(java.util.function.Predicate<? super T>);
     method public static <T> java.util.function.Predicate<T> isEqual(Object);
     method public default java.util.function.Predicate<T> negate();
+    method public static <T> java.util.function.Predicate<T> not(java.util.function.Predicate<? super T>);
     method public default java.util.function.Predicate<T> or(java.util.function.Predicate<? super T>);
     method public boolean test(T);
   }
@@ -15986,6 +16111,7 @@ package java.util.jar {
     method public java.util.jar.Attributes getAttributes() throws java.io.IOException;
     method public java.security.cert.Certificate[] getCertificates();
     method public java.security.CodeSigner[] getCodeSigners();
+    method public String getRealName();
     field public static final int CENATT = 36; // 0x24
     field public static final int CENATX = 38; // 0x26
     field public static final int CENCOM = 32; // 0x20
