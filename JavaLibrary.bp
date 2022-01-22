@@ -279,6 +279,7 @@ java_library {
             "java.lang.Object",
             "java.lang.String",
             "java.lang.invoke.MethodHandle",
+            "java.lang.invoke.VarHandle",
             "java.lang.ref.Reference",
             "java.lang.reflect.Proxy",
             "java.util.AbstractMap",
@@ -551,6 +552,11 @@ java_test {
     libs: [
         "junit",
     ],
+    errorprone: {
+        javacflags: [
+            "-Xep:DoNotCall:OFF",
+        ],
+    },
 }
 
 // A filegroup that provides access to a source file for a toolchain test that
@@ -649,6 +655,7 @@ java_test {
         javacflags: [
             "-Xep:TryFailThrowable:ERROR",
             "-Xep:ComparisonOutOfRange:ERROR",
+            "-Xep:DoNotCall:OFF",
         ],
     },
 
@@ -736,6 +743,13 @@ java_test {
     // deleting those tests or moving them to a different
     // package.
     patch_module: "java.base",
+
+    errorprone: {
+        javacflags: [
+            "-Xep:AlwaysThrows:OFF",
+            "-Xep:DoNotCall:OFF",
+        ],
+    },
 }
 
 // Builds the core-ojtests-public library. Excludes any private API tests.
@@ -782,6 +796,13 @@ java_test {
         "okhttp",
         "testng",
     ],
+
+    errorprone: {
+        javacflags: [
+            "-Xep:AlwaysThrows:OFF",
+            "-Xep:DoNotCall:OFF",
+        ],
+    },
 }
 
 // Exports annotated stubs source files in ojluni/annotations/sdk to make them
