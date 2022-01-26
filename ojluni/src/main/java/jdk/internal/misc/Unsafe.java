@@ -26,6 +26,7 @@
 package jdk.internal.misc;
 
 import dalvik.annotation.optimization.FastNative;
+import jdk.internal.HotSpotIntrinsicCandidate;
 import sun.reflect.Reflection;
 
 import java.lang.reflect.Field;
@@ -109,7 +110,6 @@ public final class Unsafe {
             }
         }
         if (field == null) {
-            // TODO: follow convention from objectFieldOffset
             throw new InternalError();
         }
         return objectFieldOffset(field);
@@ -130,6 +130,42 @@ public final class Unsafe {
         return getArrayBaseOffsetForComponentType(component);
     }
 
+    /** The value of {@code arrayBaseOffset(boolean[].class)} */
+    public static final int ARRAY_BOOLEAN_BASE_OFFSET
+            = theUnsafe.arrayBaseOffset(boolean[].class);
+
+    /** The value of {@code arrayBaseOffset(byte[].class)} */
+    public static final int ARRAY_BYTE_BASE_OFFSET
+            = theUnsafe.arrayBaseOffset(byte[].class);
+
+    /** The value of {@code arrayBaseOffset(short[].class)} */
+    public static final int ARRAY_SHORT_BASE_OFFSET
+            = theUnsafe.arrayBaseOffset(short[].class);
+
+    /** The value of {@code arrayBaseOffset(char[].class)} */
+    public static final int ARRAY_CHAR_BASE_OFFSET
+            = theUnsafe.arrayBaseOffset(char[].class);
+
+    /** The value of {@code arrayBaseOffset(int[].class)} */
+    public static final int ARRAY_INT_BASE_OFFSET
+            = theUnsafe.arrayBaseOffset(int[].class);
+
+    /** The value of {@code arrayBaseOffset(long[].class)} */
+    public static final int ARRAY_LONG_BASE_OFFSET
+            = theUnsafe.arrayBaseOffset(long[].class);
+
+    /** The value of {@code arrayBaseOffset(float[].class)} */
+    public static final int ARRAY_FLOAT_BASE_OFFSET
+            = theUnsafe.arrayBaseOffset(float[].class);
+
+    /** The value of {@code arrayBaseOffset(double[].class)} */
+    public static final int ARRAY_DOUBLE_BASE_OFFSET
+            = theUnsafe.arrayBaseOffset(double[].class);
+
+    /** The value of {@code arrayBaseOffset(Object[].class)} */
+    public static final int ARRAY_OBJECT_BASE_OFFSET
+            = theUnsafe.arrayBaseOffset(Object[].class);
+
     /**
      * Gets the size of each element of the given array class.
      *
@@ -144,10 +180,164 @@ public final class Unsafe {
       return getArrayIndexScaleForComponentType(component);
     }
 
+    /** The value of {@code arrayIndexScale(boolean[].class)} */
+    public static final int ARRAY_BOOLEAN_INDEX_SCALE
+            = theUnsafe.arrayIndexScale(boolean[].class);
+
+    /** The value of {@code arrayIndexScale(byte[].class)} */
+    public static final int ARRAY_BYTE_INDEX_SCALE
+            = theUnsafe.arrayIndexScale(byte[].class);
+
+    /** The value of {@code arrayIndexScale(short[].class)} */
+    public static final int ARRAY_SHORT_INDEX_SCALE
+            = theUnsafe.arrayIndexScale(short[].class);
+
+    /** The value of {@code arrayIndexScale(char[].class)} */
+    public static final int ARRAY_CHAR_INDEX_SCALE
+            = theUnsafe.arrayIndexScale(char[].class);
+
+    /** The value of {@code arrayIndexScale(int[].class)} */
+    public static final int ARRAY_INT_INDEX_SCALE
+            = theUnsafe.arrayIndexScale(int[].class);
+
+    /** The value of {@code arrayIndexScale(long[].class)} */
+    public static final int ARRAY_LONG_INDEX_SCALE
+            = theUnsafe.arrayIndexScale(long[].class);
+
+    /** The value of {@code arrayIndexScale(float[].class)} */
+    public static final int ARRAY_FLOAT_INDEX_SCALE
+            = theUnsafe.arrayIndexScale(float[].class);
+
+    /** The value of {@code arrayIndexScale(double[].class)} */
+    public static final int ARRAY_DOUBLE_INDEX_SCALE
+            = theUnsafe.arrayIndexScale(double[].class);
+
+    /** The value of {@code arrayIndexScale(Object[].class)} */
+    public static final int ARRAY_OBJECT_INDEX_SCALE
+            = theUnsafe.arrayIndexScale(Object[].class);
+
+    /** The value of {@code addressSize()} */
+    public static final int ADDRESS_SIZE = theUnsafe.addressSize();
+
     @FastNative
     private static native int getArrayBaseOffsetForComponentType(Class component_class);
     @FastNative
     private static native int getArrayIndexScaleForComponentType(Class component_class);
+
+    /**
+     * Fetches a value at some byte offset into a given Java object.
+     * More specifically, fetches a value within the given object
+     * <code>o</code> at the given offset, or (if <code>o</code> is
+     * null) from the memory address whose numerical value is the
+     * given offset.  <p>
+     *
+     * The specification of this method is the same as {@link
+     * #getLong(Object, long)} except that the offset does not need to
+     * have been obtained from {@link #objectFieldOffset} on the
+     * {@link java.lang.reflect.Field} of some Java field.  The value
+     * in memory is raw data, and need not correspond to any Java
+     * variable.  Unless <code>o</code> is null, the value accessed
+     * must be entirely within the allocated object.  The endianness
+     * of the value in memory is the endianness of the native platform.
+     *
+     * <p> The read will be atomic with respect to the largest power
+     * of two that divides the GCD of the offset and the storage size.
+     * For example, getLongUnaligned will make atomic reads of 2-, 4-,
+     * or 8-byte storage units if the offset is zero mod 2, 4, or 8,
+     * respectively.  There are no other guarantees of atomicity.
+     * <p>
+     * 8-byte atomicity is only guaranteed on platforms on which
+     * support atomic accesses to longs.
+     *
+     * @param o Java heap object in which the value resides, if any, else
+     *        null
+     * @param offset The offset in bytes from the start of the object
+     * @return the value fetched from the indicated object
+     * @throws RuntimeException No defined exceptions are thrown, not even
+     *         {@link NullPointerException}
+     * @since 9
+     */
+    public final long getLongUnaligned(Object o, long offset) {
+        if ((offset & 7) == 0) {
+            return getLong(o, offset);
+        } else if ((offset & 3) == 0) {
+            return makeLong(getInt(o, offset),
+                    getInt(o, offset + 4));
+        } else if ((offset & 1) == 0) {
+            return makeLong(getShort(o, offset),
+                    getShort(o, offset + 2),
+                    getShort(o, offset + 4),
+                    getShort(o, offset + 6));
+        } else {
+            return makeLong(getByte(o, offset),
+                    getByte(o, offset + 1),
+                    getByte(o, offset + 2),
+                    getByte(o, offset + 3),
+                    getByte(o, offset + 4),
+                    getByte(o, offset + 5),
+                    getByte(o, offset + 6),
+                    getByte(o, offset + 7));
+        }
+    }
+
+    /** @see #getLongUnaligned(Object, long) */
+    public final int getIntUnaligned(Object o, long offset) {
+        if ((offset & 3) == 0) {
+            return getInt(o, offset);
+        } else if ((offset & 1) == 0) {
+            return makeInt(getShort(o, offset),
+                    getShort(o, offset + 2));
+        } else {
+            return makeInt(getByte(o, offset),
+                    getByte(o, offset + 1),
+                    getByte(o, offset + 2),
+                    getByte(o, offset + 3));
+        }
+    }
+
+    // These methods construct integers from bytes.  The byte ordering
+    // is the native endianness of this platform.
+    private static long makeLong(byte i0, byte i1, byte i2, byte i3, byte i4, byte i5, byte i6, byte i7) {
+        return ((toUnsignedLong(i0))
+                | (toUnsignedLong(i1) << 8)
+                | (toUnsignedLong(i2) << 16)
+                | (toUnsignedLong(i3) << 24)
+                | (toUnsignedLong(i4) << 32)
+                | (toUnsignedLong(i5) << 40)
+                | (toUnsignedLong(i6) << 48)
+                | (toUnsignedLong(i7) << 56));
+    }
+    private static long makeLong(short i0, short i1, short i2, short i3) {
+        return ((toUnsignedLong(i0))
+                | (toUnsignedLong(i1) << 16)
+                | (toUnsignedLong(i2) << 32)
+                | (toUnsignedLong(i3) << 48));
+    }
+    private static long makeLong(int i0, int i1) {
+        return (toUnsignedLong(i0))
+                | (toUnsignedLong(i1) << 32);
+    }
+    private static int makeInt(short i0, short i1) {
+        return (toUnsignedInt(i0))
+                | (toUnsignedInt(i1) << 16);
+    }
+    private static int makeInt(byte i0, byte i1, byte i2, byte i3) {
+        return ((toUnsignedInt(i0))
+                | (toUnsignedInt(i1) << 8)
+                | (toUnsignedInt(i2) << 16)
+                | (toUnsignedInt(i3) << 24));
+    }
+    private static short makeShort(byte i0, byte i1) {
+        return (short)((toUnsignedInt(i0))
+                | (toUnsignedInt(i1) << 8));
+    }
+
+    // Zero-extend an integer
+    private static int toUnsignedInt(byte n)    { return n & 0xff; }
+    private static int toUnsignedInt(short n)   { return n & 0xffff; }
+    private static long toUnsignedLong(byte n)  { return n & 0xffL; }
+    private static long toUnsignedLong(short n) { return n & 0xffffL; }
+    private static long toUnsignedLong(int n)   { return n & 0xffffffffL; }
 
     /**
      * Performs a compare-and-set operation on an {@code int}
@@ -680,29 +870,39 @@ public final class Unsafe {
     public native void putDouble(long address, double x);
 
     /**
-     * Copies given memory block to a primitive array.
+     * Sets all bytes in a given block of memory to a copy of another
+     * block.
      *
-     * @param srcAddr address to copy memory from
-     * @param dst address to copy memory to
-     * @param dstOffset offset in {@code dst}
-     * @param bytes number of bytes to copy
+     * This method is to be used to copy memory between array objects. The
+     * offsets used should be relative to the value reported by {@link
+     * #arrayBaseOffset}. For example to copy all elements of an integer
+     * array to another:
+     *
+     * <pre> {@code
+     *   unsafe.copyMemory(srcArray, Unsafe.ARRAY_INT_BASE_OFFSET,
+     *                     destArray, Unsafe.ARRAY_INT_BASE_OFFSET,
+     *                     srcArray.length * 4);
+     * }</pre>
+     *
+     * @param srcBase The source array object from which to copy
+     * @param srcOffset The offset within the object from where to copy
+     * @param destBase The destination array object to which to copy
+     * @param destOffset The offset within the object to where to copy
+     * @param bytes The number of bytes to copy
+     *
+     * @throws RuntimeException if any of the arguments is invalid
      */
-    @FastNative
-    public native void copyMemoryToPrimitiveArray(long srcAddr,
-            Object dst, long dstOffset, long bytes);
+    public void copyMemory(Object srcBase, long srcOffset,
+                           Object destBase, long destOffset,
+                           long bytes) {
+        copyMemoryChecks(srcBase, srcOffset, destBase, destOffset, bytes);
 
-    /**
-     * Treat given primitive array as a continuous memory block and
-     * copy it to given memory address.
-     *
-     * @param src primitive array to copy data from
-     * @param srcOffset offset in {@code src} to copy from
-     * @param dstAddr memory address to copy data to
-     * @param bytes number of bytes to copy
-     */
-    @FastNative
-    public native void copyMemoryFromPrimitiveArray(Object src, long srcOffset,
-            long dstAddr, long bytes);
+        if (bytes == 0) {
+            return;
+        }
+
+        copyMemory0(srcBase, srcOffset, destBase, destOffset, bytes);
+    }
 
     /**
      * Sets all bytes in a given block of memory to a copy of another block.
@@ -711,8 +911,29 @@ public final class Unsafe {
      * @param dstAddr address of the destination memory to copy to
      * @param bytes number of bytes to copy
      */
+    public void copyMemory(long srcAddr, long dstAddr, long bytes) {
+        copyMemory(null, srcAddr, null, dstAddr, bytes);
+    }
+
+    /**
+     * Validate the arguments to copyMemory
+     *
+     * @throws RuntimeException if any of the arguments is invalid
+     *         (<em>Note:</em> after optimization, invalid inputs may
+     *         go undetected, which will lead to unpredictable
+     *         behavior)
+     */
+    private void copyMemoryChecks(Object srcBase, long srcOffset,
+                                  Object destBase, long destOffset,
+                                  long bytes) {
+        checkSize(bytes);
+        checkPrimitivePointer(srcBase, srcOffset);
+        checkPrimitivePointer(destBase, destOffset);
+    }
+
+    @HotSpotIntrinsicCandidate
     @FastNative
-    public native void copyMemory(long srcAddr, long dstAddr, long bytes);
+    private native void copyMemory0(Object srcBase, long srcOffset, Object destBase, long destOffset, long bytes);
 
     /**
      * Atomically updates Java variable to {@code x} if it is currently
@@ -723,11 +944,41 @@ public final class Unsafe {
      *
      * @return {@code true} if successful
      */
-    //@HotSpotIntrinsicCandidate
+    @HotSpotIntrinsicCandidate
     @FastNative
     public final native boolean compareAndSetInt(Object o, long offset,
                                                  int expected,
                                                  int x);
+
+    /**
+     * Atomically updates Java variable to {@code x} if it is currently
+     * holding {@code expected}.
+     *
+     * <p>This operation has memory semantics of a {@code volatile} read
+     * and write.  Corresponds to C11 atomic_compare_exchange_strong.
+     *
+     * @return {@code true} if successful
+     */
+    @HotSpotIntrinsicCandidate
+    @FastNative
+    public final native boolean compareAndSetLong(Object o, long offset,
+                                                  long expected,
+                                                  long x);
+
+    /**
+     * Atomically updates Java variable to {@code x} if it is currently
+     * holding {@code expected}.
+     *
+     * <p>This operation has memory semantics of a {@code volatile} read
+     * and write.  Corresponds to C11 atomic_compare_exchange_strong.
+     *
+     * @return {@code true} if successful
+     */
+    @HotSpotIntrinsicCandidate
+    @FastNative
+    public final native boolean compareAndSetObject(Object o, long offset,
+                                                    Object expected,
+                                                    Object x);
 
     // The following contain CAS-based Java implementations used on
     // platforms not supporting native instructions
@@ -743,7 +994,7 @@ public final class Unsafe {
      * @return the previous value
      * @since 1.8
      */
-    // @HotSpotIntrinsicCandidate
+    @HotSpotIntrinsicCandidate
     public final int getAndAddInt(Object o, long offset, int delta) {
         int v;
         do {
@@ -763,7 +1014,7 @@ public final class Unsafe {
      * @return the previous value
      * @since 1.8
      */
-    // @HotSpotIntrinsicCandidate
+    @HotSpotIntrinsicCandidate
     public final long getAndAddLong(Object o, long offset, long delta) {
         long v;
         do {
@@ -783,7 +1034,7 @@ public final class Unsafe {
      * @return the previous value
      * @since 1.8
      */
-    // @HotSpotIntrinsicCandidate
+    @HotSpotIntrinsicCandidate
     public final int getAndSetInt(Object o, long offset, int newValue) {
         int v;
         do {
@@ -803,7 +1054,7 @@ public final class Unsafe {
      * @return the previous value
      * @since 1.8
      */
-    // @HotSpotIntrinsicCandidate
+    @HotSpotIntrinsicCandidate
     public final long getAndSetLong(Object o, long offset, long newValue) {
         long v;
         do {
@@ -823,7 +1074,7 @@ public final class Unsafe {
      * @return the previous value
      * @since 1.8
      */
-    // @HotSpotIntrinsicCandidate
+    @HotSpotIntrinsicCandidate
     public final Object getAndSetObject(Object o, long offset, Object newValue) {
         Object v;
         do {
@@ -833,15 +1084,39 @@ public final class Unsafe {
     }
 
     /** Release version of {@link #putIntVolatile(Object, long, int)} */
-    // @HotSpotIntrinsicCandidate
+    @HotSpotIntrinsicCandidate
     public final void putIntRelease(Object o, long offset, int x) {
         putIntVolatile(o, offset, x);
     }
 
     /** Acquire version of {@link #getIntVolatile(Object, long)} */
-    // @HotSpotIntrinsicCandidate
+    @HotSpotIntrinsicCandidate
     public final int getIntAcquire(Object o, long offset) {
         return getIntVolatile(o, offset);
+    }
+
+    /** Release version of {@link #putLongVolatile(Object, long, long)} */
+    @HotSpotIntrinsicCandidate
+    public final void putLongRelease(Object o, long offset, long x) {
+        putLongVolatile(o, offset, x);
+    }
+
+    /** Acquire version of {@link #getLongVolatile(Object, long)} */
+    @HotSpotIntrinsicCandidate
+    public final long getLongAcquire(Object o, long offset) {
+        return getLongVolatile(o, offset);
+    }
+
+    /** Release version of {@link #putObjectVolatile(Object, long, Object)} */
+    @HotSpotIntrinsicCandidate
+    public final void putObjectRelease(Object o, long offset, Object x) {
+        putObjectVolatile(o, offset, x);
+    }
+
+    /** Acquire version of {@link #getObjectVolatile(Object, long)} */
+    @HotSpotIntrinsicCandidate
+    public final Object getObjectAcquire(Object o, long offset) {
+        return getObjectVolatile(o, offset);
     }
 
     /**
@@ -856,7 +1131,7 @@ public final class Unsafe {
      * provide a LoadLoad barrier also provide a LoadStore barrier for free.
      * @since 1.8
      */
-    // @HotSpotIntrinsicCandidate
+    @HotSpotIntrinsicCandidate
     @FastNative
     public native void loadFence();
 
@@ -872,7 +1147,7 @@ public final class Unsafe {
      * provide a StoreStore barrier also provide a LoadStore barrier for free.
      * @since 1.8
      */
-    // @HotSpotIntrinsicCandidate
+    @HotSpotIntrinsicCandidate
     @FastNative
     public native void storeFence();
 
@@ -885,7 +1160,193 @@ public final class Unsafe {
      * Corresponds to C11 atomic_thread_fence(memory_order_seq_cst).
      * @since 1.8
      */
-    // @HotSpotIntrinsicCandidate
+    @HotSpotIntrinsicCandidate
     @FastNative
     public native void fullFence();
+
+    /**
+     * Ensures the given class has been initialized. This is often
+     * needed in conjunction with obtaining the static field base of a
+     * class.
+     */
+    public void ensureClassInitialized(Class<?> c) {
+        if (c == null) {
+            throw new NullPointerException();
+        }
+
+        // Android-changed: Implementation not yet available natively (b/202380950)
+        // ensureClassInitialized0(c);
+        try {
+            Class.forName(c.getName(), true, c.getClassLoader());
+        } catch (ClassNotFoundException e) {
+            // The function doesn't specify that it's throwing ClassNotFoundException, so it needs
+            // to be caught here. We could rethrow as NoClassDefFoundError, however that is not
+            // documented for this function and the upstream implementation does not throw an
+            // exception.
+        }
+    }
+
+
+    /// helper methods for validating various types of objects/values
+
+    /**
+     * Create an exception reflecting that some of the input was invalid
+     *
+     * <em>Note:</em> It is the resposibility of the caller to make
+     * sure arguments are checked before the methods are called. While
+     * some rudimentary checks are performed on the input, the checks
+     * are best effort and when performance is an overriding priority,
+     * as when methods of this class are optimized by the runtime
+     * compiler, some or all checks (if any) may be elided. Hence, the
+     * caller must not rely on the checks and corresponding
+     * exceptions!
+     *
+     * @return an exception object
+     */
+    private RuntimeException invalidInput() {
+        return new IllegalArgumentException();
+    }
+
+    /**
+     * Check if a value is 32-bit clean (32 MSB are all zero)
+     *
+     * @param value the 64-bit value to check
+     *
+     * @return true if the value is 32-bit clean
+     */
+    private boolean is32BitClean(long value) {
+        return value >>> 32 == 0;
+    }
+
+    /**
+     * Check the validity of a size (the equivalent of a size_t)
+     *
+     * @throws RuntimeException if the size is invalid
+     *         (<em>Note:</em> after optimization, invalid inputs may
+     *         go undetected, which will lead to unpredictable
+     *         behavior)
+     */
+    private void checkSize(long size) {
+        if (ADDRESS_SIZE == 4) {
+            // Note: this will also check for negative sizes
+            if (!is32BitClean(size)) {
+                throw invalidInput();
+            }
+        } else if (size < 0) {
+            throw invalidInput();
+        }
+    }
+
+    /**
+     * Check the validity of a native address (the equivalent of void*)
+     *
+     * @throws RuntimeException if the address is invalid
+     *         (<em>Note:</em> after optimization, invalid inputs may
+     *         go undetected, which will lead to unpredictable
+     *         behavior)
+     */
+    private void checkNativeAddress(long address) {
+        if (ADDRESS_SIZE == 4) {
+            // Accept both zero and sign extended pointers. A valid
+            // pointer will, after the +1 below, either have produced
+            // the value 0x0 or 0x1. Masking off the low bit allows
+            // for testing against 0.
+            if ((((address >> 32) + 1) & ~1) != 0) {
+                throw invalidInput();
+            }
+        }
+    }
+
+    /**
+     * Check the validity of an offset, relative to a base object
+     *
+     * @param o the base object
+     * @param offset the offset to check
+     *
+     * @throws RuntimeException if the size is invalid
+     *         (<em>Note:</em> after optimization, invalid inputs may
+     *         go undetected, which will lead to unpredictable
+     *         behavior)
+     */
+    private void checkOffset(Object o, long offset) {
+        if (ADDRESS_SIZE == 4) {
+            // Note: this will also check for negative offsets
+            if (!is32BitClean(offset)) {
+                throw invalidInput();
+            }
+        } else if (offset < 0) {
+            throw invalidInput();
+        }
+    }
+
+    /**
+     * Check the validity of a double-register pointer
+     *
+     * Note: This code deliberately does *not* check for NPE for (at
+     * least) three reasons:
+     *
+     * 1) NPE is not just NULL/0 - there is a range of values all
+     * resulting in an NPE, which is not trivial to check for
+     *
+     * 2) It is the responsibility of the callers of Unsafe methods
+     * to verify the input, so throwing an exception here is not really
+     * useful - passing in a NULL pointer is a critical error and the
+     * must not expect an exception to be thrown anyway.
+     *
+     * 3) the actual operations will detect NULL pointers anyway by
+     * means of traps and signals (like SIGSEGV).
+     *
+     * @param o Java heap object, or null
+     * @param offset indication of where the variable resides in a Java heap
+     *        object, if any, else a memory address locating the variable
+     *        statically
+     *
+     * @throws RuntimeException if the pointer is invalid
+     *         (<em>Note:</em> after optimization, invalid inputs may
+     *         go undetected, which will lead to unpredictable
+     *         behavior)
+     */
+    private void checkPointer(Object o, long offset) {
+        if (o == null) {
+            checkNativeAddress(offset);
+        } else {
+            checkOffset(o, offset);
+        }
+    }
+
+    /**
+     * Check if a type is a primitive array type
+     *
+     * @param c the type to check
+     *
+     * @return true if the type is a primitive array type
+     */
+    private void checkPrimitiveArray(Class<?> c) {
+        Class<?> componentType = c.getComponentType();
+        if (componentType == null || !componentType.isPrimitive()) {
+            throw invalidInput();
+        }
+    }
+
+    /**
+     * Check that a pointer is a valid primitive array type pointer
+     *
+     * Note: pointers off-heap are considered to be primitive arrays
+     *
+     * @throws RuntimeException if the pointer is invalid
+     *         (<em>Note:</em> after optimization, invalid inputs may
+     *         go undetected, which will lead to unpredictable
+     *         behavior)
+     */
+    private void checkPrimitivePointer(Object o, long offset) {
+        checkPointer(o, offset);
+
+        if (o != null) {
+            // If on heap, it must be a primitive array
+            checkPrimitiveArray(o.getClass());
+        }
+    }
+
+
+
 }

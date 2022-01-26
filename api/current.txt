@@ -1307,6 +1307,8 @@ package java.io {
     method public int available();
     method public int read();
     method public int read(byte[], int, int);
+    method public byte[] readAllBytes();
+    method public int readNBytes(byte[], int, int);
     method public void reset();
     method public long skip(long);
     field protected byte[] buf;
@@ -1322,9 +1324,11 @@ package java.io {
     method public int size();
     method @NonNull public byte[] toByteArray();
     method @NonNull public String toString(@NonNull String) throws java.io.UnsupportedEncodingException;
+    method @NonNull public String toString(@NonNull java.nio.charset.Charset);
     method @Deprecated @NonNull public String toString(int);
     method public void write(int);
     method public void write(@NonNull byte[], int, int);
+    method public void writeBytes(byte[]);
     method public void writeTo(@NonNull java.io.OutputStream) throws java.io.IOException;
     field @NonNull protected byte[] buf;
     field protected int count;
@@ -1573,6 +1577,8 @@ package java.io {
     ctor public FileReader(String) throws java.io.FileNotFoundException;
     ctor public FileReader(java.io.File) throws java.io.FileNotFoundException;
     ctor public FileReader(java.io.FileDescriptor);
+    ctor public FileReader(String, java.nio.charset.Charset) throws java.io.IOException;
+    ctor public FileReader(java.io.File, java.nio.charset.Charset) throws java.io.IOException;
   }
 
   public class FileWriter extends java.io.OutputStreamWriter {
@@ -1581,6 +1587,10 @@ package java.io {
     ctor public FileWriter(java.io.File) throws java.io.IOException;
     ctor public FileWriter(java.io.File, boolean) throws java.io.IOException;
     ctor public FileWriter(java.io.FileDescriptor);
+    ctor public FileWriter(String, java.nio.charset.Charset) throws java.io.IOException;
+    ctor public FileWriter(String, java.nio.charset.Charset, boolean) throws java.io.IOException;
+    ctor public FileWriter(java.io.File, java.nio.charset.Charset) throws java.io.IOException;
+    ctor public FileWriter(java.io.File, java.nio.charset.Charset, boolean) throws java.io.IOException;
   }
 
   @java.lang.FunctionalInterface public interface FilenameFilter {
@@ -1635,11 +1645,16 @@ package java.io {
     method public void close() throws java.io.IOException;
     method public void mark(int);
     method public boolean markSupported();
+    method public static java.io.InputStream nullInputStream();
     method public abstract int read() throws java.io.IOException;
     method public int read(byte[]) throws java.io.IOException;
     method public int read(byte[], int, int) throws java.io.IOException;
+    method public byte[] readAllBytes() throws java.io.IOException;
+    method public byte[] readNBytes(int) throws java.io.IOException;
+    method public int readNBytes(byte[], int, int) throws java.io.IOException;
     method public void reset() throws java.io.IOException;
     method public long skip(long) throws java.io.IOException;
+    method public long transferTo(java.io.OutputStream) throws java.io.IOException;
   }
 
   public class InputStreamReader extends java.io.Reader {
@@ -1876,6 +1891,7 @@ package java.io {
     ctor public OutputStream();
     method public void close() throws java.io.IOException;
     method public void flush() throws java.io.IOException;
+    method public static java.io.OutputStream nullOutputStream();
     method public abstract void write(int) throws java.io.IOException;
     method public void write(byte[]) throws java.io.IOException;
     method public void write(byte[], int, int) throws java.io.IOException;
@@ -1936,10 +1952,13 @@ package java.io {
     ctor public PrintStream(java.io.OutputStream);
     ctor public PrintStream(java.io.OutputStream, boolean);
     ctor public PrintStream(java.io.OutputStream, boolean, String) throws java.io.UnsupportedEncodingException;
+    ctor public PrintStream(java.io.OutputStream, boolean, java.nio.charset.Charset);
     ctor public PrintStream(String) throws java.io.FileNotFoundException;
     ctor public PrintStream(String, String) throws java.io.FileNotFoundException, java.io.UnsupportedEncodingException;
+    ctor public PrintStream(String, java.nio.charset.Charset) throws java.io.IOException;
     ctor public PrintStream(java.io.File) throws java.io.FileNotFoundException;
     ctor public PrintStream(java.io.File, String) throws java.io.FileNotFoundException, java.io.UnsupportedEncodingException;
+    ctor public PrintStream(java.io.File, java.nio.charset.Charset) throws java.io.IOException;
     method public java.io.PrintStream append(CharSequence);
     method public java.io.PrintStream append(CharSequence, int, int);
     method public java.io.PrintStream append(char);
@@ -1980,10 +1999,13 @@ package java.io {
     ctor public PrintWriter(@NonNull java.io.Writer, boolean);
     ctor public PrintWriter(@NonNull java.io.OutputStream);
     ctor public PrintWriter(@NonNull java.io.OutputStream, boolean);
+    ctor public PrintWriter(@NonNull java.io.OutputStream, boolean, @NonNull java.nio.charset.Charset);
     ctor public PrintWriter(@NonNull String) throws java.io.FileNotFoundException;
     ctor public PrintWriter(@NonNull String, @NonNull String) throws java.io.FileNotFoundException, java.io.UnsupportedEncodingException;
+    ctor public PrintWriter(@NonNull String, @NonNull java.nio.charset.Charset) throws java.io.IOException;
     ctor public PrintWriter(@NonNull java.io.File) throws java.io.FileNotFoundException;
     ctor public PrintWriter(@NonNull java.io.File, @NonNull String) throws java.io.FileNotFoundException, java.io.UnsupportedEncodingException;
+    ctor public PrintWriter(@NonNull java.io.File, @NonNull java.nio.charset.Charset) throws java.io.IOException;
     method @NonNull public java.io.PrintWriter append(@Nullable CharSequence);
     method @NonNull public java.io.PrintWriter append(@Nullable CharSequence, int, int);
     method @NonNull public java.io.PrintWriter append(char);
@@ -2090,6 +2112,7 @@ package java.io {
     ctor protected Reader(Object);
     method public void mark(int) throws java.io.IOException;
     method public boolean markSupported();
+    method public static java.io.Reader nullReader();
     method public int read(java.nio.CharBuffer) throws java.io.IOException;
     method public int read() throws java.io.IOException;
     method public int read(char[]) throws java.io.IOException;
@@ -2097,6 +2120,7 @@ package java.io {
     method public boolean ready() throws java.io.IOException;
     method public void reset() throws java.io.IOException;
     method public long skip(long) throws java.io.IOException;
+    method public long transferTo(java.io.Writer) throws java.io.IOException;
     field protected Object lock;
   }
 
@@ -2210,6 +2234,7 @@ package java.io {
     method public java.io.Writer append(CharSequence) throws java.io.IOException;
     method public java.io.Writer append(CharSequence, int, int) throws java.io.IOException;
     method public java.io.Writer append(char) throws java.io.IOException;
+    method public static java.io.Writer nullWriter();
     method public void write(int) throws java.io.IOException;
     method public void write(char[]) throws java.io.IOException;
     method public abstract void write(char[], int, int) throws java.io.IOException;
@@ -2954,12 +2979,12 @@ package java.lang {
     method public int compareTo(T);
   }
 
-  @Deprecated public final class Compiler {
-    method @Deprecated public static Object command(Object);
-    method @Deprecated public static boolean compileClass(Class<?>);
-    method @Deprecated public static boolean compileClasses(String);
-    method @Deprecated public static void disable();
-    method @Deprecated public static void enable();
+  public final class Compiler {
+    method public static Object command(Object);
+    method public static boolean compileClass(Class<?>);
+    method public static boolean compileClasses(String);
+    method public static void disable();
+    method public static void enable();
   }
 
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target({java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PACKAGE, java.lang.annotation.ElementType.MODULE, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.TYPE}) public @interface Deprecated {
@@ -3591,7 +3616,7 @@ package java.lang {
     method public void checkExit(int);
     method public void checkLink(String);
     method public void checkListen(int);
-    method public void checkMemberAccess(Class<?>, int);
+    method @Deprecated public void checkMemberAccess(Class<?>, int);
     method public void checkMulticast(java.net.InetAddress);
     method @Deprecated public void checkMulticast(java.net.InetAddress, byte);
     method public void checkPackageAccess(String);
@@ -3607,7 +3632,7 @@ package java.lang {
     method public void checkSecurityAccess(String);
     method public void checkSetFactory();
     method public void checkSystemClipboardAccess();
-    method public boolean checkTopLevelWindow(Object);
+    method @Deprecated public boolean checkTopLevelWindow(Object);
     method public void checkWrite(java.io.FileDescriptor);
     method public void checkWrite(String);
     method @Deprecated protected int classDepth(String);
@@ -3786,6 +3811,7 @@ package java.lang {
     method public int indexOf(@NonNull String);
     method public int indexOf(@NonNull String, int);
     method @NonNull public String intern();
+    method public boolean isBlank();
     method public boolean isEmpty();
     method @NonNull public static String join(@NonNull CharSequence, @Nullable java.lang.CharSequence...);
     method @NonNull public static String join(@NonNull CharSequence, @NonNull Iterable<? extends java.lang.CharSequence>);
@@ -3794,10 +3820,12 @@ package java.lang {
     method public int lastIndexOf(@NonNull String);
     method public int lastIndexOf(@NonNull String, int);
     method public int length();
+    method @NonNull public java.util.stream.Stream<java.lang.String> lines();
     method public boolean matches(@NonNull String);
     method public int offsetByCodePoints(int, int);
     method public boolean regionMatches(int, @NonNull String, int, int);
     method public boolean regionMatches(boolean, int, @NonNull String, int, int);
+    method @NonNull public String repeat(int);
     method @NonNull public String replace(char, char);
     method @NonNull public String replace(@NonNull CharSequence, @NonNull CharSequence);
     method @NonNull public String replaceAll(@NonNull String, @NonNull String);
@@ -3806,6 +3834,9 @@ package java.lang {
     method @NonNull public String[] split(@NonNull String);
     method public boolean startsWith(@NonNull String, int);
     method public boolean startsWith(@NonNull String);
+    method @NonNull public String strip();
+    method @NonNull public String stripLeading();
+    method @NonNull public String stripTrailing();
     method @NonNull public CharSequence subSequence(int, int);
     method @NonNull public String substring(int);
     method @NonNull public String substring(int, int);
@@ -4314,6 +4345,7 @@ package java.lang.invoke {
     method public static java.lang.invoke.MethodHandle invoker(java.lang.invoke.MethodType);
     method public static java.lang.invoke.MethodHandles.Lookup lookup();
     method public static java.lang.invoke.MethodHandle permuteArguments(java.lang.invoke.MethodHandle, java.lang.invoke.MethodType, int...);
+    method public static java.lang.invoke.MethodHandles.Lookup privateLookupIn(Class<?>, java.lang.invoke.MethodHandles.Lookup) throws java.lang.IllegalAccessException;
     method public static java.lang.invoke.MethodHandles.Lookup publicLookup();
     method public static <T extends java.lang.reflect.Member> T reflectAs(Class<T>, java.lang.invoke.MethodHandle);
     method public static java.lang.invoke.MethodHandle spreadInvoker(java.lang.invoke.MethodType, int);
@@ -4644,6 +4676,7 @@ package java.lang.reflect {
 
   public class MalformedParameterizedTypeException extends java.lang.RuntimeException {
     ctor public MalformedParameterizedTypeException();
+    ctor public MalformedParameterizedTypeException(String);
   }
 
   public class MalformedParametersException extends java.lang.RuntimeException {
@@ -4795,9 +4828,9 @@ package java.math {
     method public java.math.BigDecimal add(java.math.BigDecimal, java.math.MathContext);
     method public byte byteValueExact();
     method public int compareTo(java.math.BigDecimal);
-    method public java.math.BigDecimal divide(java.math.BigDecimal, int, int);
+    method @Deprecated public java.math.BigDecimal divide(java.math.BigDecimal, int, int);
     method public java.math.BigDecimal divide(java.math.BigDecimal, int, java.math.RoundingMode);
-    method public java.math.BigDecimal divide(java.math.BigDecimal, int);
+    method @Deprecated public java.math.BigDecimal divide(java.math.BigDecimal, int);
     method public java.math.BigDecimal divide(java.math.BigDecimal, java.math.RoundingMode);
     method public java.math.BigDecimal divide(java.math.BigDecimal);
     method public java.math.BigDecimal divide(java.math.BigDecimal, java.math.MathContext);
@@ -4830,10 +4863,11 @@ package java.math {
     method public int scale();
     method public java.math.BigDecimal scaleByPowerOfTen(int);
     method public java.math.BigDecimal setScale(int, java.math.RoundingMode);
-    method public java.math.BigDecimal setScale(int, int);
+    method @Deprecated public java.math.BigDecimal setScale(int, int);
     method public java.math.BigDecimal setScale(int);
     method public short shortValueExact();
     method public int signum();
+    method public java.math.BigDecimal sqrt(java.math.MathContext);
     method public java.math.BigDecimal stripTrailingZeros();
     method public java.math.BigDecimal subtract(java.math.BigDecimal);
     method public java.math.BigDecimal subtract(java.math.BigDecimal, java.math.MathContext);
@@ -4847,20 +4881,22 @@ package java.math {
     method public static java.math.BigDecimal valueOf(long);
     method public static java.math.BigDecimal valueOf(double);
     field public static final java.math.BigDecimal ONE;
-    field public static final int ROUND_CEILING = 2; // 0x2
-    field public static final int ROUND_DOWN = 1; // 0x1
-    field public static final int ROUND_FLOOR = 3; // 0x3
-    field public static final int ROUND_HALF_DOWN = 5; // 0x5
-    field public static final int ROUND_HALF_EVEN = 6; // 0x6
-    field public static final int ROUND_HALF_UP = 4; // 0x4
-    field public static final int ROUND_UNNECESSARY = 7; // 0x7
-    field public static final int ROUND_UP = 0; // 0x0
+    field @Deprecated public static final int ROUND_CEILING = 2; // 0x2
+    field @Deprecated public static final int ROUND_DOWN = 1; // 0x1
+    field @Deprecated public static final int ROUND_FLOOR = 3; // 0x3
+    field @Deprecated public static final int ROUND_HALF_DOWN = 5; // 0x5
+    field @Deprecated public static final int ROUND_HALF_EVEN = 6; // 0x6
+    field @Deprecated public static final int ROUND_HALF_UP = 4; // 0x4
+    field @Deprecated public static final int ROUND_UNNECESSARY = 7; // 0x7
+    field @Deprecated public static final int ROUND_UP = 0; // 0x0
     field public static final java.math.BigDecimal TEN;
     field public static final java.math.BigDecimal ZERO;
   }
 
   public class BigInteger extends java.lang.Number implements java.lang.Comparable<java.math.BigInteger> {
+    ctor public BigInteger(byte[], int, int);
     ctor public BigInteger(byte[]);
+    ctor public BigInteger(int, byte[], int, int);
     ctor public BigInteger(int, byte[]);
     ctor public BigInteger(@NonNull String, int);
     ctor public BigInteger(@NonNull String);
@@ -4905,6 +4941,8 @@ package java.math {
     method @NonNull public java.math.BigInteger shiftRight(int);
     method public short shortValueExact();
     method public int signum();
+    method @NonNull public java.math.BigInteger sqrt();
+    method @NonNull public java.math.BigInteger[] sqrtAndRemainder();
     method @NonNull public java.math.BigInteger subtract(@NonNull java.math.BigInteger);
     method public boolean testBit(int);
     method public byte[] toByteArray();
@@ -4913,6 +4951,7 @@ package java.math {
     method @NonNull public java.math.BigInteger xor(@NonNull java.math.BigInteger);
     field @NonNull public static final java.math.BigInteger ONE;
     field @NonNull public static final java.math.BigInteger TEN;
+    field @NonNull public static final java.math.BigInteger TWO;
     field @NonNull public static final java.math.BigInteger ZERO;
   }
 
@@ -6155,8 +6194,10 @@ package java.nio.channels {
     method public static java.io.OutputStream newOutputStream(java.nio.channels.AsynchronousByteChannel);
     method public static java.io.Reader newReader(java.nio.channels.ReadableByteChannel, java.nio.charset.CharsetDecoder, int);
     method public static java.io.Reader newReader(java.nio.channels.ReadableByteChannel, String);
+    method public static java.io.Reader newReader(java.nio.channels.ReadableByteChannel, java.nio.charset.Charset);
     method public static java.io.Writer newWriter(java.nio.channels.WritableByteChannel, java.nio.charset.CharsetEncoder, int);
     method public static java.io.Writer newWriter(java.nio.channels.WritableByteChannel, String);
+    method public static java.io.Writer newWriter(java.nio.channels.WritableByteChannel, java.nio.charset.Charset);
   }
 
   public class ClosedByInterruptException extends java.nio.channels.AsynchronousCloseException {
@@ -6374,6 +6415,8 @@ package java.nio.channels {
     method public abstract java.nio.channels.SelectableChannel channel();
     method public abstract int interestOps();
     method public abstract java.nio.channels.SelectionKey interestOps(int);
+    method public int interestOpsAnd(int);
+    method public int interestOpsOr(int);
     method public final boolean isAcceptable();
     method public final boolean isConnectable();
     method public final boolean isReadable();
@@ -6395,7 +6438,10 @@ package java.nio.channels {
     method public abstract java.nio.channels.spi.SelectorProvider provider();
     method public abstract int select(long) throws java.io.IOException;
     method public abstract int select() throws java.io.IOException;
+    method public int select(java.util.function.Consumer<java.nio.channels.SelectionKey>, long) throws java.io.IOException;
+    method public int select(java.util.function.Consumer<java.nio.channels.SelectionKey>) throws java.io.IOException;
     method public abstract int selectNow() throws java.io.IOException;
+    method public int selectNow(java.util.function.Consumer<java.nio.channels.SelectionKey>) throws java.io.IOException;
     method public abstract java.util.Set<java.nio.channels.SelectionKey> selectedKeys();
     method public abstract java.nio.channels.Selector wakeup();
   }
@@ -6723,6 +6769,7 @@ package java.nio.file {
   public abstract class FileStore {
     ctor protected FileStore();
     method public abstract Object getAttribute(String) throws java.io.IOException;
+    method public long getBlockSize() throws java.io.IOException;
     method public abstract <V extends java.nio.file.attribute.FileStoreAttributeView> V getFileStoreAttributeView(Class<V>);
     method public abstract long getTotalSpace() throws java.io.IOException;
     method public abstract long getUnallocatedSpace() throws java.io.IOException;
@@ -8492,6 +8539,12 @@ package java.security.cert {
     method public final java.security.PublicKey getCAPublicKey();
     method public final byte[] getNameConstraints();
     method public final java.security.cert.X509Certificate getTrustedCert();
+  }
+
+  public final class URICertStoreParameters implements java.security.cert.CertStoreParameters {
+    ctor public URICertStoreParameters(java.net.URI);
+    method public java.security.cert.URICertStoreParameters clone();
+    method public java.net.URI getURI();
   }
 
   public abstract class X509CRL extends java.security.cert.CRL implements java.security.cert.X509Extension {
@@ -12351,6 +12404,34 @@ package java.util {
     method public static int binarySearch(@NonNull Object[], int, int, @NonNull Object);
     method public static <T> int binarySearch(@NonNull T[], T, @Nullable java.util.Comparator<? super T>);
     method public static <T> int binarySearch(@NonNull T[], int, int, T, @Nullable java.util.Comparator<? super T>);
+    method public static int compare(@Nullable boolean[], @Nullable boolean[]);
+    method public static int compare(@NonNull boolean[], int, int, @NonNull boolean[], int, int);
+    method public static int compare(@Nullable byte[], @Nullable byte[]);
+    method public static int compare(@NonNull byte[], int, int, @NonNull byte[], int, int);
+    method public static int compare(@Nullable short[], @Nullable short[]);
+    method public static int compare(@NonNull short[], int, int, @NonNull short[], int, int);
+    method public static int compare(@Nullable char[], @Nullable char[]);
+    method public static int compare(@NonNull char[], int, int, @NonNull char[], int, int);
+    method public static int compare(@Nullable int[], @Nullable int[]);
+    method public static int compare(@NonNull int[], int, int, @NonNull int[], int, int);
+    method public static int compare(@Nullable long[], @Nullable long[]);
+    method public static int compare(@NonNull long[], int, int, @NonNull long[], int, int);
+    method public static int compare(@Nullable float[], @Nullable float[]);
+    method public static int compare(@NonNull float[], int, int, @NonNull float[], int, int);
+    method public static int compare(@Nullable double[], @Nullable double[]);
+    method public static int compare(@NonNull double[], int, int, @NonNull double[], int, int);
+    method public static <T extends java.lang.Comparable<? super T>> int compare(@Nullable T[], @Nullable T[]);
+    method public static <T extends java.lang.Comparable<? super T>> int compare(@NonNull T[], int, int, @NonNull T[], int, int);
+    method public static <T> int compare(@Nullable T[], @Nullable T[], @NonNull java.util.Comparator<? super T>);
+    method public static <T> int compare(@NonNull T[], int, int, @NonNull T[], int, int, @NonNull java.util.Comparator<? super T>);
+    method public static int compareUnsigned(@Nullable byte[], @Nullable byte[]);
+    method public static int compareUnsigned(@NonNull byte[], int, int, @NonNull byte[], int, int);
+    method public static int compareUnsigned(@Nullable short[], @Nullable short[]);
+    method public static int compareUnsigned(@NonNull short[], int, int, @NonNull short[], int, int);
+    method public static int compareUnsigned(@Nullable int[], @Nullable int[]);
+    method public static int compareUnsigned(@NonNull int[], int, int, @NonNull int[], int, int);
+    method public static int compareUnsigned(@Nullable long[], @Nullable long[]);
+    method public static int compareUnsigned(@NonNull long[], int, int, @NonNull long[], int, int);
     method @NonNull public static <T> T[] copyOf(@NonNull T[], int);
     method @NonNull public static <T, U> T[] copyOf(@NonNull U[], int, @NonNull Class<? extends T[]>);
     method @NonNull public static byte[] copyOf(@NonNull byte[], int);
@@ -12375,14 +12456,25 @@ package java.util {
     method public static int deepHashCode(@Nullable Object[]);
     method @NonNull public static String deepToString(@Nullable Object[]);
     method public static boolean equals(@Nullable long[], @Nullable long[]);
+    method public static boolean equals(@NonNull long[], int, int, @NonNull long[], int, int);
     method public static boolean equals(@Nullable int[], @Nullable int[]);
+    method public static boolean equals(@NonNull int[], int, int, @NonNull int[], int, int);
     method public static boolean equals(@Nullable short[], @Nullable short[]);
+    method public static boolean equals(@NonNull short[], int, int, @NonNull short[], int, int);
     method public static boolean equals(@Nullable char[], @Nullable char[]);
+    method public static boolean equals(@NonNull char[], int, int, @NonNull char[], int, int);
     method public static boolean equals(@Nullable byte[], @Nullable byte[]);
+    method public static boolean equals(@NonNull byte[], int, int, @NonNull byte[], int, int);
     method public static boolean equals(@Nullable boolean[], @Nullable boolean[]);
+    method public static boolean equals(@NonNull boolean[], int, int, @NonNull boolean[], int, int);
     method public static boolean equals(@Nullable double[], @Nullable double[]);
+    method public static boolean equals(@NonNull double[], int, int, @NonNull double[], int, int);
     method public static boolean equals(@Nullable float[], @Nullable float[]);
+    method public static boolean equals(@NonNull float[], int, int, @NonNull float[], int, int);
     method public static boolean equals(@Nullable Object[], @Nullable Object[]);
+    method public static boolean equals(@NonNull Object[], int, int, @NonNull Object[], int, int);
+    method public static <T> boolean equals(@Nullable T[], @Nullable T[], @NonNull java.util.Comparator<? super T>);
+    method public static <T> boolean equals(@NonNull T[], int, int, @NonNull T[], int, int, @NonNull java.util.Comparator<? super T>);
     method public static void fill(@NonNull long[], long);
     method public static void fill(@NonNull long[], int, int, long);
     method public static void fill(@NonNull int[], int);
@@ -12410,6 +12502,26 @@ package java.util {
     method public static int hashCode(@Nullable float[]);
     method public static int hashCode(@Nullable double[]);
     method public static int hashCode(@Nullable Object[]);
+    method public static int mismatch(@NonNull boolean[], @NonNull boolean[]);
+    method public static int mismatch(@NonNull boolean[], int, int, @NonNull boolean[], int, int);
+    method public static int mismatch(@NonNull byte[], @NonNull byte[]);
+    method public static int mismatch(byte[], int, int, byte[], int, int);
+    method public static int mismatch(@NonNull char[], @NonNull char[]);
+    method public static int mismatch(@NonNull char[], int, int, @NonNull char[], int, int);
+    method public static int mismatch(@NonNull short[], @NonNull short[]);
+    method public static int mismatch(@NonNull short[], int, int, @NonNull short[], int, int);
+    method public static int mismatch(@NonNull int[], @NonNull int[]);
+    method public static int mismatch(@NonNull int[], int, int, @NonNull int[], int, int);
+    method public static int mismatch(@NonNull long[], @NonNull long[]);
+    method public static int mismatch(@NonNull long[], int, int, @NonNull long[], int, int);
+    method public static int mismatch(@NonNull float[], @NonNull float[]);
+    method public static int mismatch(@NonNull float[], int, int, @NonNull float[], int, int);
+    method public static int mismatch(@NonNull double[], @NonNull double[]);
+    method public static int mismatch(@NonNull double[], int, int, @NonNull double[], int, int);
+    method public static int mismatch(@NonNull Object[], @NonNull Object[]);
+    method public static int mismatch(@NonNull Object[], int, int, @NonNull Object[], int, int);
+    method public static <T> int mismatch(@NonNull T[], @NonNull T[], @NonNull java.util.Comparator<? super T>);
+    method public static <T> int mismatch(@NonNull T[], int, int, @NonNull T[], int, int, @NonNull java.util.Comparator<? super T>);
     method public static <T> void parallelPrefix(@NonNull T[], @NonNull java.util.function.BinaryOperator<T>);
     method public static <T> void parallelPrefix(@NonNull T[], int, int, @NonNull java.util.function.BinaryOperator<T>);
     method public static void parallelPrefix(@NonNull long[], @NonNull java.util.function.LongBinaryOperator);
@@ -14222,6 +14334,7 @@ package java.util.concurrent {
     ctor public ArrayBlockingQueue(int, boolean, java.util.Collection<? extends E>);
     method public int drainTo(java.util.Collection<? super E>);
     method public int drainTo(java.util.Collection<? super E>, int);
+    method public void forEach(java.util.function.Consumer<? super E>);
     method public java.util.Iterator<E> iterator();
     method public boolean offer(E);
     method public boolean offer(E, long, java.util.concurrent.TimeUnit) throws java.lang.InterruptedException;
@@ -14462,7 +14575,7 @@ package java.util.concurrent {
     method public final boolean isEmpty();
     method @NonNull public java.util.Iterator<K> iterator();
     method public boolean remove(@NonNull Object);
-    method public final boolean removeAll(@NonNull java.util.Collection<?>);
+    method public boolean removeAll(@NonNull java.util.Collection<?>);
     method public final boolean retainAll(@NonNull java.util.Collection<?>);
     method public final int size();
     method @NonNull public java.util.Spliterator<K> spliterator();
@@ -14478,6 +14591,7 @@ package java.util.concurrent {
     method public void addLast(E);
     method public java.util.Iterator<E> descendingIterator();
     method public E element();
+    method public void forEach(java.util.function.Consumer<? super E>);
     method public E getFirst();
     method public E getLast();
     method public java.util.Iterator<E> iterator();
@@ -14503,6 +14617,7 @@ package java.util.concurrent {
   public class ConcurrentLinkedQueue<E> extends java.util.AbstractQueue<E> implements java.util.Queue<E> java.io.Serializable {
     ctor public ConcurrentLinkedQueue();
     ctor public ConcurrentLinkedQueue(java.util.Collection<? extends E>);
+    method public void forEach(java.util.function.Consumer<? super E>);
     method public java.util.Iterator<E> iterator();
     method public boolean offer(E);
     method public E peek();
@@ -14792,6 +14907,7 @@ package java.util.concurrent {
     ctor public ForkJoinPool();
     ctor public ForkJoinPool(int);
     ctor public ForkJoinPool(int, java.util.concurrent.ForkJoinPool.ForkJoinWorkerThreadFactory, java.lang.Thread.UncaughtExceptionHandler, boolean);
+    ctor public ForkJoinPool(int, java.util.concurrent.ForkJoinPool.ForkJoinWorkerThreadFactory, java.lang.Thread.UncaughtExceptionHandler, boolean, int, int, int, java.util.function.Predicate<? super java.util.concurrent.ForkJoinPool>, long, java.util.concurrent.TimeUnit);
     method public boolean awaitQuiescence(long, java.util.concurrent.TimeUnit);
     method public boolean awaitTermination(long, java.util.concurrent.TimeUnit) throws java.lang.InterruptedException;
     method public static java.util.concurrent.ForkJoinPool commonPool();
@@ -14918,6 +15034,7 @@ package java.util.concurrent {
     method public java.util.Iterator<E> descendingIterator();
     method public int drainTo(java.util.Collection<? super E>);
     method public int drainTo(java.util.Collection<? super E>, int);
+    method public void forEach(java.util.function.Consumer<? super E>);
     method public E getFirst();
     method public E getLast();
     method public java.util.Iterator<E> iterator();
@@ -14958,6 +15075,7 @@ package java.util.concurrent {
     ctor public LinkedBlockingQueue(java.util.Collection<? extends E>);
     method public int drainTo(java.util.Collection<? super E>);
     method public int drainTo(java.util.Collection<? super E>, int);
+    method public void forEach(java.util.function.Consumer<? super E>);
     method public java.util.Iterator<E> iterator();
     method public boolean offer(E, long, java.util.concurrent.TimeUnit) throws java.lang.InterruptedException;
     method public boolean offer(E);
@@ -14975,6 +15093,7 @@ package java.util.concurrent {
     ctor public LinkedTransferQueue(java.util.Collection<? extends E>);
     method public int drainTo(java.util.Collection<? super E>);
     method public int drainTo(java.util.Collection<? super E>, int);
+    method public void forEach(java.util.function.Consumer<? super E>);
     method public int getWaitingConsumerCount();
     method public boolean hasWaitingConsumer();
     method public java.util.Iterator<E> iterator();
@@ -15024,6 +15143,7 @@ package java.util.concurrent {
     method public java.util.Comparator<? super E> comparator();
     method public int drainTo(java.util.Collection<? super E>);
     method public int drainTo(java.util.Collection<? super E>, int);
+    method public void forEach(java.util.function.Consumer<? super E>);
     method public java.util.Iterator<E> iterator();
     method public boolean offer(E);
     method public boolean offer(E, long, java.util.concurrent.TimeUnit);
@@ -15121,6 +15241,29 @@ package java.util.concurrent {
     method public boolean tryAcquire(int, long, java.util.concurrent.TimeUnit) throws java.lang.InterruptedException;
   }
 
+  public class SubmissionPublisher<T> implements java.lang.AutoCloseable java.util.concurrent.Flow.Publisher<T> {
+    ctor public SubmissionPublisher(java.util.concurrent.Executor, int, java.util.function.BiConsumer<? super java.util.concurrent.Flow.Subscriber<? super T>,? super java.lang.Throwable>);
+    ctor public SubmissionPublisher(java.util.concurrent.Executor, int);
+    ctor public SubmissionPublisher();
+    method public void close();
+    method public void closeExceptionally(Throwable);
+    method public java.util.concurrent.CompletableFuture<java.lang.Void> consume(java.util.function.Consumer<? super T>);
+    method public int estimateMaximumLag();
+    method public long estimateMinimumDemand();
+    method public Throwable getClosedException();
+    method public java.util.concurrent.Executor getExecutor();
+    method public int getMaxBufferCapacity();
+    method public int getNumberOfSubscribers();
+    method public java.util.List<java.util.concurrent.Flow.Subscriber<? super T>> getSubscribers();
+    method public boolean hasSubscribers();
+    method public boolean isClosed();
+    method public boolean isSubscribed(java.util.concurrent.Flow.Subscriber<? super T>);
+    method public int offer(T, java.util.function.BiPredicate<java.util.concurrent.Flow.Subscriber<? super T>,? super T>);
+    method public int offer(T, long, java.util.concurrent.TimeUnit, java.util.function.BiPredicate<java.util.concurrent.Flow.Subscriber<? super T>,? super T>);
+    method public int submit(T);
+    method public void subscribe(java.util.concurrent.Flow.Subscriber<? super T>);
+  }
+
   public class SynchronousQueue<E> extends java.util.AbstractQueue<E> implements java.util.concurrent.BlockingQueue<E> java.io.Serializable {
     ctor public SynchronousQueue();
     ctor public SynchronousQueue(boolean);
@@ -15162,7 +15305,7 @@ package java.util.concurrent {
     method public boolean awaitTermination(long, java.util.concurrent.TimeUnit) throws java.lang.InterruptedException;
     method protected void beforeExecute(Thread, Runnable);
     method public void execute(Runnable);
-    method protected void finalize();
+    method @Deprecated protected void finalize();
     method public int getActiveCount();
     method public long getCompletedTaskCount();
     method public int getCorePoolSize();
@@ -15213,9 +15356,12 @@ package java.util.concurrent {
 
   public enum TimeUnit {
     method public long convert(long, java.util.concurrent.TimeUnit);
+    method public long convert(java.time.Duration);
+    method public static java.util.concurrent.TimeUnit of(java.time.temporal.ChronoUnit);
     method public void sleep(long) throws java.lang.InterruptedException;
     method public void timedJoin(Thread, long) throws java.lang.InterruptedException;
     method public void timedWait(Object, long) throws java.lang.InterruptedException;
+    method public java.time.temporal.ChronoUnit toChronoUnit();
     method public long toDays(long);
     method public long toHours(long);
     method public long toMicros(long);
