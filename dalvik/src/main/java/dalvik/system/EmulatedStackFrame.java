@@ -16,6 +16,8 @@
 
 package dalvik.system;
 
+import sun.invoke.util.Wrapper;
+
 import java.lang.invoke.MethodType;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -177,6 +179,20 @@ public class EmulatedStackFrame {
     }
 
     /**
+     * Convert parameter index to index within references array.
+     */
+    int getReferenceIndex(int parameterIndex) {
+        final Class [] ptypes = type.ptypes();
+        int refIndex = 0;
+        for (int i = 0; i < parameterIndex; ++i) {
+            if (!ptypes[i].isPrimitive()) {
+                refIndex += 1;
+            }
+        }
+        return refIndex;
+    }
+
+    /**
      * Sets the {@code idx} to {@code reference}. Type checks are performed.
      */
     public void setReference(int idx, Object reference) {
@@ -184,12 +200,11 @@ public class EmulatedStackFrame {
         if (idx < 0 || idx >= ptypes.length) {
             throw new IllegalArgumentException("Invalid index: " + idx);
         }
-
         if (reference != null && !ptypes[idx].isInstance(reference)) {
             throw new IllegalStateException("reference is not of type: " + type.ptypes()[idx]);
         }
-
-        references[idx] = reference;
+        int referenceIndex = getReferenceIndex(idx);
+        references[referenceIndex] = reference;
     }
 
     /**
@@ -200,8 +215,8 @@ public class EmulatedStackFrame {
             throw new IllegalArgumentException("Argument: " + idx +
                     " is of type " + type.ptypes()[idx] + " expected " + referenceType + "");
         }
-
-        return (T) references[idx];
+        int referenceIndex = getReferenceIndex(idx);
+        return (T) references[referenceIndex];
     }
 
     /**
@@ -387,26 +402,36 @@ public class EmulatedStackFrame {
             }
         }
 
-        public static void copyNext(StackFrameReader reader, StackFrameWriter writer,
-                                    Class<?> type) {
-            if (!type.isPrimitive()) {
-                writer.putNextReference(reader.nextReference(type), type);
-            } else if (type == boolean.class) {
-                writer.putNextBoolean(reader.nextBoolean());
-            } else if (type == byte.class) {
-                writer.putNextByte(reader.nextByte());
-            } else if (type == char.class) {
-                writer.putNextChar(reader.nextChar());
-            } else if (type == short.class) {
-                writer.putNextShort(reader.nextShort());
-            } else if (type == int.class) {
-                writer.putNextInt(reader.nextInt());
-            } else if (type == long.class) {
-                writer.putNextLong(reader.nextLong());
-            } else if (type == float.class) {
-                writer.putNextFloat(reader.nextFloat());
-            } else if (type == double.class) {
-                writer.putNextDouble(reader.nextDouble());
+        public static void copyNext(
+                StackFrameReader reader, StackFrameWriter writer, Class<?> type) {
+            switch (Wrapper.basicTypeChar(type)) {
+                case 'L':
+                    writer.putNextReference(reader.nextReference(type), type);
+                    break;
+                case 'Z':
+                    writer.putNextBoolean(reader.nextBoolean());
+                    break;
+                case 'B':
+                    writer.putNextByte(reader.nextByte());
+                    break;
+                case 'C':
+                    writer.putNextChar(reader.nextChar());
+                    break;
+                case 'S':
+                    writer.putNextShort(reader.nextShort());
+                    break;
+                case 'I':
+                    writer.putNextInt(reader.nextInt());
+                    break;
+                case 'J':
+                    writer.putNextLong(reader.nextLong());
+                    break;
+                case 'F':
+                    writer.putNextFloat(reader.nextFloat());
+                    break;
+                case 'D':
+                    writer.putNextDouble(reader.nextDouble());
+                    break;
             }
         }
     }
