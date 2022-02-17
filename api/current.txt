@@ -3177,8 +3177,8 @@ package java.lang {
   }
 
   public final class Integer extends java.lang.Number implements java.lang.Comparable<java.lang.Integer> {
-    ctor public Integer(int);
-    ctor public Integer(@NonNull String) throws java.lang.NumberFormatException;
+    ctor @Deprecated public Integer(int);
+    ctor @Deprecated public Integer(@NonNull String) throws java.lang.NumberFormatException;
     method public static int bitCount(int);
     method public static int compare(int, int);
     method public int compareTo(@NonNull Integer);
@@ -3200,8 +3200,10 @@ package java.lang {
     method public static int numberOfLeadingZeros(int);
     method public static int numberOfTrailingZeros(int);
     method public static int parseInt(@NonNull String, int) throws java.lang.NumberFormatException;
+    method public static int parseInt(@NonNull CharSequence, int, int, int) throws java.lang.NumberFormatException;
     method public static int parseInt(@NonNull String) throws java.lang.NumberFormatException;
     method public static int parseUnsignedInt(@NonNull String, int) throws java.lang.NumberFormatException;
+    method public static int parseUnsignedInt(@NonNull CharSequence, int, int, int) throws java.lang.NumberFormatException;
     method public static int parseUnsignedInt(@NonNull String) throws java.lang.NumberFormatException;
     method public static int remainderUnsigned(int, int);
     method public static int reverse(int);
@@ -3253,8 +3255,8 @@ package java.lang {
   }
 
   public final class Long extends java.lang.Number implements java.lang.Comparable<java.lang.Long> {
-    ctor public Long(long);
-    ctor public Long(@NonNull String) throws java.lang.NumberFormatException;
+    ctor @Deprecated public Long(long);
+    ctor @Deprecated public Long(@NonNull String) throws java.lang.NumberFormatException;
     method public static int bitCount(long);
     method public static int compare(long, long);
     method public int compareTo(@NonNull Long);
@@ -3276,8 +3278,10 @@ package java.lang {
     method public static int numberOfLeadingZeros(long);
     method public static int numberOfTrailingZeros(long);
     method public static long parseLong(@NonNull String, int) throws java.lang.NumberFormatException;
+    method public static long parseLong(@NonNull CharSequence, int, int, int) throws java.lang.NumberFormatException;
     method public static long parseLong(@NonNull String) throws java.lang.NumberFormatException;
     method public static long parseUnsignedLong(@NonNull String, int) throws java.lang.NumberFormatException;
+    method public static long parseUnsignedLong(@NonNull CharSequence, int, int, int) throws java.lang.NumberFormatException;
     method public static long parseUnsignedLong(@NonNull String) throws java.lang.NumberFormatException;
     method public static long remainderUnsigned(long, long);
     method public static long reverse(long);
@@ -4297,6 +4301,7 @@ package java.lang.invoke {
     method public Object invokeWithArguments(java.util.List<?>) throws java.lang.Throwable;
     method public boolean isVarargsCollector();
     method public java.lang.invoke.MethodType type();
+    method public java.lang.invoke.MethodHandle withVarargs(boolean);
   }
 
   public interface MethodHandleInfo {
@@ -4397,6 +4402,7 @@ package java.lang.invoke {
     method public boolean hasWrappers();
     method public java.lang.invoke.MethodType insertParameterTypes(int, Class<?>...);
     method public java.lang.invoke.MethodType insertParameterTypes(int, java.util.List<java.lang.Class<?>>);
+    method public Class<?> lastParameterType();
     method public static java.lang.invoke.MethodType methodType(Class<?>, Class<?>[]);
     method public static java.lang.invoke.MethodType methodType(Class<?>, java.util.List<java.lang.Class<?>>);
     method public static java.lang.invoke.MethodType methodType(Class<?>, Class<?>, Class<?>...);
@@ -4517,6 +4523,16 @@ package java.lang.invoke {
 }
 
 package java.lang.ref {
+
+  public final class Cleaner {
+    method public static java.lang.ref.Cleaner create();
+    method public static java.lang.ref.Cleaner create(java.util.concurrent.ThreadFactory);
+    method public java.lang.ref.Cleaner.Cleanable register(Object, Runnable);
+  }
+
+  public static interface Cleaner.Cleanable {
+    method public void clean();
+  }
 
   public class PhantomReference<T> extends java.lang.ref.Reference<T> {
     ctor public PhantomReference(T, java.lang.ref.ReferenceQueue<? super T>);
@@ -5596,6 +5612,7 @@ package java.net {
     field public static final int SO_OOBINLINE = 4099; // 0x1003
     field public static final int SO_RCVBUF = 4098; // 0x1002
     field public static final int SO_REUSEADDR = 4; // 0x4
+    field public static final int SO_REUSEPORT = 14; // 0xe
     field public static final int SO_SNDBUF = 4097; // 0x1001
     field public static final int SO_TIMEOUT = 4102; // 0x1006
     field public static final int TCP_NODELAY = 1; // 0x1
@@ -5627,6 +5644,7 @@ package java.net {
     field public static final java.net.SocketOption<java.lang.Integer> SO_LINGER;
     field public static final java.net.SocketOption<java.lang.Integer> SO_RCVBUF;
     field public static final java.net.SocketOption<java.lang.Boolean> SO_REUSEADDR;
+    field public static final java.net.SocketOption<java.lang.Boolean> SO_REUSEPORT;
     field public static final java.net.SocketOption<java.lang.Integer> SO_SNDBUF;
     field public static final java.net.SocketOption<java.lang.Boolean> TCP_NODELAY;
   }
@@ -5780,11 +5798,13 @@ package java.net {
     ctor public URLDecoder();
     method @Deprecated public static String decode(String);
     method public static String decode(String, String) throws java.io.UnsupportedEncodingException;
+    method public static String decode(String, java.nio.charset.Charset);
   }
 
   public class URLEncoder {
     method @Deprecated public static String encode(String);
     method public static String encode(String, String) throws java.io.UnsupportedEncodingException;
+    method public static String encode(String, java.nio.charset.Charset);
   }
 
   public abstract class URLStreamHandler {
@@ -5850,6 +5870,8 @@ package java.nio {
   }
 
   public abstract class ByteBuffer extends java.nio.Buffer implements java.lang.Comparable<java.nio.ByteBuffer> {
+    method @NonNull public final java.nio.ByteBuffer alignedSlice(int);
+    method public final int alignmentOffset(int, int);
     method @NonNull public static java.nio.ByteBuffer allocate(int);
     method @NonNull public static java.nio.ByteBuffer allocateDirect(int);
     method @NonNull public final byte[] array();
@@ -8084,56 +8106,56 @@ package java.security {
 
 package java.security.acl {
 
-  public interface Acl extends java.security.acl.Owner {
-    method public boolean addEntry(java.security.Principal, java.security.acl.AclEntry) throws java.security.acl.NotOwnerException;
-    method public boolean checkPermission(java.security.Principal, java.security.acl.Permission);
-    method public java.util.Enumeration<java.security.acl.AclEntry> entries();
-    method public String getName();
-    method public java.util.Enumeration<java.security.acl.Permission> getPermissions(java.security.Principal);
-    method public boolean removeEntry(java.security.Principal, java.security.acl.AclEntry) throws java.security.acl.NotOwnerException;
-    method public void setName(java.security.Principal, String) throws java.security.acl.NotOwnerException;
-    method public String toString();
+  @Deprecated public interface Acl extends java.security.acl.Owner {
+    method @Deprecated public boolean addEntry(java.security.Principal, java.security.acl.AclEntry) throws java.security.acl.NotOwnerException;
+    method @Deprecated public boolean checkPermission(java.security.Principal, java.security.acl.Permission);
+    method @Deprecated public java.util.Enumeration<java.security.acl.AclEntry> entries();
+    method @Deprecated public String getName();
+    method @Deprecated public java.util.Enumeration<java.security.acl.Permission> getPermissions(java.security.Principal);
+    method @Deprecated public boolean removeEntry(java.security.Principal, java.security.acl.AclEntry) throws java.security.acl.NotOwnerException;
+    method @Deprecated public void setName(java.security.Principal, String) throws java.security.acl.NotOwnerException;
+    method @Deprecated public String toString();
   }
 
-  public interface AclEntry extends java.lang.Cloneable {
-    method public boolean addPermission(java.security.acl.Permission);
-    method public boolean checkPermission(java.security.acl.Permission);
-    method public Object clone();
-    method public java.security.Principal getPrincipal();
-    method public boolean isNegative();
-    method public java.util.Enumeration<java.security.acl.Permission> permissions();
-    method public boolean removePermission(java.security.acl.Permission);
-    method public void setNegativePermissions();
-    method public boolean setPrincipal(java.security.Principal);
-    method public String toString();
+  @Deprecated public interface AclEntry extends java.lang.Cloneable {
+    method @Deprecated public boolean addPermission(java.security.acl.Permission);
+    method @Deprecated public boolean checkPermission(java.security.acl.Permission);
+    method @Deprecated public Object clone();
+    method @Deprecated public java.security.Principal getPrincipal();
+    method @Deprecated public boolean isNegative();
+    method @Deprecated public java.util.Enumeration<java.security.acl.Permission> permissions();
+    method @Deprecated public boolean removePermission(java.security.acl.Permission);
+    method @Deprecated public void setNegativePermissions();
+    method @Deprecated public boolean setPrincipal(java.security.Principal);
+    method @Deprecated public String toString();
   }
 
-  public class AclNotFoundException extends java.lang.Exception {
-    ctor public AclNotFoundException();
+  @Deprecated public class AclNotFoundException extends java.lang.Exception {
+    ctor @Deprecated public AclNotFoundException();
   }
 
-  public interface Group extends java.security.Principal {
-    method public boolean addMember(java.security.Principal);
-    method public boolean isMember(java.security.Principal);
-    method public java.util.Enumeration<? extends java.security.Principal> members();
-    method public boolean removeMember(java.security.Principal);
+  @Deprecated public interface Group extends java.security.Principal {
+    method @Deprecated public boolean addMember(java.security.Principal);
+    method @Deprecated public boolean isMember(java.security.Principal);
+    method @Deprecated public java.util.Enumeration<? extends java.security.Principal> members();
+    method @Deprecated public boolean removeMember(java.security.Principal);
   }
 
-  public class LastOwnerException extends java.lang.Exception {
-    ctor public LastOwnerException();
+  @Deprecated public class LastOwnerException extends java.lang.Exception {
+    ctor @Deprecated public LastOwnerException();
   }
 
-  public class NotOwnerException extends java.lang.Exception {
-    ctor public NotOwnerException();
+  @Deprecated public class NotOwnerException extends java.lang.Exception {
+    ctor @Deprecated public NotOwnerException();
   }
 
-  public interface Owner {
-    method public boolean addOwner(java.security.Principal, java.security.Principal) throws java.security.acl.NotOwnerException;
-    method public boolean deleteOwner(java.security.Principal, java.security.Principal) throws java.security.acl.LastOwnerException, java.security.acl.NotOwnerException;
-    method public boolean isOwner(java.security.Principal);
+  @Deprecated public interface Owner {
+    method @Deprecated public boolean addOwner(java.security.Principal, java.security.Principal) throws java.security.acl.NotOwnerException;
+    method @Deprecated public boolean deleteOwner(java.security.Principal, java.security.Principal) throws java.security.acl.LastOwnerException, java.security.acl.NotOwnerException;
+    method @Deprecated public boolean isOwner(java.security.Principal);
   }
 
-  public interface Permission {
+  @Deprecated public interface Permission {
   }
 
 }
@@ -8766,6 +8788,10 @@ package java.security.interfaces {
     field public static final long serialVersionUID = -8727434096241101194L; // 0x86e1ecedeceab676L
   }
 
+  public interface XECKey {
+    method public java.security.spec.AlgorithmParameterSpec getParams();
+  }
+
 }
 
 package java.security.spec {
@@ -8888,6 +8914,13 @@ package java.security.spec {
     field public static final java.security.spec.MGF1ParameterSpec SHA512;
   }
 
+  public class NamedParameterSpec implements java.security.spec.AlgorithmParameterSpec {
+    ctor public NamedParameterSpec(@NonNull String);
+    method @NonNull public String getName();
+    field public static final java.security.spec.NamedParameterSpec X25519;
+    field public static final java.security.spec.NamedParameterSpec X448;
+  }
+
   public class PKCS8EncodedKeySpec extends java.security.spec.EncodedKeySpec {
     ctor public PKCS8EncodedKeySpec(byte[]);
     method public final String getFormat();
@@ -8955,6 +8988,18 @@ package java.security.spec {
   public class X509EncodedKeySpec extends java.security.spec.EncodedKeySpec {
     ctor public X509EncodedKeySpec(byte[]);
     method public final String getFormat();
+  }
+
+  public class XECPrivateKeySpec implements java.security.spec.KeySpec {
+    ctor public XECPrivateKeySpec(java.security.spec.AlgorithmParameterSpec, byte[]);
+    method public java.security.spec.AlgorithmParameterSpec getParams();
+    method public byte[] getScalar();
+  }
+
+  public class XECPublicKeySpec implements java.security.spec.KeySpec {
+    ctor public XECPublicKeySpec(java.security.spec.AlgorithmParameterSpec, java.math.BigInteger);
+    method public java.security.spec.AlgorithmParameterSpec getParams();
+    method public java.math.BigInteger getU();
   }
 
 }
@@ -17000,6 +17045,8 @@ package java.util.stream {
     method public static <T> java.util.stream.Collector<T,?,java.lang.Double> averagingLong(java.util.function.ToLongFunction<? super T>);
     method public static <T, A, R, RR> java.util.stream.Collector<T,A,RR> collectingAndThen(java.util.stream.Collector<T,A,R>, java.util.function.Function<R,RR>);
     method public static <T> java.util.stream.Collector<T,?,java.lang.Long> counting();
+    method public static <T, A, R> java.util.stream.Collector<T,?,R> filtering(java.util.function.Predicate<? super T>, java.util.stream.Collector<? super T,A,R>);
+    method public static <T, U, A, R> java.util.stream.Collector<T,?,R> flatMapping(java.util.function.Function<? super T,? extends java.util.stream.Stream<? extends U>>, java.util.stream.Collector<? super U,A,R>);
     method public static <T, K> java.util.stream.Collector<T,?,java.util.Map<K,java.util.List<T>>> groupingBy(java.util.function.Function<? super T,? extends K>);
     method public static <T, K, A, D> java.util.stream.Collector<T,?,java.util.Map<K,D>> groupingBy(java.util.function.Function<? super T,? extends K>, java.util.stream.Collector<? super T,A,D>);
     method public static <T, K, D, A, M extends java.util.Map<K, D>> java.util.stream.Collector<T,?,M> groupingBy(java.util.function.Function<? super T,? extends K>, java.util.function.Supplier<M>, java.util.stream.Collector<? super T,A,D>);
@@ -17032,6 +17079,10 @@ package java.util.stream {
     method public static <T, K, U> java.util.stream.Collector<T,?,java.util.Map<K,U>> toMap(java.util.function.Function<? super T,? extends K>, java.util.function.Function<? super T,? extends U>, java.util.function.BinaryOperator<U>);
     method public static <T, K, U, M extends java.util.Map<K, U>> java.util.stream.Collector<T,?,M> toMap(java.util.function.Function<? super T,? extends K>, java.util.function.Function<? super T,? extends U>, java.util.function.BinaryOperator<U>, java.util.function.Supplier<M>);
     method public static <T> java.util.stream.Collector<T,?,java.util.Set<T>> toSet();
+    method public static <T> java.util.stream.Collector<T,?,java.util.List<T>> toUnmodifiableList();
+    method public static <T, K, U> java.util.stream.Collector<T,?,java.util.Map<K,U>> toUnmodifiableMap(java.util.function.Function<? super T,? extends K>, java.util.function.Function<? super T,? extends U>);
+    method public static <T, K, U> java.util.stream.Collector<T,?,java.util.Map<K,U>> toUnmodifiableMap(java.util.function.Function<? super T,? extends K>, java.util.function.Function<? super T,? extends U>, java.util.function.BinaryOperator<U>);
+    method public static <T> java.util.stream.Collector<T,?,java.util.Set<T>> toUnmodifiableSet();
   }
 
   public interface DoubleStream extends java.util.stream.BaseStream<java.lang.Double,java.util.stream.DoubleStream> {

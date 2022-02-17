@@ -192,6 +192,12 @@ java_library {
         ":okhttp_impl_files",
     ],
 
+    // Only add Java11LanguageFeatures if EXPERIMENTAL_TARGET_JAVA_VERSION_11
+    // flag is set to true
+    openjdk11: {
+        srcs: ["luni/src/main/java/libcore/internal/Java11LanguageFeatures.java"],
+    },
+
     sdk_version: "none",
     system_modules: "none",
     patch_module: "java.base",
@@ -200,7 +206,6 @@ java_library {
     },
 
     java_resources: core_resources,
-    java_version: "1.9",
 
     installable: false,
 
@@ -279,6 +284,7 @@ java_library {
             "java.lang.Object",
             "java.lang.String",
             "java.lang.invoke.MethodHandle",
+            "java.lang.invoke.VarHandle",
             "java.lang.ref.Reference",
             "java.lang.reflect.Proxy",
             "java.util.AbstractMap",
@@ -316,7 +322,12 @@ java_library {
     hostdex: true,
 
     srcs: [":core_libart_java_files"],
-    java_version: "1.9",
+
+    // Only add Java11LanguageFeatures if EXPERIMENTAL_TARGET_JAVA_VERSION_11
+    // flag is set to true
+    openjdk11: {
+        srcs: ["luni/src/main/java/libcore/internal/Java11LanguageFeatures.java"],
+    },
 
     sdk_version: "none",
     system_modules: "core-all-system-modules",
@@ -473,6 +484,7 @@ java_library_static {
         "//frameworks/base/location/tests/locationtests",
         "//frameworks/base/core/tests/coretests",
         "//frameworks/base/wifi/tests",
+        "//libcore/luni/src/test/java9compatibility",
         "//packages/modules/Wifi/framework/tests",
     ],
     hostdex: true,
@@ -551,6 +563,11 @@ java_test {
     libs: [
         "junit",
     ],
+    errorprone: {
+        javacflags: [
+            "-Xep:DoNotCall:OFF",
+        ],
+    },
 }
 
 // A filegroup that provides access to a source file for a toolchain test that
@@ -559,6 +576,14 @@ filegroup {
     name: "core-java-9-language-features-source",
     srcs: ["luni/src/main/java/libcore/internal/Java9LanguageFeatures.java"],
     visibility: ["//libcore/luni/src/test/java9language"],
+}
+
+// A filegroup that provides access to a source file for a toolchain test that
+// checks Java 11 language features are handled properly by JarJar.
+filegroup {
+    name: "core-java-11-language-features-source",
+    srcs: ["luni/src/main/java/libcore/internal/Java11LanguageFeatures.java"],
+    visibility: ["//libcore/luni/src/test/java11language"],
 }
 
 genrule {
@@ -631,7 +656,9 @@ java_test {
 
     static_libs: [
         "core-compat-test-rules",
+        "core-java-9-compatibility-tests",
         "core-java-9-language-tests",
+        "core-java-11-language-tests",
         "core-test-rules",
         "core-tests-support",
         "junit-params",
@@ -649,6 +676,7 @@ java_test {
         javacflags: [
             "-Xep:TryFailThrowable:ERROR",
             "-Xep:ComparisonOutOfRange:ERROR",
+            "-Xep:DoNotCall:OFF",
         ],
     },
 
@@ -697,9 +725,6 @@ java_test {
         "ojluni/src/test/java/**/*.java",
         "ojluni/src/test/javax/**/*.java",
     ],
-    exclude_srcs: [
-        "ojluni/src/test/java/lang/invoke/VarHandles/**/*.java",
-    ],
     java_resource_dirs: [
         "ojluni/src/test/java",
         "ojluni/src/test/resources",
@@ -736,6 +761,13 @@ java_test {
     // deleting those tests or moving them to a different
     // package.
     patch_module: "java.base",
+
+    errorprone: {
+        javacflags: [
+            "-Xep:AlwaysThrows:OFF",
+            "-Xep:DoNotCall:OFF",
+        ],
+    },
 }
 
 // Builds the core-ojtests-public library. Excludes any private API tests.
@@ -756,12 +788,10 @@ java_test {
     //     and won't actually run, and
     // 2.) util/stream/boot*. Those directories contain classes in the package java.util.stream;
     //     excluding them means we don't need patch_module: "java.base"
-    // 3.) java.lang.invoke.VarHandles. A few issues to clear out then address b/203822478.
     exclude_srcs: [
         "**/DeserializeMethodTest.java",
         "**/SerializedLambdaTest.java",
         "ojluni/src/test/java/util/stream/boot*/**/*",
-        "ojluni/src/test/java/lang/invoke/VarHandles/**/*.java",
     ],
     java_resource_dirs: [
         "ojluni/src/test/java",
@@ -782,6 +812,13 @@ java_test {
         "okhttp",
         "testng",
     ],
+
+    errorprone: {
+        javacflags: [
+            "-Xep:AlwaysThrows:OFF",
+            "-Xep:DoNotCall:OFF",
+        ],
+    },
 }
 
 // Exports annotated stubs source files in ojluni/annotations/sdk to make them
@@ -836,7 +873,6 @@ droidstubs {
         ":core_oj_api_files",
         ":core_libart_api_files",
     ],
-    java_version: "1.9",
     installable: false,
     sdk_version: "none",
     system_modules: "none",
@@ -930,7 +966,6 @@ java_sdk_library {
         "i18n.module.intra.core.api.stubs",
     ],
     stub_only_static_libs: ["notices-for-stubs-jar"],
-    java_version: "1.9",
 
     // Make dex jars for the stubs available for use by hiddenapi processing.
     compile_dex: true,
@@ -1104,6 +1139,5 @@ java_library {
     srcs: [
         ":api_surface_annotation_files",
     ],
-    java_version: "1.9",
     sdk_version: "core_current",
 }

@@ -738,7 +738,23 @@ class MethodType implements java.io.Serializable {
         return Collections.unmodifiableList(Arrays.asList(ptypes.clone()));
     }
 
-    /*non-public*/ Class<?> lastParameterType() {
+    /**
+     * Returns the last parameter type of this method type.
+     * If this type has no parameters, the sentinel value
+     * {@code void.class} is returned instead.
+     * @apiNote
+     * <p>
+     * The sentinel value is chosen so that reflective queries can be
+     * made directly against the result value.
+     * The sentinel value cannot be confused with a real parameter,
+     * since {@code void} is never acceptable as a parameter type.
+     * For variable arity invocation modes, the expression
+     * {@link Class#getComponentType lastParameterType().getComponentType()}
+     * is useful to query the type of the "varargs" parameter.
+     * @return the last parameter type if any, else {@code void.class}
+     * @since 10
+     */
+    public Class<?> lastParameterType() {
         int len = ptypes.length;
         return len == 0 ? void.class : ptypes[len-1];
     }
@@ -842,11 +858,12 @@ class MethodType implements java.io.Serializable {
 
     /*non-public*/
     boolean isConvertibleTo(MethodType newType) {
-        MethodTypeForm oldForm = this.form();
-        MethodTypeForm newForm = newType.form();
-        if (oldForm == newForm)
-            // same parameter count, same primitive/object mix
-            return true;
+        // Android-removed: use of MethodTypeForm does not apply to Android implementation.
+        // MethodTypeForm oldForm = this.form();
+        // MethodTypeForm newForm = newType.form();
+        // if (oldForm == newForm)
+        //     // same parameter count, same primitive/object mix
+        //     return true;
         if (!canConvert(returnType(), newType.returnType()))
             return false;
         Class<?>[] srcTypes = newType.ptypes;
@@ -861,13 +878,14 @@ class MethodType implements java.io.Serializable {
                 return false;
             return true;
         }
-        if ((oldForm.primitiveParameterCount() == 0 && oldForm.erasedType == this) ||
-            (newForm.primitiveParameterCount() == 0 && newForm.erasedType == newType)) {
-            // Somewhat complicated test to avoid a loop of 2 or more trips.
-            // If either type has only Object parameters, we know we can convert.
-            assert(canConvertParameters(srcTypes, dstTypes));
-            return true;
-        }
+        // Android-removed: use of MethodTypeForm does not apply to Android implementation.
+        // if ((oldForm.primitiveParameterCount() == 0 && oldForm.erasedType == this) ||
+        //     (newForm.primitiveParameterCount() == 0 && newForm.erasedType == newType)) {
+        //     // Somewhat complicated test to avoid a loop of 2 or more trips.
+        //     // If either type has only Object parameters, we know we can convert.
+        //     assert(canConvertParameters(srcTypes, dstTypes));
+        //     return true;
+        // }
         return canConvertParameters(srcTypes, dstTypes);
     }
 
