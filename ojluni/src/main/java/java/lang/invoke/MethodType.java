@@ -473,12 +473,13 @@ class MethodType implements java.io.Serializable {
 
     /** Replace the last arrayLength parameter types with the component type of arrayType.
      * @param arrayType any array type
+     * @param pos position at which to spread
      * @param arrayLength the number of parameter types to change
      * @return the resulting type
      */
-    /*non-public*/ MethodType asSpreaderType(Class<?> arrayType, int arrayLength) {
+    /*non-public*/ MethodType asSpreaderType(Class<?> arrayType, int pos, int arrayLength) {
         assert(parameterCount() >= arrayLength);
-        int spreadPos = ptypes.length - arrayLength;
+        int spreadPos = pos;
         if (arrayLength == 0)  return this;  // nothing to change
         if (arrayType == Object[].class) {
             if (isGeneric())  return this;  // nothing to change
@@ -493,10 +494,10 @@ class MethodType implements java.io.Serializable {
         }
         Class<?> elemType = arrayType.getComponentType();
         assert(elemType != null);
-        for (int i = spreadPos; i < ptypes.length; i++) {
+        for (int i = spreadPos; i < spreadPos + arrayLength; i++) {
             if (ptypes[i] != elemType) {
                 Class<?>[] fixedPtypes = ptypes.clone();
-                Arrays.fill(fixedPtypes, i, ptypes.length, elemType);
+                Arrays.fill(fixedPtypes, i, spreadPos + arrayLength, elemType);
                 return methodType(rtype, fixedPtypes);
             }
         }
@@ -516,12 +517,14 @@ class MethodType implements java.io.Serializable {
 
     /** Delete the last parameter type and replace it with arrayLength copies of the component type of arrayType.
      * @param arrayType any array type
+     * @param pos position at which to insert parameters
      * @param arrayLength the number of parameter types to insert
      * @return the resulting type
      */
-    /*non-public*/ MethodType asCollectorType(Class<?> arrayType, int arrayLength) {
+    /*non-public*/ MethodType asCollectorType(Class<?> arrayType, int pos, int arrayLength) {
         assert(parameterCount() >= 1);
-        assert(lastParameterType().isAssignableFrom(arrayType));
+        assert(pos < ptypes.length);
+        assert(ptypes[pos].isAssignableFrom(arrayType));
         MethodType res;
         if (arrayType == Object[].class) {
             res = genericMethodType(arrayLength);
@@ -536,7 +539,11 @@ class MethodType implements java.io.Serializable {
         if (ptypes.length == 1) {
             return res;
         } else {
-            return res.insertParameterTypes(0, parameterList().subList(0, ptypes.length-1));
+            // insert after (if need be), then before
+            if (pos < ptypes.length - 1) {
+                res = res.insertParameterTypes(arrayLength, Arrays.copyOfRange(ptypes, pos + 1, ptypes.length));
+            }
+            return res.insertParameterTypes(0, Arrays.copyOf(ptypes, pos));
         }
     }
 
@@ -824,6 +831,28 @@ class MethodType implements java.io.Serializable {
         sb.append(")");
         sb.append(rtype.getSimpleName());
         return sb.toString();
+    }
+
+    /** True if my parameter list is effectively identical to the given full list,
+     *  after skipping the given number of my own initial parameters.
+     *  In other words, after disregarding {@code skipPos} parameters,
+     *  my remaining parameter list is no longer than the {@code fullList}, and
+     *  is equal to the same-length initial sublist of {@code fullList}.
+     */
+    /*non-public*/
+    boolean effectivelyIdenticalParameters(int skipPos, List<Class<?>> fullList) {
+        int myLen = ptypes.length, fullLen = fullList.size();
+        if (skipPos > myLen || myLen - skipPos > fullLen)
+            return false;
+        List<Class<?>> myList = Arrays.asList(ptypes);
+        if (skipPos != 0) {
+            myList = myList.subList(skipPos, myLen);
+            myLen -= skipPos;
+        }
+        if (fullLen == myLen)
+            return myList.equals(fullList);
+        else
+            return myList.equals(fullList.subList(0, myLen));
     }
 
     // BEGIN Android-removed: Implementation methods unused on Android.
