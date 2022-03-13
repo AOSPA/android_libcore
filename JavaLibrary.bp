@@ -103,7 +103,7 @@ gensrcs {
     output_extension: "java",
 }
 
-// The source files that go into core-libart.
+// The source files that go into core-libart.l
 filegroup {
     name: "core_libart_java_files",
     visibility: [
@@ -158,6 +158,7 @@ java_defaults {
         javacflags: [
             "-Xep:MissingOverride:OFF", // Ignore missing @Override.
             "-Xep:ConstantOverflow:WARN", // Known constant overflow in SplittableRandom
+            "-Xep:UnicodeInCode:WARN", // XML parser uses line feeds in whitespace
         ],
     },
     min_sdk_version: "31",
@@ -683,6 +684,7 @@ java_test {
         "luni/src/test/java/libcore/javax/crypto/**/*.java",
         "luni/src/test/java/libcore/javax/net/ssl/**/*.java",
         "luni/src/test/java/libcore/libcore/util/SerializationTester.java",
+        "luni/src/test/java/libcore/sun/security/**/*.java",
         "luni/src/test/java/org/apache/harmony/crypto/**/*.java",
     ],
 
