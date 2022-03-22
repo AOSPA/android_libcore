@@ -74,15 +74,28 @@ public class Transformers {
             return super.clone();
         }
 
+        /**
+         * Performs a MethodHandle.invoke() call with arguments held in an
+         * EmulatedStackFrame.
+         * @param target the method handle to invoke
+         * @param stackFrame the stack frame containing arguments for the invocation
+         */
         protected void invokeFromTransform(MethodHandle target, EmulatedStackFrame stackFrame)
                 throws Throwable {
             if (target instanceof Transformer) {
                 ((Transformer) target).transform(stackFrame);
             } else {
-                target.invoke(stackFrame);
+                final MethodHandle adaptedTarget = target.asType(stackFrame.getMethodType());
+                adaptedTarget.invokeExact(stackFrame);
             }
         }
 
+        /**
+         * Performs a MethodHandle.invokeExact() call with arguments held in an
+         * EmulatedStackFrame.
+         * @param target the method handle to invoke
+         * @param stackFrame the stack frame containing arguments for the invocation
+         */
         protected void invokeExactFromTransform(MethodHandle target, EmulatedStackFrame stackFrame)
                 throws Throwable {
             if (target instanceof Transformer) {
@@ -199,6 +212,70 @@ public class Transformers {
                     throw th;
                 }
             }
+        }
+    }
+
+    /** Implements {@code MethodHandles.tryFinally}. */
+    public static class TryFinally extends Transformer {
+        /** The target handle to try. */
+        private final MethodHandle target;
+
+        /** The cleanup handle to invoke after the target. */
+        private final MethodHandle cleanup;
+
+        public TryFinally(MethodHandle target, MethodHandle cleanup) {
+            super(target.type());
+            this.target = target;
+            this.cleanup = cleanup;
+        }
+
+        @Override
+        protected void transform(EmulatedStackFrame callerFrame) throws Throwable {
+            Throwable throwable = null;
+            try {
+                invokeExactFromTransform(target, callerFrame);
+            } catch (Throwable t) {
+                throwable = t;
+                throw t;
+            } finally {
+                final EmulatedStackFrame cleanupFrame = prepareCleanupFrame(callerFrame, throwable);
+                invokeExactFromTransform(cleanup, cleanupFrame);
+                if (cleanup.type().returnType() != void.class) {
+                    cleanupFrame.copyReturnValueTo(callerFrame);
+                }
+            }
+        }
+
+        /** Prepares the frame used to invoke the cleanup handle. */
+        private EmulatedStackFrame prepareCleanupFrame(final EmulatedStackFrame callerFrame,
+                                                       final Throwable throwable) {
+            final EmulatedStackFrame cleanupFrame = EmulatedStackFrame.create(cleanup.type());
+            final StackFrameWriter cleanupWriter = new StackFrameWriter();
+            cleanupWriter.attach(cleanupFrame);
+
+            // The first argument to `cleanup` is (any) pending exception kind.
+            cleanupWriter.putNextReference(throwable, Throwable.class);
+            int added = 1;
+
+            // The second argument to `cleanup` is the result from `target` (if not void).
+            Class<?> targetReturnType = target.type().returnType();
+            StackFrameReader targetReader = new StackFrameReader();
+            targetReader.attach(callerFrame);
+            if (targetReturnType != void.class) {
+                targetReader.makeReturnValueAccessor();
+                copyNext(targetReader, cleanupWriter, targetReturnType);
+                added += 1;
+                // Reset `targetReader` to reference the arguments in `callerFrame`.
+                targetReader.attach(callerFrame);
+            }
+
+            // The final arguments from the invocation of target. As many are copied as the cleanup
+            // handle expects (it may be fewer than the arguments provided to target).
+            Class<?> [] cleanupTypes = cleanup.type().parameterArray();
+            for (; added != cleanupTypes.length; ++added) {
+                copyNext(targetReader, cleanupWriter, cleanupTypes[added]);
+            }
+            return cleanupFrame;
         }
     }
 
@@ -575,7 +652,7 @@ public class Transformers {
         private final Class<?> arrayType;
 
         /*package*/ VarargsCollector(MethodHandle target) {
-            super(target.type(), MethodHandle.INVOKE_CALLSITE_TRANSFORM);
+            super(target.type());
 
             Class<?>[] parameterTypes = target.type().ptypes();
             if (!lastParameterTypeIsAnArray(parameterTypes)) {
@@ -1117,17 +1194,6 @@ public class Transformers {
 
         @Override
         public void transform(EmulatedStackFrame emulatedStackFrame) throws Throwable {
-            // We need to artificially throw a WrongMethodTypeException here because we
-            // can't call invokeExact on the target inside the transformer.
-            if (isExactInvoker) {
-                MethodType callsiteType =
-                        emulatedStackFrame.getCallsiteType().dropParameterTypes(0, 1);
-                if (!exactMatch(callsiteType, targetType)) {
-                    throw new WrongMethodTypeException(
-                            "Wrong type, Expected: " + targetType + " was: " + callsiteType);
-                }
-            }
-
             // The first argument to the stack frame is the handle that needs to be invoked.
             MethodHandle target = emulatedStackFrame.getReference(0, MethodHandle.class);
 
@@ -1136,7 +1202,11 @@ public class Transformers {
             emulatedStackFrame.copyRangeTo(targetFrame, copyRange, 0, 0);
 
             // Finally, invoke the handle and copy the return value.
-            invokeFromTransform(target, targetFrame);
+            if (isExactInvoker) {
+                invokeExactFromTransform(target, targetFrame);
+            } else {
+                invokeFromTransform(target, targetFrame);
+            }
             targetFrame.copyReturnValueTo(emulatedStackFrame);
         }
 
@@ -1228,7 +1298,10 @@ public class Transformers {
             // Get the array reference and check that its length is as expected.
             final Class<?> arrayType = type().parameterType(arrayOffset);
             final Object arrayObj = callerFrame.getReference(arrayOffset, arrayType);
-            final int arrayLength = Array.getLength(arrayObj);
+
+            // The incoming array may be null if the expected number of array arguments is zero.
+            final int arrayLength =
+                (numArrayArgs == 0 && arrayObj == null) ? 0 : Array.getLength(arrayObj);
             if (arrayLength != numArrayArgs) {
                 throw new IllegalArgumentException(
                         "Invalid array length " + arrayLength + " expected " + numArrayArgs);
@@ -1249,11 +1322,20 @@ public class Transformers {
                     leadingRange.numReferences + numArrayArgs, leadingRange.numBytes);
             }
 
-            // Attach the writer, prepare to spread the trailing array arguments into
-            // the callee frame.
-            StackFrameWriter writer = new StackFrameWriter();
-            writer.attach(targetFrame, arrayOffset, leadingRange.numReferences, leadingRange.numBytes);
+            if (arrayLength != 0) {
+                StackFrameWriter writer = new StackFrameWriter();
+                writer.attach(targetFrame,
+                              arrayOffset,
+                              leadingRange.numReferences,
+                              leadingRange.numBytes);
+                spreadArray(arrayType, arrayObj, writer);
+            }
 
+            invokeExactFromTransform(target, targetFrame);
+            targetFrame.copyReturnValueTo(callerFrame);
+        }
+
+        private void spreadArray(Class<?> arrayType, Object arrayObj, StackFrameWriter writer) {
             final Class<?> componentType = arrayType.getComponentType();
             switch (Wrapper.basicTypeChar(componentType)) {
                 case 'L':
@@ -1329,9 +1411,6 @@ public class Transformers {
                     break;
                 }
             }
-
-            invokeExactFromTransform(target, targetFrame);
-            targetFrame.copyReturnValueTo(callerFrame);
         }
     }
 
@@ -2536,14 +2615,10 @@ public class Transformers {
 
         private static void unboxNonNull(
                 final Object ref,
-                final Class<?> from,
                 final StackFrameWriter writer,
                 final Class<?> to) {
+            final Class<?> from = ref.getClass();
             final Class<?> unboxedFromType = Wrapper.asPrimitiveType(from);
-            if (unboxedFromType == from) {
-                badCast(from, to);
-                return;
-            }
             switch (Wrapper.basicTypeChar(unboxedFromType)) {
                 case 'Z':
                     boolean z = (boolean) ref;
@@ -2808,13 +2883,12 @@ public class Transformers {
 
         private static void unbox(
                 final Object ref,
-                final Class<?> from,
                 final StackFrameWriter writer,
                 final Class<?> to) {
             if (ref == null) {
                 unboxNull(writer, to);
             } else {
-                unboxNonNull(ref, from, writer, to);
+                unboxNonNull(ref, writer, to);
             }
         }
 
@@ -2879,7 +2953,7 @@ public class Transformers {
                 Object ref = reader.nextReference(from);
                 if (to.isPrimitive()) {
                     // |from| is a reference type, |to| is a primitive type,
-                    unbox(ref, from, writer, to);
+                    unbox(ref, writer, to);
                 } else if (to.isInterface()) {
                     // Pass from without a cast according to description for
                     // {@link java.lang.invoke.MethodHandles#explicitCastArguments()}.
