@@ -519,6 +519,7 @@ java_library_static {
         "//cts/apps/CtsVerifier",
         "//cts/tests/tests/keystore",
         "//cts/tests/tests/net",
+        "//cts/hostsidetests/statsdatom/apps/statsdapp",
         "//cts/tests/tests/net/api23Test",
         "//external/apache-harmony",
         "//frameworks/base/core/tests/coretests",
@@ -1089,9 +1090,6 @@ java_system_modules {
 // avoid introducing compile time cycles.
 java_library {
     name: "art.module.api.annotations.for.system.modules",
-    visibility: [
-        "//art/libartservice",
-    ],
     srcs: [
         ":api_surface_annotation_files",
     ],
