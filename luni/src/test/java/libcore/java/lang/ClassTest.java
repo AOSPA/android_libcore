@@ -466,68 +466,165 @@ public class ClassTest {
             Class standaloneClass = classLoader.loadClass("libcore.java.lang.sealedclasses.StandaloneClass");
             Class sealedFinalClass = classLoader.loadClass("libcore.java.lang.sealedclasses.SealedFinalClass");
 
-            assertTrue(getIsSealed(sealedBaseClass));
-            checkPermittedSubclasses(sealedBaseClass,
-                    new Class[] { finalDerivedClass, sealedDerivedClass, standaloneClass});
+            assertTrue(sealedBaseClass.isSealed());
+            assertArrayEquals(new Class[] { finalDerivedClass, sealedDerivedClass},
+                    sealedBaseClass.getPermittedSubclasses());
 
-            assertFalse(getIsSealed(finalDerivedClass));
-            checkPermittedSubclasses(finalDerivedClass, (Class[]) null);
+            assertFalse(finalDerivedClass.isSealed());
+            assertArrayEquals((Class[]) null, finalDerivedClass.getPermittedSubclasses());
 
-            assertTrue(getIsSealed(sealedDerivedClass));
-            checkPermittedSubclasses(sealedDerivedClass, new Class[] { openDerivedClass});
+            assertTrue(sealedDerivedClass.isSealed());
+            assertArrayEquals(new Class[] { openDerivedClass}, sealedDerivedClass.getPermittedSubclasses());
 
-            assertFalse(getIsSealed(openDerivedClass));
-            checkPermittedSubclasses(openDerivedClass, (Class[]) null);
+            assertFalse(openDerivedClass.isSealed());
+            assertArrayEquals((Class[]) null, openDerivedClass.getPermittedSubclasses());
 
-            assertFalse(getIsSealed(standaloneClass));
-            checkPermittedSubclasses(standaloneClass, (Class[]) null);
+            assertFalse(standaloneClass.isSealed());
+            assertArrayEquals((Class[]) null, standaloneClass.getPermittedSubclasses());
 
-            assertFalse(getIsSealed(sealedFinalClass));
-            checkPermittedSubclasses(sealedFinalClass, (Class[]) null);
+            assertFalse(sealedFinalClass.isSealed());
+            assertArrayEquals((Class[]) null, sealedFinalClass.getPermittedSubclasses());
 
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
     }
 
-    static void checkPermittedSubclasses(Class<?> clazz, Class<?>[] expected) {
-        if (!canClassBeSealed(clazz)) {
-            if (expected != null) {
-                fail();
-            }
-            return;
+    @Test
+    public void recordClass() {
+        try {
+            ClassLoader classLoader = createClassLoaderForResource("core-tests-smali.dex");
+
+            Class recordClassA = classLoader.loadClass(
+                    "libcore.java.lang.recordclasses.RecordClassA");
+            Class nonFinalRecordClass = classLoader.loadClass(
+                    "libcore.java.lang.recordclasses.NonFinalRecordClass");
+            Class emptyRecordClass = classLoader.loadClass(
+                    "libcore.java.lang.recordclasses.EmptyRecordClass");
+            Class unequalComponentArraysRecordClass = classLoader.loadClass(
+                    "libcore.java.lang.recordclasses.UnequalComponentArraysRecordClass");
+
+            assertTrue(getIsRecord(recordClassA));
+            checkRecordComponents(recordClassA,
+                    new RecordComponent[] {
+                        new RecordComponent("x", int.class),
+                        new RecordComponent("y", Integer.class)
+                    });
+
+            assertFalse(getIsRecord(nonFinalRecordClass));
+            checkRecordComponents(nonFinalRecordClass, (RecordComponent[]) null);
+
+            assertTrue(getIsRecord(emptyRecordClass));
+            checkRecordComponents(emptyRecordClass,
+                    new RecordComponent[] {  });
+
+            assertFalse(getIsRecord(unequalComponentArraysRecordClass));
+            checkRecordComponents(unequalComponentArraysRecordClass, (RecordComponent[]) null);
+
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
         }
-        Class<?>[] subclasses = doGetPermittedSubclasses(clazz);
-        assertArrayEquals(expected, subclasses);
     }
 
-    static boolean getIsSealed(Class<?> clazz) {
-        if (!canClassBeSealed(clazz)) {
+    static boolean getIsRecord(Class<?> clazz) {
+        if (!canClassBeRecord(clazz)) {
             return false;
         }
-        Class<?>[] subclasses = doGetPermittedSubclasses(clazz);
-        return (subclasses != null);
+        RecordComponent[] components = doGetRecordComponents(clazz);
+        return (components != null);
     }
 
-    static boolean canClassBeSealed(Class<?> clazz) {
+    static boolean canClassBeRecord(Class<?> clazz) {
         if (clazz.isPrimitive() || clazz.isArray() || Void.TYPE.equals(clazz)) {
             return false;
         }
-        if (Modifier.isFinal( clazz.getModifiers() )) {
+        if (!Modifier.isFinal( clazz.getModifiers() )) {
             return false;
         }
+        // TODO: Check it extends java.lang.Record
         return true;
     }
 
-    private static Class<?>[] doGetPermittedSubclasses(Class<?> clazz) {
+    static void checkRecordComponents(Class<?> clazz, RecordComponent[] expected) {
+        if (!canClassBeRecord(clazz)) {
+            if (expected != null) {
+                fail("Expected record with components " + Arrays.toString(expected)
+                        + ", got class that is not a record");
+            }
+            return;
+        }
+        RecordComponent[] components = doGetRecordComponents(clazz);
+        assertArrayEquals(expected, components);
+    }
+
+    static private class RecordComponent {
+        final String name;
+        final Class<?> type;
+
+        RecordComponent(String name, Class<?> type) {
+            this.name = name;
+            this.type = type;
+        }
+
+        String getName() {
+            return name;
+        }
+
+        Class<?> getType() {
+            return type;
+        }
+
+        @Override
+        public String toString() {
+            return ("(" + name + ", " + type.getName() + ")");
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (!other.getClass().equals(RecordComponent.class)) {
+                return false;
+            }
+            RecordComponent otherComponent = (RecordComponent)other;
+            if (!name.equals(otherComponent.name)) {
+                return false;
+            }
+            if (!type.equals(otherComponent.type)) {
+                return false;
+            }
+            return true;
+        }
+    }
+
+    private static RecordComponent[] doGetRecordComponents(Class<?> clazz) {
         try {
-            Class annotationClass = Class.forName("dalvik.annotation.PermittedSubclasses");
-            Object subclassesAnnotation = clazz.getAnnotation(annotationClass);
-            if (subclassesAnnotation == null) {
+            Class annotationClass = Class.forName("dalvik.annotation.Record");
+            Object recordAnnotation = clazz.getAnnotation(annotationClass);
+            if (recordAnnotation == null) {
                 return null;
             }
-            Method classesMethod = annotationClass.getMethod("classes", (Class[]) null);
-            return (Class[]) classesMethod.invoke(subclassesAnnotation);
+            Method componentNamesMethod = annotationClass.getMethod("componentNames", (Class[]) null);
+            String[] names = (String[]) componentNamesMethod.invoke(recordAnnotation);
+            Method componentTypesMethod = annotationClass.getMethod("componentTypes", (Class[]) null);
+            Class<?>[] types = (Class<?>[]) componentTypesMethod.invoke(recordAnnotation);
+
+            if (names == null || types == null) {
+                return null;
+            }
+
+            if (names.length != types.length) {
+                return null;
+            }
+
+            RecordComponent[] components = new RecordComponent[names.length];
+
+            for (int i = 0; i < names.length; ++i) {
+                if (names[i] == null || types[i] == null) {
+                    return null;
+                }
+                components[i] = new RecordComponent(names[i], types[i]);
+            }
+            return components;
+
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }

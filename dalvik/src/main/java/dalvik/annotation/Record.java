@@ -23,26 +23,37 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Parameter;
 
 /**
- * Records the classes and interfaces that are authorized to directly extend or implement the
- * current class or interface.
+ * Marks the current class as a record class and stores information about its record components.
  *
- * <p>The annotation is allowed only on classes that are not final and can be used at most once for
+ * <p>The annotation is allowed only on classes that are final and can be used at most once for
  * each of these classes.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
-@interface PermittedSubclasses {
+@interface Record {
 
     /*
      * This annotation is never used in source code; it is expected to be generated in .dex
      * files by tools like compilers. Commented definitions for the annotation members expected
      * by the runtime / reflection code can be found below for reference.
+     *
+     * The arrays documented below must be the same size as for the field_id_item dex structure
+     * associated with the record class otherwise a java.lang.reflect.MalformedParametersException
+     * will be thrown at runtime.
      */
 
     /*
-     * Represents the list of classes and interfaces which are authorized to directly extend or
-     * implement the current class or interface.
+     * The array of component names for the record class. The array cannot be null, but can be
+     * empty. Also all values in the array must be non-null, non-empty and not contain '.', ';', '['
+     * or '/', otherwise a java.lang.reflect.MalformedParametersException will be thrown at runtime.
      */
-    // Class<?>[] value();
+    String[] componentNames();
+
+    /*
+     * The array of component types for the record class. The array cannot be null, but can be
+     * empty. All values in the array must be non-null, otherwise a
+     * java.lang.reflect.MalformedParametersException will be thrown at runtime.
+     */
+    Class<?>[] componentTypes();
 }
 
