@@ -96,6 +96,23 @@ import sun.reflect.Reflection;
  *     {@code System.out.println("The name of class Foo is: "+Foo.class.getName());}
  * </blockquote>
  *
+ * <p> Some methods of class {@code Class} expose whether the declaration of
+ * a class or interface in Java source code was <em>enclosed</em> within
+ * another declaration. Other methods describe how a class or interface
+ * is situated in a <em>nest</em>. A <a id="nest">nest</a> is a set of
+ * classes and interfaces, in the same run-time package, that
+ * allow mutual access to their {@code private} members.
+ * The classes and interfaces are known as <em>nestmates</em>.
+ * One nestmate acts as the
+ * <em>nest host</em>, and enumerates the other nestmates which
+ * belong to the nest; each of them in turn records it as the nest host.
+ * The classes and interfaces which belong to a nest, including its host, are
+ * determined when
+ * {@code class} files are generated, for example, a Java compiler
+ * will typically record a top-level class as the host of a nest where the
+ * other members are the classes and interfaces whose declarations are
+ * enclosed within the top-level class declaration.
+ *
  * @param <T> the type of the class modeled by this {@code Class}
  * object.  For example, the type of {@code String.class} is {@code
  * Class<String>}.  Use {@code Class<?>} if the class being modeled is
@@ -2695,6 +2712,154 @@ public final class Class<T> implements java.io.Serializable,
     @FastNative
     private native Method getDeclaredMethodInternal(String name, Class<?>[] args);
 
+    @FastNative
+    native ClassExt ensureExtDataPresent();
+
+    // Android-changed: Removed @jvms tags.
+    /**
+     * Returns the nest host of the <a href=#nest>nest</a> to which the class
+     * or interface represented by this {@code Class} object belongs.
+     * Every class and interface belongs to exactly one nest.
+     *
+     * If the nest host of this class or interface has previously
+     * been determined, then this method returns the nest host.
+     * If the nest host of this class or interface has
+     * not previously been determined, then this method determines the nest
+     * host using the algorithm of JVMS 5.4.4, and returns it.
+     *
+     * Often, a class or interface belongs to a nest consisting only of itself,
+     * in which case this method returns {@code this} to indicate that the class
+     * or interface is the nest host.
+     *
+     * <p>If this {@code Class} object represents a primitive type, an array type,
+     * or {@code void}, then this method returns {@code this},
+     * indicating that the represented entity belongs to the nest consisting only of
+     * itself, and is the nest host.
+     *
+     * @return the nest host of this class or interface
+     *
+     * @since 11
+     */
+    public Class<?> getNestHost() {
+        if (isPrimitive() || isArray() || Void.TYPE.equals(this)) {
+            return this;
+        }
+
+        Class host = getNestHostFromAnnotation();
+        if (host == null) {
+            return this;
+        }
+        return (nestHostHasMember(host, this) ? host : this);
+    }
+
+    private static boolean nestHostHasMember(Class<?> host, Class<?> member) {
+        if (host.equals(member)) {
+            return true;
+        }
+        return nestMembersIncludeMember(host.getNestMembersFromAnnotation(), member);
+    }
+
+    private static boolean nestMembersIncludeMember(Class<?>[] members, Class<?> member) {
+        if (members == null) {
+            return false;
+        }
+        for (Class m : members) {
+            if (member.equals(m)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @FastNative
+    private native Class<?> getNestHostFromAnnotation();
+
+    // Android-changed: Removed @jvms tags and references to
+    //                  MethodHandles.Lookup#defineHiddenClass.
+    /**
+     * Returns an array containing {@code Class} objects representing all the
+     * classes and interfaces that are members of the nest to which the class
+     * or interface represented by this {@code Class} object belongs.
+     *
+     * First, this method obtains the {@linkplain #getNestHost() nest host},
+     * {@code H}, of the nest to which the class or interface represented by
+     * this {@code Class} object belongs. The zeroth element of the returned
+     * array is {@code H}.
+     *
+     * Then, for each class or interface {@code C} which is recorded by {@code H}
+     * as being a member of its nest, this method attempts to obtain the {@code Class}
+     * object for {@code C} (using {@linkplain #getClassLoader() the defining class
+     * loader} of the current {@code Class} object), and then obtains the
+     * {@linkplain #getNestHost() nest host} of the nest to which {@code C} belongs.
+     * The classes and interfaces which are recorded by {@code H} as being members
+     * of its nest, and for which {@code H} can be determined as their nest host,
+     * are indicated by subsequent elements of the returned array. The order of
+     * such elements is unspecified. Duplicates are permitted.
+     *
+     * <p>If this {@code Class} object represents a primitive type, an array type,
+     * or {@code void}, then this method returns a single-element array containing
+     * {@code this}.
+     *
+     * @apiNote
+     * The returned array includes only the nest members recorded in the {@code NestMembers}
+     * attribute.
+     *
+     * @return an array of all classes and interfaces in the same nest as
+     * this class or interface
+     *
+     * @since 11
+     * @see #getNestHost()
+     */
+    public Class<?>[] getNestMembers() {
+        if (isPrimitive() || isArray() || Void.TYPE.equals(this)) {
+            return new Class[] { this };
+        }
+
+        Class host = getNestHostFromAnnotation();
+        if (host != null && !host.equals(this)) {
+            if (host.isPrimitive() || host.isArray() || Void.TYPE.equals(host)) {
+                return new Class[] { this };
+            }
+            return host.getNestMembers(this);
+        }
+        return getNestMembers(this);
+    }
+
+    private Class<?>[] getNestMembers(Class<?> originatingMember) {
+
+        Class[] members = getNestMembersFromAnnotation();
+        if (members == null) {
+            return new Class[] { originatingMember };
+        }
+        if (originatingMember != this && !nestMembersIncludeMember(members, originatingMember)) {
+            return new Class[] { originatingMember };
+        }
+
+        Class[] result = new Class[members.length+1];
+        result[0] = this;
+        int idx = 1;
+        for (Class m : members) {
+            if (m == null || !this.equals(m.getNestHostFromAnnotation())) {
+                continue;
+            }
+            result[idx] = m;
+            ++idx;
+        }
+
+        if (idx < result.length) {
+            Class[] tmp = new Class[idx];
+            for (int i = 0; i < tmp.length; ++i) {
+                tmp[i] = result[i];
+            }
+            result = tmp;
+        }
+
+        return result;
+    }
+
+    @FastNative
+    private native Class<?>[] getNestMembersFromAnnotation();
+
     private static class Caches {
         /**
          * Cache to avoid frequent recalculation of generic interfaces, which is generally uncommon.
@@ -2705,4 +2870,130 @@ public final class Class<T> implements java.io.Serializable,
         private static final BasicLruCache<Class, Type[]> genericInterfaces
             = new BasicLruCache<Class, Type[]>(8);
     }
+
+    // Android-changed: Removed @jls tags.
+    /**
+     * Returns an array containing {@code Class} objects representing the
+     * direct subinterfaces or subclasses permitted to extend or
+     * implement this class or interface if it is sealed.  The order of such elements
+     * is unspecified. The array is empty if this sealed class or interface has no
+     * permitted subclass. If this {@code Class} object represents a primitive type,
+     * {@code void}, an array type, or a class or interface that is not sealed,
+     * that is {@link #isSealed()} returns {@code false}, then this method returns {@code null}.
+     * Conversely, if {@link #isSealed()} returns {@code true}, then this method
+     * returns a non-null value.
+     *
+     * For each class or interface {@code C} which is recorded as a permitted
+     * direct subinterface or subclass of this class or interface,
+     * this method attempts to obtain the {@code Class}
+     * object for {@code C} (using {@linkplain #getClassLoader() the defining class
+     * loader} of the current {@code Class} object).
+     * The {@code Class} objects which can be obtained and which are direct
+     * subinterfaces or subclasses of this class or interface,
+     * are indicated by elements of the returned array. If a {@code Class} object
+     * cannot be obtained, it is silently ignored, and not included in the result
+     * array.
+     *
+     * @return an array of {@code Class} objects of the permitted subclasses of this class or interface,
+     *         or {@code null} if this class or interface is not sealed.
+     *
+     * @since 17
+     */
+    // Android-removed: CallerSensitive annotation
+    // @CallerSensitive
+    public Class<?>[] getPermittedSubclasses() {
+        Class<?>[] subClasses;
+        // Android-changed: A final class cannot be sealed.
+        // if (isArray() || isPrimitive() || (subClasses = getPermittedSubclassesFromAnnotation()) == null) {
+        if (isArray() || isPrimitive() || Modifier.isFinal( getModifiers() ) ||
+                (subClasses = getPermittedSubclassesFromAnnotation()) == null) {
+            return null;
+        }
+        // Android-changed: Avoid using lambdas.
+        /*
+        if (subClasses.length > 0) {
+            if (Arrays.stream(subClasses).anyMatch(c -> !isDirectSubType(c))) {
+                subClasses = Arrays.stream(subClasses)
+                                   .filter(this::isDirectSubType)
+                                   .toArray(s -> new Class<?>[s]);
+            }
+        }
+        */
+        int directSubClassCount = getDirectSubClassCount(subClasses);
+        if (directSubClassCount < subClasses.length) {
+            Class[] tmp = new Class[directSubClassCount];
+            int idx = 0;
+            for (Class<?> c : subClasses) {
+                if (isDirectSubType(c)) {
+                    tmp[idx] = c;
+                    ++idx;
+                }
+            }
+            subClasses = tmp;
+        }
+
+        // Android-removed: SecurityManager usage.
+        /*
+        if (subClasses.length > 0) {
+            // If we return some classes we need a security check:
+            @SuppressWarnings("removal")
+            SecurityManager sm = System.getSecurityManager();
+            if (sm != null) {
+                checkPackageAccessForPermittedSubclasses(sm,
+                                             ClassLoader.getClassLoader(Reflection.getCallerClass()),
+                                             subClasses);
+            }
+        }
+        */
+        return subClasses;
+    }
+
+    private int getDirectSubClassCount(Class<?>[] subClasses) {
+        int result = 0;
+        for (Class<?> c : subClasses) {
+            if (isDirectSubType(c)) {
+                 ++result;
+            }
+        }
+        return result;
+    }
+
+    private boolean isDirectSubType(Class<?> c) {
+        if (isInterface()) {
+            // Android-changed: Use of getInterfaces
+            //for (Class<?> i : c.getInterfaces(/* cloneArray */ false)) {
+            for (Class<?> i : c.getInterfaces()) {
+                if (i == this) {
+                    return true;
+                }
+            }
+        } else {
+            return c.getSuperclass() == this;
+        }
+        return false;
+    }
+
+    // Android-changed: Removed @jls tags.
+    /**
+     * Returns {@code true} if and only if this {@code Class} object represents
+     * a sealed class or interface. If this {@code Class} object represents a
+     * primitive type, {@code void}, or an array type, this method returns
+     * {@code false}. A sealed class or interface has (possibly zero) permitted
+     * subclasses; {@link #getPermittedSubclasses()} returns a non-null but
+     * possibly empty value for a sealed class or interface.
+     *
+     * @return {@code true} if and only if this {@code Class} object represents
+     * a sealed class or interface.
+     *
+     * @since 17
+     */
+    public boolean isSealed() {
+        if (isArray() || isPrimitive()) {
+            return false;
+        }
+        return getPermittedSubclasses() != null;
+    }
+
+    @FastNative
+    private native Class<?>[] getPermittedSubclassesFromAnnotation();
 }

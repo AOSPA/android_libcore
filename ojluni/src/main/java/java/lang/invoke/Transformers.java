@@ -1702,14 +1702,14 @@ public class Transformers {
                 reader.attach(filterFrame).makeReturnValueAccessor();
                 final StackFrameWriter writer = new StackFrameWriter();
                 writer.attach(targetFrame, pos, range1.numReferences, range1.numBytes);
-                copyNext(reader, writer, target.type().ptypes()[0]);
+                copyNext(reader, writer, target.type().ptypes()[pos]);
             }
 
             stackFrame.copyRangeTo(
                     targetFrame,
                     range2,
                     range1.numReferences + referencesOffset,
-                    range2.numBytes + stackFrameOffset);
+                    range1.numBytes + stackFrameOffset);
 
             invokeFromTransform(target, targetFrame);
             targetFrame.copyReturnValueTo(stackFrame);
@@ -3108,6 +3108,36 @@ public class Transformers {
                     prepareFrame(fini.type(), callerFrame, loopVarsFrame);
             invokeExactFromTransform(fini, finiFrame);
             finiFrame.copyReturnValueTo(callerFrame);
+        }
+    }
+
+    /** Implements {@code MethodHandles.tableSwitch}. */
+    static class TableSwitch extends Transformer {
+        private final MethodHandle fallback;
+        private final MethodHandle[] targets;
+
+        TableSwitch(MethodType type, MethodHandle fallback, MethodHandle[] targets) {
+            super(type);
+            this.fallback = fallback;
+            this.targets = targets;
+        }
+
+        @Override
+        public void transform(EmulatedStackFrame callerFrame) throws Throwable {
+            final MethodHandle selected = selectMethodHandle(callerFrame);
+            invokeExactFromTransform(selected, callerFrame);
+        }
+
+        private MethodHandle selectMethodHandle(EmulatedStackFrame callerFrame) {
+            StackFrameReader reader = new StackFrameReader();
+            reader.attach(callerFrame);
+            final int index = reader.nextInt();
+
+            if (index >= 0 && index < targets.length) {
+                return targets[index];
+            } else {
+                return fallback;
+            }
         }
     }
 }

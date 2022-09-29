@@ -2140,6 +2140,9 @@ package java.io {
     method public int read() throws java.io.IOException;
   }
 
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.FIELD}) public @interface Serial {
+  }
+
   public interface Serializable {
   }
 
@@ -2896,8 +2899,11 @@ package java.lang {
     method @NonNull public java.lang.reflect.Method[] getMethods() throws java.lang.SecurityException;
     method public int getModifiers();
     method @NonNull public String getName();
+    method @NonNull public Class<?> getNestHost();
+    method @NonNull public Class<?>[] getNestMembers();
     method @Nullable public Package getPackage();
     method @NonNull public String getPackageName();
+    method @Nullable public Class<?>[] getPermittedSubclasses();
     method @Nullable public java.security.ProtectionDomain getProtectionDomain();
     method @Nullable public java.net.URL getResource(@NonNull String);
     method @Nullable public java.io.InputStream getResourceAsStream(@NonNull String);
@@ -2915,6 +2921,7 @@ package java.lang {
     method public boolean isLocalClass();
     method public boolean isMemberClass();
     method public boolean isPrimitive();
+    method public boolean isSealed();
     method public boolean isSynthetic();
     method @NonNull public T newInstance() throws java.lang.IllegalAccessException, java.lang.InstantiationException;
     method @NonNull public String toGenericString();
@@ -2975,6 +2982,13 @@ package java.lang {
     ctor public ClassNotFoundException(String);
     ctor public ClassNotFoundException(String, Throwable);
     method public Throwable getException();
+  }
+
+  public abstract class ClassValue<T> {
+    ctor protected ClassValue();
+    method protected abstract T computeValue(Class<?>);
+    method public T get(Class<?>);
+    method public void remove(Class<?>);
   }
 
   public class CloneNotSupportedException extends java.lang.Exception {
@@ -4357,6 +4371,7 @@ package java.lang.invoke {
     method public static java.lang.invoke.MethodHandle dropArguments(java.lang.invoke.MethodHandle, int, java.util.List<java.lang.Class<?>>);
     method public static java.lang.invoke.MethodHandle dropArguments(java.lang.invoke.MethodHandle, int, Class<?>...);
     method public static java.lang.invoke.MethodHandle dropArgumentsToMatch(java.lang.invoke.MethodHandle, int, java.util.List<java.lang.Class<?>>, int);
+    method public static java.lang.invoke.MethodHandle dropReturn(java.lang.invoke.MethodHandle);
     method public static java.lang.invoke.MethodHandle empty(java.lang.invoke.MethodType);
     method public static java.lang.invoke.MethodHandle exactInvoker(java.lang.invoke.MethodType);
     method public static java.lang.invoke.MethodHandle explicitCastArguments(java.lang.invoke.MethodHandle, java.lang.invoke.MethodType);
@@ -4376,6 +4391,7 @@ package java.lang.invoke {
     method public static java.lang.invoke.MethodHandles.Lookup publicLookup();
     method public static <T extends java.lang.reflect.Member> T reflectAs(Class<T>, java.lang.invoke.MethodHandle);
     method public static java.lang.invoke.MethodHandle spreadInvoker(java.lang.invoke.MethodType, int);
+    method public static java.lang.invoke.MethodHandle tableSwitch(java.lang.invoke.MethodHandle, java.lang.invoke.MethodHandle...);
     method public static java.lang.invoke.MethodHandle throwException(Class<?>, Class<? extends java.lang.Throwable>);
     method public static java.lang.invoke.MethodHandle tryFinally(java.lang.invoke.MethodHandle, java.lang.invoke.MethodHandle);
     method public static java.lang.invoke.MethodHandle varHandleExactInvoker(java.lang.invoke.VarHandle.AccessMode, java.lang.invoke.MethodType);
@@ -5673,6 +5689,7 @@ package java.net {
   public enum StandardProtocolFamily implements java.net.ProtocolFamily {
     enum_constant public static final java.net.StandardProtocolFamily INET;
     enum_constant public static final java.net.StandardProtocolFamily INET6;
+    enum_constant public static final java.net.StandardProtocolFamily UNIX;
   }
 
   public final class StandardSocketOptions {
@@ -7024,6 +7041,8 @@ package java.nio.file {
     method public boolean isAbsolute();
     method public java.util.Iterator<java.nio.file.Path> iterator();
     method public java.nio.file.Path normalize();
+    method public static java.nio.file.Path of(String, java.lang.String...);
+    method public static java.nio.file.Path of(java.net.URI);
     method public java.nio.file.Path relativize(java.nio.file.Path);
     method public java.nio.file.Path resolve(java.nio.file.Path);
     method public java.nio.file.Path resolve(String);
@@ -10858,6 +10877,7 @@ package java.time {
     method public static java.time.Clock systemDefaultZone();
     method public static java.time.Clock systemUTC();
     method public static java.time.Clock tick(java.time.Clock, java.time.Duration);
+    method public static java.time.Clock tickMillis(java.time.ZoneId);
     method public static java.time.Clock tickMinutes(java.time.ZoneId);
     method public static java.time.Clock tickSeconds(java.time.ZoneId);
     method public abstract java.time.Clock withZone(java.time.ZoneId);
@@ -10994,6 +11014,8 @@ package java.time {
     method public java.time.LocalDateTime atTime(int, int, int);
     method public java.time.LocalDateTime atTime(int, int, int, int);
     method public java.time.OffsetDateTime atTime(java.time.OffsetTime);
+    method public java.util.stream.Stream<java.time.LocalDate> datesUntil(java.time.LocalDate);
+    method public java.util.stream.Stream<java.time.LocalDate> datesUntil(java.time.LocalDate, java.time.Period);
     method public static java.time.LocalDate from(java.time.temporal.TemporalAccessor);
     method public java.time.chrono.IsoChronology getChronology();
     method public int getDayOfMonth();
@@ -11016,6 +11038,7 @@ package java.time {
     method public static java.time.LocalDate of(int, java.time.Month, int);
     method public static java.time.LocalDate of(int, int, int);
     method public static java.time.LocalDate ofEpochDay(long);
+    method public static java.time.LocalDate ofInstant(java.time.Instant, java.time.ZoneId);
     method public static java.time.LocalDate ofYearDay(int, int);
     method public static java.time.LocalDate parse(CharSequence);
     method public static java.time.LocalDate parse(CharSequence, java.time.format.DateTimeFormatter);
@@ -11025,6 +11048,7 @@ package java.time {
     method public java.time.LocalDate plusMonths(long);
     method public java.time.LocalDate plusWeeks(long);
     method public java.time.LocalDate plusYears(long);
+    method public long toEpochSecond(java.time.LocalTime, java.time.ZoneOffset);
     method public long until(java.time.temporal.Temporal, java.time.temporal.TemporalUnit);
     method public java.time.Period until(java.time.chrono.ChronoLocalDate);
     method public java.time.LocalDate with(java.time.temporal.TemporalAdjuster);
@@ -11033,6 +11057,7 @@ package java.time {
     method public java.time.LocalDate withDayOfYear(int);
     method public java.time.LocalDate withMonth(int);
     method public java.time.LocalDate withYear(int);
+    field public static final java.time.LocalDate EPOCH;
     field public static final java.time.LocalDate MAX;
     field public static final java.time.LocalDate MIN;
   }
@@ -11332,6 +11357,7 @@ package java.time {
     method public java.time.OffsetTime plusMinutes(long);
     method public java.time.OffsetTime plusNanos(long);
     method public java.time.OffsetTime plusSeconds(long);
+    method public long toEpochSecond(java.time.LocalDate);
     method public java.time.LocalTime toLocalTime();
     method public java.time.OffsetTime truncatedTo(java.time.temporal.TemporalUnit);
     method public long until(java.time.temporal.Temporal, java.time.temporal.TemporalUnit);
@@ -11689,6 +11715,8 @@ package java.time.chrono {
     method public default java.time.chrono.ChronoLocalDate dateNow(java.time.Clock);
     method public default java.time.chrono.ChronoLocalDate dateYearDay(java.time.chrono.Era, int, int);
     method public java.time.chrono.ChronoLocalDate dateYearDay(int, int);
+    method public default long epochSecond(int, int, int, int, int, int, java.time.ZoneOffset);
+    method public default long epochSecond(java.time.chrono.Era, int, int, int, int, int, int, java.time.ZoneOffset);
     method public boolean equals(Object);
     method public java.time.chrono.Era eraOf(int);
     method public java.util.List<java.time.chrono.Era> eras();
@@ -11978,6 +12006,7 @@ package java.time.format {
     method public java.util.Set<java.time.temporal.TemporalField> getResolverFields();
     method public java.time.format.ResolverStyle getResolverStyle();
     method public java.time.ZoneId getZone();
+    method public java.time.format.DateTimeFormatter localizedBy(java.util.Locale);
     method public static java.time.format.DateTimeFormatter ofLocalizedDate(java.time.format.FormatStyle);
     method public static java.time.format.DateTimeFormatter ofLocalizedDateTime(java.time.format.FormatStyle);
     method public static java.time.format.DateTimeFormatter ofLocalizedDateTime(java.time.format.FormatStyle, java.time.format.FormatStyle);
@@ -12023,6 +12052,8 @@ package java.time.format {
     method public java.time.format.DateTimeFormatterBuilder appendChronologyId();
     method public java.time.format.DateTimeFormatterBuilder appendChronologyText(java.time.format.TextStyle);
     method public java.time.format.DateTimeFormatterBuilder appendFraction(java.time.temporal.TemporalField, int, int, boolean);
+    method public java.time.format.DateTimeFormatterBuilder appendGenericZoneText(java.time.format.TextStyle);
+    method public java.time.format.DateTimeFormatterBuilder appendGenericZoneText(java.time.format.TextStyle, java.util.Set<java.time.ZoneId>);
     method public java.time.format.DateTimeFormatterBuilder appendInstant();
     method public java.time.format.DateTimeFormatterBuilder appendInstant(int);
     method public java.time.format.DateTimeFormatterBuilder appendLiteral(char);

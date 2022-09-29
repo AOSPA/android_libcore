@@ -161,6 +161,9 @@ java_defaults {
             "-Xep:UnicodeInCode:WARN", // XML parser uses line feeds in whitespace
         ],
     },
+    lint: {
+        warning_checks: ["SuspiciousIndentation"],
+    },
     min_sdk_version: "31",
 }
 
@@ -289,8 +292,6 @@ java_library {
         ],
     },
 
-    notice: "ojluni/NOTICE",
-
     hiddenapi_additional_annotations: [
         "core-oj-hiddenapi-annotations",
     ],
@@ -400,8 +401,6 @@ java_defaults {
     system_modules: "core-all-system-modules",
     patch_module: "java.base",
 
-    notice: "ojluni/NOTICE",
-
     installable: false,
     include_srcs: true,
 }
@@ -457,7 +456,6 @@ java_library {
     sdk_version: "none",
     system_modules: "core-all-system-modules",
     patch_module: "java.base",
-    notice: "ojluni/NOTICE",
     installable: false,
     include_srcs: true,
 }
@@ -519,9 +517,11 @@ java_library_static {
         "//cts/apps/CtsVerifier",
         "//cts/tests/tests/keystore",
         "//cts/tests/tests/net",
+        "//cts/hostsidetests/statsdatom/apps/statsdapp",
         "//cts/tests/tests/net/api23Test",
         "//external/apache-harmony",
         "//frameworks/base/core/tests/coretests",
+        "//frameworks/base/apct-tests/perftests/core",
         "//libcore/benchmarks",
         "//packages/apps/KeyChain/tests",
         "//system/timezone/distro/core",
@@ -919,6 +919,10 @@ java_sdk_library {
         "//build/soong/java/core-libraries",
         "//frameworks/base",
         "//frameworks/base/api",
+
+        // DO NOT REMOVE: Legacy visibility, needed for snapshots that are
+        // generated for the S build.
+        "//libcore/mmodules/core_platform_api",
     ],
     srcs: [
         ":core_oj_api_files",
@@ -1089,9 +1093,6 @@ java_system_modules {
 // avoid introducing compile time cycles.
 java_library {
     name: "art.module.api.annotations.for.system.modules",
-    visibility: [
-        "//art/libartservice",
-    ],
     srcs: [
         ":api_surface_annotation_files",
     ],

@@ -15,24 +15,43 @@
  */
 package libcore.java.lang;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import junit.framework.TestCase;
-
+import dalvik.system.InMemoryDexClassLoader;
 import dalvik.system.PathClassLoader;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.nio.ByteBuffer;
+import java.util.stream.Stream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.function.Function;
 
-public class ClassTest extends TestCase {
+import libcore.io.Streams;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
+@RunWith(JUnit4.class)
+public class ClassTest {
 
     interface Foo {
         public void foo();
@@ -50,7 +69,8 @@ public class ClassTest extends TestCase {
 
     }
 
-    public void test_getGenericSuperclass_nullReturnCases() {
+    @Test
+    public void getGenericSuperclass_nullReturnCases() {
         // Should always return null for interfaces.
         assertNull(Foo.class.getGenericSuperclass());
         assertNull(ParameterizedFoo.class.getGenericSuperclass());
@@ -62,11 +82,13 @@ public class ClassTest extends TestCase {
         assertNull(int.class.getGenericSuperclass());
     }
 
-    public void test_getGenericSuperclass_returnsObjectForArrays() {
+    @Test
+    public void getGenericSuperclass_returnsObjectForArrays() {
         assertSame(Object.class, (new Integer[0]).getClass().getGenericSuperclass());
     }
 
-    public void test_b28833829() throws Exception {
+    @Test
+    public void b28833829() throws Exception {
         File f = File.createTempFile("temp_b28833829", ".dex");
         try (InputStream is =
             getClass().getClassLoader().getResourceAsStream("TestBug28833829.dex");
@@ -100,7 +122,8 @@ public class ClassTest extends TestCase {
     }
     class X implements A { }
     class Y extends X implements B { }
-    public void test_getField() {
+    @Test
+    public void getField() {
         try {
             assertEquals(A.class.getField("name"), X.class.getField("name"));
         } catch (NoSuchFieldException e) {
@@ -121,7 +144,8 @@ public class ClassTest extends TestCase {
     }
     abstract class Z implements D { }
 
-    public void test_getMethod() {
+    @Test
+    public void getMethod() {
       try {
           assertEquals(Z.class.getMethod("foo"), D.class.getMethod("foo"));
       } catch (NoSuchMethodException e) {
@@ -129,7 +153,8 @@ public class ClassTest extends TestCase {
       }
     }
 
-    public void test_getPrimitiveType_null() throws Throwable {
+    @Test
+    public void getPrimitiveType_null() throws Throwable {
         try {
             getPrimitiveType(null);
             fail();
@@ -138,7 +163,8 @@ public class ClassTest extends TestCase {
         }
     }
 
-    public void test_getPrimitiveType_invalid() throws Throwable {
+    @Test
+    public void getPrimitiveType_invalid() throws Throwable {
         List<String> invalidNames = Arrays.asList("", "java.lang.Object", "invalid",
                 "Boolean", "java.lang.Boolean", "java/lang/Boolean", "Ljava/lang/Boolean;");
         for (String name : invalidNames) {
@@ -151,7 +177,8 @@ public class ClassTest extends TestCase {
         }
     }
 
-    public void test_getPrimitiveType_valid() throws Throwable {
+    @Test
+    public void getPrimitiveType_valid() throws Throwable {
         checkPrimitiveType("boolean", boolean.class, Boolean.TYPE,
             boolean[].class.getComponentType());
         checkPrimitiveType("byte", byte.class, Byte.TYPE, byte[].class.getComponentType());
@@ -225,7 +252,8 @@ public class ClassTest extends TestCase {
         }
     }
 
-    public void test_getVirtualMethod() throws Exception {
+    @Test
+    public void getVirtualMethod() throws Exception {
         final Class<?>[] noArgs = new Class<?>[] { };
 
         TestGetVirtualMethod instance = new TestGetVirtualMethod();
@@ -264,7 +292,8 @@ public class ClassTest extends TestCase {
         assertNull(TestGetVirtualMethod.class.getInstanceMethod("staticMethod", noArgs));
     }
 
-    public void test_toString() throws Exception {
+    @Test
+    public void toStringTest() throws Exception {
         final String outerClassName = getClass().getName();
         final String packageProtectedClassName = PackageProtectedClass.class.getName();
 
@@ -301,7 +330,8 @@ public class ClassTest extends TestCase {
         assertEquals(expected, clazz.toString());
     }
 
-    public void test_getTypeName() throws Exception {
+    @Test
+    public void getTypeName() throws Exception {
         final String outerClassName = getClass().getName();
         final String packageProtectedClassName = PackageProtectedClass.class.getName();
 
@@ -330,7 +360,8 @@ public class ClassTest extends TestCase {
         assertEquals(expected, clazz.getTypeName());
     }
 
-    public void test_toGenericString() throws Exception {
+    @Test
+    public void toGenericString() throws Exception {
         final String outerClassName = getClass().getName();
         final String packageProtectedClassName = PackageProtectedClass.class.getName();
 
@@ -375,4 +406,228 @@ public class ClassTest extends TestCase {
             T extends Number,
             U extends Function<? extends Number, ? super Number>>
             extends Comparable<T> {}
+
+    @Test
+    public void nestMate() {
+        try {
+            ClassLoader classLoader = createClassLoaderForResource("core-tests-smali.dex");
+
+            Class hostClass = classLoader.loadClass("libcore.java.lang.nestgroup.NestGroupHost");
+            Class innerAClass = classLoader.loadClass("libcore.java.lang.nestgroup.NestGroupInnerA");
+            Class bClass = classLoader.loadClass("libcore.java.lang.nestgroup.NestGroupB");
+            Class innerFakeClass = classLoader.loadClass("libcore.java.lang.nestgroup.NestGroupInnerFake");
+            Class selfClass = classLoader.loadClass("libcore.java.lang.nestgroup.NestGroupSelf");
+
+            assertEquals(int.class, int.class.getNestHost());
+            assertArrayEquals(new Class[] { int.class }, int.class.getNestMembers());
+
+            assertEquals(Integer[].class, Integer[].class.getNestHost());
+            assertArrayEquals(new Class[] { Integer[].class }, Integer[].class.getNestMembers());
+
+            assertEquals(hostClass, hostClass.getNestHost());
+            assertArrayEquals(new Class[] { hostClass, innerAClass }, hostClass.getNestMembers());
+
+            assertEquals(hostClass, innerAClass.getNestHost());
+            assertArrayEquals(new Class[] { hostClass, innerAClass }, innerAClass.getNestMembers());
+
+            assertEquals(innerFakeClass, innerFakeClass.getNestHost());
+            assertArrayEquals(new Class[] { innerFakeClass }, innerFakeClass.getNestMembers());
+
+            assertEquals(bClass, bClass.getNestHost());
+            assertArrayEquals(new Class[] { bClass }, bClass.getNestMembers());
+
+            assertEquals(selfClass, selfClass.getNestHost());
+            assertArrayEquals(new Class[] { selfClass }, selfClass.getNestMembers());
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
+    }
+
+    private static ClassLoader createClassLoaderForResource(String resourcePath)
+            throws Exception {
+        byte[] data;
+        try (InputStream is =
+                ThreadTest.class.getClassLoader().getResourceAsStream(resourcePath)) {
+            data = Streams.readFullyNoClose(is);
+        }
+        return new InMemoryDexClassLoader(ByteBuffer.wrap(data),
+                ThreadTest.class.getClassLoader());
+    }
+
+    @Test
+    public void sealedClass() {
+        try {
+            ClassLoader classLoader = createClassLoaderForResource("core-tests-smali.dex");
+
+            Class sealedBaseClass = classLoader.loadClass("libcore.java.lang.sealedclasses.SealedBaseClass");
+            Class finalDerivedClass = classLoader.loadClass("libcore.java.lang.sealedclasses.FinalDerivedClass");
+            Class sealedDerivedClass = classLoader.loadClass("libcore.java.lang.sealedclasses.SealedDerivedClass");
+            Class openDerivedClass = classLoader.loadClass("libcore.java.lang.sealedclasses.OpenDerivedClass");
+            Class standaloneClass = classLoader.loadClass("libcore.java.lang.sealedclasses.StandaloneClass");
+            Class sealedFinalClass = classLoader.loadClass("libcore.java.lang.sealedclasses.SealedFinalClass");
+
+            assertTrue(sealedBaseClass.isSealed());
+            assertArrayEquals(new Class[] { finalDerivedClass, sealedDerivedClass},
+                    sealedBaseClass.getPermittedSubclasses());
+
+            assertFalse(finalDerivedClass.isSealed());
+            assertArrayEquals((Class[]) null, finalDerivedClass.getPermittedSubclasses());
+
+            assertTrue(sealedDerivedClass.isSealed());
+            assertArrayEquals(new Class[] { openDerivedClass}, sealedDerivedClass.getPermittedSubclasses());
+
+            assertFalse(openDerivedClass.isSealed());
+            assertArrayEquals((Class[]) null, openDerivedClass.getPermittedSubclasses());
+
+            assertFalse(standaloneClass.isSealed());
+            assertArrayEquals((Class[]) null, standaloneClass.getPermittedSubclasses());
+
+            assertFalse(sealedFinalClass.isSealed());
+            assertArrayEquals((Class[]) null, sealedFinalClass.getPermittedSubclasses());
+
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
+    }
+
+    @Test
+    public void recordClass() {
+        try {
+            ClassLoader classLoader = createClassLoaderForResource("core-tests-smali.dex");
+
+            Class recordClassA = classLoader.loadClass(
+                    "libcore.java.lang.recordclasses.RecordClassA");
+            Class nonFinalRecordClass = classLoader.loadClass(
+                    "libcore.java.lang.recordclasses.NonFinalRecordClass");
+            Class emptyRecordClass = classLoader.loadClass(
+                    "libcore.java.lang.recordclasses.EmptyRecordClass");
+            Class unequalComponentArraysRecordClass = classLoader.loadClass(
+                    "libcore.java.lang.recordclasses.UnequalComponentArraysRecordClass");
+
+            assertTrue(getIsRecord(recordClassA));
+            checkRecordComponents(recordClassA,
+                    new RecordComponent[] {
+                        new RecordComponent("x", int.class),
+                        new RecordComponent("y", Integer.class)
+                    });
+
+            assertFalse(getIsRecord(nonFinalRecordClass));
+            checkRecordComponents(nonFinalRecordClass, (RecordComponent[]) null);
+
+            assertTrue(getIsRecord(emptyRecordClass));
+            checkRecordComponents(emptyRecordClass,
+                    new RecordComponent[] {  });
+
+            assertFalse(getIsRecord(unequalComponentArraysRecordClass));
+            checkRecordComponents(unequalComponentArraysRecordClass, (RecordComponent[]) null);
+
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
+    }
+
+    static boolean getIsRecord(Class<?> clazz) {
+        if (!canClassBeRecord(clazz)) {
+            return false;
+        }
+        RecordComponent[] components = doGetRecordComponents(clazz);
+        return (components != null);
+    }
+
+    static boolean canClassBeRecord(Class<?> clazz) {
+        if (clazz.isPrimitive() || clazz.isArray() || Void.TYPE.equals(clazz)) {
+            return false;
+        }
+        if (!Modifier.isFinal( clazz.getModifiers() )) {
+            return false;
+        }
+        // TODO: Check it extends java.lang.Record
+        return true;
+    }
+
+    static void checkRecordComponents(Class<?> clazz, RecordComponent[] expected) {
+        if (!canClassBeRecord(clazz)) {
+            if (expected != null) {
+                fail("Expected record with components " + Arrays.toString(expected)
+                        + ", got class that is not a record");
+            }
+            return;
+        }
+        RecordComponent[] components = doGetRecordComponents(clazz);
+        assertArrayEquals(expected, components);
+    }
+
+    static private class RecordComponent {
+        final String name;
+        final Class<?> type;
+
+        RecordComponent(String name, Class<?> type) {
+            this.name = name;
+            this.type = type;
+        }
+
+        String getName() {
+            return name;
+        }
+
+        Class<?> getType() {
+            return type;
+        }
+
+        @Override
+        public String toString() {
+            return ("(" + name + ", " + type.getName() + ")");
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (!other.getClass().equals(RecordComponent.class)) {
+                return false;
+            }
+            RecordComponent otherComponent = (RecordComponent)other;
+            if (!name.equals(otherComponent.name)) {
+                return false;
+            }
+            if (!type.equals(otherComponent.type)) {
+                return false;
+            }
+            return true;
+        }
+    }
+
+    private static RecordComponent[] doGetRecordComponents(Class<?> clazz) {
+        try {
+            Class annotationClass = Class.forName("dalvik.annotation.Record");
+            Object recordAnnotation = clazz.getAnnotation(annotationClass);
+            if (recordAnnotation == null) {
+                return null;
+            }
+            Method componentNamesMethod = annotationClass.getMethod("componentNames", (Class[]) null);
+            String[] names = (String[]) componentNamesMethod.invoke(recordAnnotation);
+            Method componentTypesMethod = annotationClass.getMethod("componentTypes", (Class[]) null);
+            Class<?>[] types = (Class<?>[]) componentTypesMethod.invoke(recordAnnotation);
+
+            if (names == null || types == null) {
+                return null;
+            }
+
+            if (names.length != types.length) {
+                return null;
+            }
+
+            RecordComponent[] components = new RecordComponent[names.length];
+
+            for (int i = 0; i < names.length; ++i) {
+                if (names[i] == null || types[i] == null) {
+                    return null;
+                }
+                components[i] = new RecordComponent(names[i], types[i]);
+            }
+            return components;
+
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
+    }
+
 }
