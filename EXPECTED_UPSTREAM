@@ -330,7 +330,7 @@ ojluni/src/main/java/java/net/InetAddressImpl.java,jdk11u/jdk-11.0.13-ga,src/jav
 ojluni/src/main/java/java/net/InetSocketAddress.java,jdk17u/jdk-17.0.2-ga,src/java.base/share/classes/java/net/InetSocketAddress.java
 ojluni/src/main/java/java/net/InterfaceAddress.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/net/InterfaceAddress.java
 ojluni/src/main/java/java/net/JarURLConnection.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/net/JarURLConnection.java
-ojluni/src/main/java/java/net/MalformedURLException.java,jdk8u/jdk8u121-b13,jdk/src/share/classes/java/net/MalformedURLException.java
+ojluni/src/main/java/java/net/MalformedURLException.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/net/MalformedURLException.java
 ojluni/src/main/java/java/net/MulticastSocket.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/net/MulticastSocket.java
 ojluni/src/main/java/java/net/NetPermission.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/net/NetPermission.java
 ojluni/src/main/java/java/net/NetworkInterface.java,jdk8u/jdk8u121-b13,jdk/src/share/classes/java/net/NetworkInterface.java
@@ -1559,7 +1559,7 @@ ojluni/src/main/java/sun/nio/fs/UnixChannelFactory.java,jdk8u/jdk8u121-b13,jdk/s
 # ojluni/src/main/java/sun/nio/fs/UnixConstants.java,jdk11u/jdk-11.0.13-ga,src/java.base/unix/classes/sun/nio/fs/UnixConstants.java.template
 ojluni/src/main/java/sun/nio/fs/UnixCopyFile.java,jdk8u/jdk8u121-b13,jdk/src/solaris/classes/sun/nio/fs/UnixCopyFile.java
 ojluni/src/main/java/sun/nio/fs/UnixDirectoryStream.java,jdk8u/jdk8u121-b13,jdk/src/solaris/classes/sun/nio/fs/UnixDirectoryStream.java
-ojluni/src/main/java/sun/nio/fs/UnixException.java,jdk8u/jdk8u121-b13,jdk/src/solaris/classes/sun/nio/fs/UnixException.java
+ojluni/src/main/java/sun/nio/fs/UnixException.java,jdk11u/jdk-11.0.13-ga,src/java.base/unix/classes/sun/nio/fs/UnixException.java
 ojluni/src/main/java/sun/nio/fs/UnixFileAttributeViews.java,jdk8u/jdk8u121-b13,jdk/src/solaris/classes/sun/nio/fs/UnixFileAttributeViews.java
 ojluni/src/main/java/sun/nio/fs/UnixFileAttributes.java,jdk11u/jdk-11.0.13-ga,src/java.base/unix/classes/sun/nio/fs/UnixFileAttributes.java
 ojluni/src/main/java/sun/nio/fs/UnixFileKey.java,jdk11u/jdk-11.0.13-ga,src/java.base/unix/classes/sun/nio/fs/UnixFileKey.java
@@ -1942,6 +1942,8 @@ ojluni/src/test/java/net/InetSocketAddress/B4849451.java,jdk17u/jdk-17.0.2-ga,te
 ojluni/src/test/java/net/InetSocketAddress/B6469803.java,jdk17u/jdk-17.0.2-ga,test/jdk/java/net/InetSocketAddress/B6469803.java
 ojluni/src/test/java/net/InetSocketAddress/CreateUnresolved.java,jdk17u/jdk-17.0.2-ga,test/jdk/java/net/InetSocketAddress/CreateUnresolved.java
 ojluni/src/test/java/net/InetSocketAddress/ToString.java,jdk17u/jdk-17.0.2-ga,test/jdk/java/net/InetSocketAddress/ToString.java
+ojluni/src/test/java/net/UnixDomainSocketAddress/LengthTest.java,jdk17u/jdk-17.0.2-ga,test/jdk/java/net/UnixDomainSocketAddress/LengthTest.java
+ojluni/src/test/java/net/UnixDomainSocketAddress/UnixDomainSocketAddressSerializationTest.java,jdk17u/jdk-17.0.2-ga,test/jdk/java/net/UnixDomainSocketAddress/UnixDomainSocketAddressSerializationTest.java
 ojluni/src/test/java/nio/channels/SelectionKey/AtomicUpdates.java,jdk11u/jdk-11.0.13-ga,test/jdk/java/nio/channels/SelectionKey/AtomicUpdates.java
 ojluni/src/test/java/nio/channels/Selector/ByteServer.java,jdk11u/jdk-11.0.13-ga,test/jdk/java/nio/channels/Selector/ByteServer.java
 ojluni/src/test/java/nio/channels/Selector/SelectAfterRead.java,jdk11u/jdk-11.0.13-ga,test/jdk/java/nio/channels/Selector/SelectAfterRead.java
@@ -1949,8 +1951,6 @@ ojluni/src/test/java/nio/channels/Selector/SelectWithConsumer.java,jdk11u/jdk-11
 ojluni/src/test/java/nio/file/Path/Misc.java,jdk17u/jdk-17.0.2-ga,test/jdk/java/nio/file/Path/Misc.java
 ojluni/src/test/java/nio/file/Path/PathOps.java,jdk17u/jdk-17.0.2-ga,test/jdk/java/nio/file/Path/PathOps.java
 ojluni/src/test/java/nio/file/Path/UriImportExport.java,jdk17u/jdk-17.0.2-ga,test/jdk/java/nio/file/Path/UriImportExport.java
-ojluni/src/test/java/net/UnixDomainSocketAddress/LengthTest.java,jdk17u/jdk-17.0.2-ga,test/jdk/java/net/UnixDomainSocketAddress/LengthTest.java
-ojluni/src/test/java/net/UnixDomainSocketAddress/UnixDomainSocketAddressSerializationTest.java,jdk17u/jdk-17.0.2-ga,test/jdk/java/net/UnixDomainSocketAddress/UnixDomainSocketAddressSerializationTest.java
 ojluni/src/test/java/security/cert/CertPathEncodingTest.java,jdk11u/jdk-11.0.13-ga,test/jdk/java/security/cert/CertPathEncodingTest.java
 ojluni/src/test/java/security/cert/GetInstance.java,jdk11u/jdk-11.0.13-ga,test/jdk/java/security/cert/GetInstance.java
 ojluni/src/test/java/security/cert/URICertStoreParameters/TestBasic.java,jdk11u/jdk-11.0.13-ga,test/jdk/java/security/cert/URICertStoreParameters/TestBasic.java
