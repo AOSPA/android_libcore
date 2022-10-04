@@ -781,16 +781,16 @@ public class PatternTest extends TestCaseWithRules {
     }
 
     public void testBug197() {
-        Object[] vals = { ":", new Integer(2),
-                new String[] { "boo", "and:foo" }, ":", new Integer(5),
-                new String[] { "boo", "and", "foo" }, ":", new Integer(-2),
-                new String[] { "boo", "and", "foo" }, ":", new Integer(3),
-                new String[] { "boo", "and", "foo" }, ":", new Integer(1),
-                new String[] { "boo:and:foo" }, "o", new Integer(5),
+        Object[] vals = { ":", Integer.valueOf(2),
+                new String[] { "boo", "and:foo" }, ":", Integer.valueOf(5),
+                new String[] { "boo", "and", "foo" }, ":", Integer.valueOf(-2),
+                new String[] { "boo", "and", "foo" }, ":", Integer.valueOf(3),
+                new String[] { "boo", "and", "foo" }, ":", Integer.valueOf(1),
+                new String[] { "boo:and:foo" }, "o", Integer.valueOf(5),
                 new String[] { "b", "", ":and:f", "", "" }, "o",
-                new Integer(4), new String[] { "b", "", ":and:f", "o" }, "o",
-                new Integer(-2), new String[] { "b", "", ":and:f", "", "" },
-                "o", new Integer(0), new String[] { "b", "", ":and:f" } };
+                Integer.valueOf(4), new String[] { "b", "", ":and:f", "o" }, "o",
+                Integer.valueOf(-2), new String[] { "b", "", ":and:f", "", "" },
+                "o", Integer.valueOf(0), new String[] { "b", "", ":and:f" } };
 
         for (int i = 0; i < vals.length / 3;) {
             String[] res = Pattern.compile(vals[i++].toString()).split(
@@ -2192,18 +2192,28 @@ public class PatternTest extends TestCaseWithRules {
 
         pat = Pattern.compile("b");
         s = pat.splitAsStream("abccbadfebb").toArray(String[]::new);
-        assertEquals(s.length, 3);
+        assertEquals(3, s.length);
+        assertEquals(s[0], "a");
+        assertEquals(s[1], "cc");
+        assertEquals(s[2], "adfe");
 
         pat = Pattern.compile("b");
         s = pat.splitAsStream("").toArray(String[]::new);
-        assertEquals(s.length, 0);
+        // The length is 1 because the javadoc says "If this pattern does not match any subsequence
+        // of the input then the resulting stream has just one element, namely the input sequence
+        // in string form.
+        assertEquals(1, s.length);
+        assertEquals(s[0], "");
 
         pat = Pattern.compile("");
         s = pat.splitAsStream("").toArray(String[]::new);
-        assertEquals(s.length, 0);
+        assertEquals(1, s.length);
+        assertEquals(s[0], "");
 
         pat = Pattern.compile("");
         s = pat.splitAsStream("abccbadfe").toArray(String[]::new);
-        assertEquals(s.length, 9);
+        assertEquals(9, s.length);
+        assertEquals(s[0], "a");
+        assertEquals(s[8], "e");
     }
 }
