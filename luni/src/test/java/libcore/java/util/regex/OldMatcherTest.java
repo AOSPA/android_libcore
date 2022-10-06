@@ -33,7 +33,7 @@ public class OldMatcherTest extends TestCase {
         StringBuffer sb = new StringBuffer();
 
         for (int i = 0; m.find(); i++) {
-            m.appendReplacement(sb, new Integer(i * 10 + i).toString());
+            m.appendReplacement(sb, Integer.valueOf(i * 10 + i).toString());
         }
         m.appendTail(sb);
         assertEquals("Today is 0-11-22 ...", sb.toString());
@@ -44,7 +44,7 @@ public class OldMatcherTest extends TestCase {
         Throwable t = null;
         m.find();
         try {
-            m.appendReplacement(null, "dog");
+            m.appendReplacement((StringBuffer) null, "dog");
         } catch (NullPointerException e) {
             t = e;
         }
@@ -101,7 +101,7 @@ public class OldMatcherTest extends TestCase {
         }
         Throwable t = null;
         try {
-            m.appendTail(null);
+            m.appendTail((StringBuffer) null);
         } catch (NullPointerException e) {
             t = e;
         }
