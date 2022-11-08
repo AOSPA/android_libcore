@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,35 +21,24 @@
  * questions.
  */
 
-/*
- * @test
- * @bug     4973432
- * @summary Test that toString on entrySet Iterator/Entry behaves reasonably
- * @author  Josh Bloch
+// Android-added: package declaration
+package test.java.util.zip;
+
+import java.util.zip.CRC32C;
+
+/**
+ * @test @summary Check that CRC-32C returns the expected CRC value for the
+ * string 123456789
+ * http://reveng.sourceforge.net/crc-catalogue/all.htm#crc.cat.crc-32c
+ * @build ChecksumBase
+ * @run main TestCRC32C
  */
 
-package test.java.util.IdentityHashMap;
+public class TestCRC32C {
 
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
-public class ToString {
-
-    // Android-change: method added so runner can run the test
+    // Android-changed: add annotation and drop args for atest TestNG runner to run the test.
     @org.testng.annotations.Test
-    public static void main() {
-        main(null);
-    }
-
-    public static void main(String[] args) {
-        Map<String, String> m = new IdentityHashMap<>();
-        Set<Map.Entry<String, String>> es = m.entrySet();
-        m.put("beer", "good");
-        Iterator<Map.Entry<String, String>> i = es.iterator();
-        System.out.println(i); // Used to throw exception
-        i.next();
-        System.out.println(i);
+    public static void main(/*String[] args*/) {
+        ChecksumBase.testAll(new CRC32C(), 0xE3069283L);
     }
 }
