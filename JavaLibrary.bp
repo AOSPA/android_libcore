@@ -162,7 +162,10 @@ java_defaults {
         ],
     },
     lint: {
-        warning_checks: ["SuspiciousIndentation"],
+        warning_checks: [
+            "SuspiciousIndentation",
+            "NewApi",
+        ],
     },
     min_sdk_version: "31",
 }
@@ -531,11 +534,33 @@ java_library_static {
     srcs: ["support/src/test/java/**/*.java"],
 
     sdk_version: "core_platform",
+    // Make sure that this will be added to the sdk snapshot for S.
+    min_sdk_version: "S",
     libs: ["junit"],
     static_libs: [
         "bouncycastle-unbundled",
         "bouncycastle-bcpkix-unbundled",
         "bouncycastle-ocsp-unbundled",
+    ],
+}
+
+// Used to generate the prebuilt file luni/src/test/resources/prebuilt-dex-from-java.dex.
+// The reason why we pre-build this dex file is to stabilize the test result from the
+// dexer / javac / other toolchains change.
+// Regenerate the prebuilt file with the following command:
+//   m core-tests-prebuilt-dex-from-java &&
+//   unzip out/soong/.intermediates/libcore/core-tests-prebuilt-dex-from-java/android_common/dex/core-tests-prebuilt-dex-from-java.jar classes.dex \
+//   -d libcore/luni/src/test/resources/ && mv libcore/luni/src/test/resources/classes.dex libcore/luni/src/test/resources/prebuilt-dex-from-java.dex
+java_test {
+    name: "core-tests-prebuilt-dex-from-java",
+    srcs: ["luni/src/test/dex_src/**/*.java"],
+    compile_dex: true,
+    defaults: ["libcore_java_defaults"],
+    sdk_version: "none",
+    system_modules: "core-all-system-modules",
+
+    visibility: [
+        "//libcore:__subpackages__",
     ],
 }
 
@@ -666,6 +691,7 @@ java_test {
             "-Xep:TryFailThrowable:ERROR",
             "-Xep:ComparisonOutOfRange:ERROR",
             "-Xep:DoNotCall:OFF",
+            "-Xep:ArrayToString:WARN",
         ],
     },
 
@@ -703,6 +729,12 @@ java_test {
         "junit-params",
         "mockito-target",
     ],
+
+    errorprone: {
+        javacflags: [
+            "-Xep:ArrayToString:WARN",
+        ],
+    },
 }
 
 // Builds the core-ojtests library that contains test code from OpenJDK.
@@ -757,6 +789,7 @@ java_test {
         javacflags: [
             "-Xep:AlwaysThrows:OFF",
             "-Xep:DoNotCall:OFF",
+            "-Xep:ArrayToString:WARN",
         ],
     },
 }
@@ -809,6 +842,7 @@ java_test {
         javacflags: [
             "-Xep:AlwaysThrows:OFF",
             "-Xep:DoNotCall:OFF",
+            "-Xep:ArrayToString:WARN",
         ],
     },
 }
@@ -1117,4 +1151,6 @@ java_library {
         ":api_surface_annotation_files",
     ],
     sdk_version: "core_current",
+    // Make sure that this will be added to the sdk snapshot for S.
+    min_sdk_version: "S",
 }
