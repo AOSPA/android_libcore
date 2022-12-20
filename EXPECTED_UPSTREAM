@@ -949,7 +949,7 @@ ojluni/src/main/java/java/util/Queue.java,jdk11u/jdk-11.0.13-ga,src/java.base/sh
 ojluni/src/main/java/java/util/Random.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/Random.java
 ojluni/src/main/java/java/util/RandomAccess.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/RandomAccess.java
 ojluni/src/main/java/java/util/RegularEnumSet.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/RegularEnumSet.java
-ojluni/src/main/java/java/util/ResourceBundle.java,jdk8u/jdk8u121-b13,jdk/src/share/classes/java/util/ResourceBundle.java
+ojluni/src/main/java/java/util/ResourceBundle.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/ResourceBundle.java
 ojluni/src/main/java/java/util/Scanner.java,jdk8u/jdk8u121-b13,jdk/src/share/classes/java/util/Scanner.java
 ojluni/src/main/java/java/util/ServiceConfigurationError.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/ServiceConfigurationError.java
 ojluni/src/main/java/java/util/ServiceLoader.java,jdk8u/jdk8u121-b13,jdk/src/share/classes/java/util/ServiceLoader.java
@@ -1365,7 +1365,8 @@ ojluni/src/main/java/jdk/internal/misc/JavaIOFileDescriptorAccess.java,jdk11u/jd
 ojluni/src/main/java/jdk/internal/misc/JavaObjectInputStreamAccess.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/jdk/internal/misc/JavaObjectInputStreamAccess.java
 ojluni/src/main/java/jdk/internal/misc/SharedSecrets.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/jdk/internal/misc/SharedSecrets.java
 ojluni/src/main/java/jdk/internal/misc/TerminatingThreadLocal.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/jdk/internal/misc/TerminatingThreadLocal.java
-ojluni/src/main/java/jdk/internal/misc/Unsafe.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/jdk/internal/misc/Unsafe.java
+ojluni/src/main/java/jdk/internal/misc/Unsafe.java,jdk17u/jdk-17.0.5-ga,src/java.base/share/classes/jdk/internal/misc/Unsafe.java
+ojluni/src/main/java/jdk/internal/misc/UnsafeConstants.java,jdk17u/jdk-17.0.5-ga,src/java.base/share/classes/jdk/internal/misc/UnsafeConstants.java
 ojluni/src/main/java/jdk/internal/misc/VM.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/jdk/internal/misc/VM.java
 ojluni/src/main/java/jdk/internal/ref/Cleaner.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/jdk/internal/ref/Cleaner.java
 ojluni/src/main/java/jdk/internal/ref/CleanerFactory.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/jdk/internal/ref/CleanerFactory.java
