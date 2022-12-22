@@ -304,6 +304,7 @@ public class UUIDTest extends TestCase {
     /**
      * @see UUID#fromString(String)
      */
+    @SuppressWarnings("AlwaysThrows")
     public void test_fromString() {
         UUID actual = UUID.fromString("f81d4fae-7dec-11d0-a765-00a0c91e6bf6");
         UUID expected = new UUID(0xf81d4fae7dec11d0L, 0xa76500a0c91e6bf6L);
@@ -359,6 +360,7 @@ public class UUIDTest extends TestCase {
 	/**
 	 * @tests java.util.UUID#fromString(String)
 	 */
+    @SuppressWarnings("AlwaysThrows")
 	public void test_fromString_LString_Exception() {
 
 		UUID uuid = UUID.fromString("0-0-0-0-0");
@@ -412,6 +414,21 @@ public class UUIDTest extends TestCase {
 			// expected
 		}
 
+        try {
+            uuid = UUID
+                    .fromString("7fffffffffffffff-7fffffffffffffff-7fffffffffffffff-0-0");
+            fail("should throw IAE, input is too long");
+        } catch (IllegalArgumentException ignored) {
+            // expected
+        }
+
+        try {
+            uuid = UUID.fromString("0-0-0-7fffffffffffffff-7fffffffffffffff");
+            fail("should throw IAE, input is too long");
+        } catch (IllegalArgumentException ignored) {
+            // expected
+        }
+
 		uuid = UUID.fromString("123456789-0-0-0-0");
 		assertEquals(0x2345678900000000L, uuid.getMostSignificantBits());
 		assertEquals(0x0L, uuid.getLeastSignificantBits());
@@ -430,15 +447,6 @@ public class UUIDTest extends TestCase {
 		} catch (NumberFormatException e) {
 			// expected
 		}
-
-		uuid = UUID
-				.fromString("7fffffffffffffff-7fffffffffffffff-7fffffffffffffff-0-0");
-		assertEquals(0xffffffffffffffffL, uuid.getMostSignificantBits());
-		assertEquals(0x0L, uuid.getLeastSignificantBits());
-
-		uuid = UUID.fromString("0-0-0-7fffffffffffffff-7fffffffffffffff");
-		assertEquals(0x0L, uuid.getMostSignificantBits());
-		assertEquals(0xffffffffffffffffL, uuid.getLeastSignificantBits());
 
 		try {
 			uuid = UUID.fromString("0-0-0-8000000000000000-0");

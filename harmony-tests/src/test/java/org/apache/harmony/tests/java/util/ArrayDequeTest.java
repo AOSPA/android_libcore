@@ -608,12 +608,7 @@ public class ArrayDequeTest extends TestCase {
             // expected
         }
         assertTrue(testQue.add(testObjThree));
-        try {
-            result.next();
-            fail("should throw ConcurrentModificationException");
-        } catch (ConcurrentModificationException e) {
-            // expected
-        }
+
         result = testQue.iterator();
         assertEquals(testObjOne, result.next());
         assertEquals(testObjTwo, result.next());
@@ -907,9 +902,12 @@ public class ArrayDequeTest extends TestCase {
         ArrayDeque<String> adq = new ArrayDeque<>();
         adq.add("foo");
 
-        // The ArrayDeque forEachRemaining implementation doesn't use a precise check
-        // for concurrent modifications.
-        adq.iterator().forEachRemaining(s -> adq.add(s));
+        try {
+            adq.iterator().forEachRemaining(s -> adq.add(s));
+            fail("should throw CME");
+        } catch (ConcurrentModificationException ignored) {
+            // expected
+        }
     }
 
     public void test_spliterator() throws Exception {
@@ -947,11 +945,11 @@ public class ArrayDequeTest extends TestCase {
      * java.util.ArrayDeque#Serialization()
      */
     public void test_serialization() throws Exception {
-        assertTrue(testQue.add(new Integer(1)));
-        assertTrue(testQue.add(new Integer(2)));
-        assertTrue(testQue.add(new Integer(3)));
-        assertTrue(testQue.add(new Integer(4)));
-        assertTrue(testQue.add(new Integer(5)));
+        assertTrue(testQue.add(Integer.valueOf(1)));
+        assertTrue(testQue.add(Integer.valueOf(2)));
+        assertTrue(testQue.add(Integer.valueOf(3)));
+        assertTrue(testQue.add(Integer.valueOf(4)));
+        assertTrue(testQue.add(Integer.valueOf(5)));
         SerializationTest.verifySelf(testQue, new SerializableAssert() {
             public void assertDeserialized(Serializable initial,
                     Serializable deserialized) {
@@ -967,11 +965,11 @@ public class ArrayDequeTest extends TestCase {
      */
     @SuppressWarnings({ "unchecked", "boxing" })
     public void testSerializationCompatibility() throws Exception {
-        assertTrue(testQue.add(new Integer(1)));
-        assertTrue(testQue.add(new Integer(2)));
-        assertTrue(testQue.add(new Integer(3)));
-        assertTrue(testQue.add(new Integer(4)));
-        assertTrue(testQue.add(new Integer(5)));
+        assertTrue(testQue.add(Integer.valueOf(1)));
+        assertTrue(testQue.add(Integer.valueOf(2)));
+        assertTrue(testQue.add(Integer.valueOf(3)));
+        assertTrue(testQue.add(Integer.valueOf(4)));
+        assertTrue(testQue.add(Integer.valueOf(5)));
         SerializationTest.verifyGolden(this, testQue, new SerializableAssert() {
             public void assertDeserialized(Serializable initial,
                     Serializable deserialized) {

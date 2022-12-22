@@ -1048,6 +1048,10 @@ package dalvik.bytecode {
 
 package dalvik.system {
 
+  public final class ApplicationRuntime {
+    method @NonNull public static dalvik.system.DexFile.OptimizationInfo getBaseApkOptimizationInfo();
+  }
+
   public class BaseDexClassLoader extends java.lang.ClassLoader {
     ctor public BaseDexClassLoader(String, java.io.File, String, ClassLoader);
     method public String findLibrary(String);
@@ -1064,7 +1068,7 @@ package dalvik.system {
     ctor public DexClassLoader(String, String, String, ClassLoader);
   }
 
-  @Deprecated public final class DexFile {
+  public final class DexFile {
     ctor @Deprecated public DexFile(java.io.File) throws java.io.IOException;
     ctor @Deprecated public DexFile(String) throws java.io.IOException;
     method @Deprecated public void close() throws java.io.IOException;
@@ -1073,6 +1077,12 @@ package dalvik.system {
     method @Deprecated public static boolean isDexOptNeeded(String) throws java.io.FileNotFoundException, java.io.IOException;
     method @Deprecated public Class loadClass(String, ClassLoader);
     method @Deprecated public static dalvik.system.DexFile loadDex(String, String, int) throws java.io.IOException;
+  }
+
+  public static final class DexFile.OptimizationInfo {
+    method public boolean isFullyCompiled();
+    method public boolean isOptimized();
+    method public boolean isVerified();
   }
 
   public final class InMemoryDexClassLoader extends dalvik.system.BaseDexClassLoader {
@@ -1084,6 +1094,15 @@ package dalvik.system {
   public class PathClassLoader extends dalvik.system.BaseDexClassLoader {
     ctor public PathClassLoader(String, ClassLoader);
     ctor public PathClassLoader(String, String, ClassLoader);
+  }
+
+  public final class ZipPathValidator {
+    method public static void clearCallback();
+    method public static void setCallback(@NonNull dalvik.system.ZipPathValidator.Callback);
+  }
+
+  public static interface ZipPathValidator.Callback {
+    method public default void onZipEntryAccess(@NonNull String) throws java.util.zip.ZipException;
   }
 
 }
@@ -2003,6 +2022,7 @@ package java.io {
     method protected void setError();
     method public void write(int);
     method public void write(byte[], int, int);
+    method public void writeBytes(byte[]);
   }
 
   public class PrintWriter extends java.io.Writer {
@@ -2362,6 +2382,7 @@ package java.lang {
     method public char charAt(int);
     method @NonNull public default java.util.stream.IntStream chars();
     method @NonNull public default java.util.stream.IntStream codePoints();
+    method public static int compare(@NonNull CharSequence, @NonNull CharSequence);
     method public int length();
     method @NonNull public CharSequence subSequence(int, int);
     method @NonNull public String toString();
@@ -3025,6 +3046,7 @@ package java.lang {
     method @NonNull public java.lang.reflect.Constructor<?>[] getConstructors() throws java.lang.SecurityException;
     method @Nullable public <A extends java.lang.annotation.Annotation> A getDeclaredAnnotation(@NonNull Class<A>);
     method @NonNull public java.lang.annotation.Annotation[] getDeclaredAnnotations();
+    method @NonNull public <A extends java.lang.annotation.Annotation> A[] getDeclaredAnnotationsByType(@NonNull Class<A>);
     method @NonNull public Class<?>[] getDeclaredClasses();
     method @NonNull public java.lang.reflect.Constructor<T> getDeclaredConstructor(@Nullable Class<?>...) throws java.lang.NoSuchMethodException, java.lang.SecurityException;
     method @NonNull public java.lang.reflect.Constructor<?>[] getDeclaredConstructors() throws java.lang.SecurityException;
@@ -3067,10 +3089,11 @@ package java.lang {
     method public boolean isInterface();
     method public boolean isLocalClass();
     method public boolean isMemberClass();
+    method public boolean isNestmateOf(@NonNull Class<?>);
     method public boolean isPrimitive();
     method public boolean isSealed();
     method public boolean isSynthetic();
-    method @NonNull public T newInstance() throws java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method @Deprecated @NonNull public T newInstance() throws java.lang.IllegalAccessException, java.lang.InstantiationException;
     method @NonNull public String toGenericString();
   }
 
@@ -3742,8 +3765,6 @@ package java.lang {
     method public void exit(int);
     method public long freeMemory();
     method public void gc();
-    method @Deprecated public java.io.InputStream getLocalizedInputStream(java.io.InputStream);
-    method @Deprecated public java.io.OutputStream getLocalizedOutputStream(java.io.OutputStream);
     method public static Runtime getRuntime();
     method public void halt(int);
     method public void load(String);
@@ -3753,8 +3774,8 @@ package java.lang {
     method public void runFinalization();
     method @Deprecated public static void runFinalizersOnExit(boolean);
     method public long totalMemory();
-    method public void traceInstructions(boolean);
-    method public void traceMethodCalls(boolean);
+    method @Deprecated public void traceInstructions(boolean);
+    method @Deprecated public void traceMethodCalls(boolean);
   }
 
   public class RuntimeException extends java.lang.Exception {
@@ -4077,7 +4098,7 @@ package java.lang {
     field public static final java.util.Comparator<java.lang.String> CASE_INSENSITIVE_ORDER;
   }
 
-  public final class StringBuffer implements java.lang.Appendable java.lang.CharSequence java.io.Serializable {
+  public final class StringBuffer implements java.lang.Appendable java.lang.CharSequence java.lang.Comparable<java.lang.StringBuffer> java.io.Serializable {
     ctor public StringBuffer();
     ctor public StringBuffer(int);
     ctor public StringBuffer(@NonNull String);
@@ -4101,6 +4122,7 @@ package java.lang {
     method public int codePointAt(int);
     method public int codePointBefore(int);
     method public int codePointCount(int, int);
+    method public int compareTo(@NonNull StringBuffer);
     method @NonNull public StringBuffer delete(int, int);
     method @NonNull public StringBuffer deleteCharAt(int);
     method public void ensureCapacity(int);
@@ -4133,7 +4155,7 @@ package java.lang {
     method public void trimToSize();
   }
 
-  public final class StringBuilder implements java.lang.Appendable java.lang.CharSequence java.io.Serializable {
+  public final class StringBuilder implements java.lang.Appendable java.lang.CharSequence java.lang.Comparable<java.lang.StringBuilder> java.io.Serializable {
     ctor public StringBuilder();
     ctor public StringBuilder(int);
     ctor public StringBuilder(@NonNull String);
@@ -4157,6 +4179,7 @@ package java.lang {
     method public int codePointAt(int);
     method public int codePointBefore(int);
     method public int codePointCount(int, int);
+    method public int compareTo(@NonNull StringBuilder);
     method @NonNull public StringBuilder delete(int, int);
     method @NonNull public StringBuilder deleteCharAt(int);
     method public void ensureCapacity(int);
@@ -7818,7 +7841,7 @@ package java.security {
     method public String getAlgorithm();
     method public byte[] getEncoded();
     method public String getFormat();
-    field public static final long serialVersionUID = 6603384152749567654L; // 0x5ba3eee69414eea6L
+    field @Deprecated @java.io.Serial public static final long serialVersionUID = 6603384152749567654L; // 0x5ba3eee69414eea6L
   }
 
   public class KeyException extends java.security.GeneralSecurityException {
@@ -8132,7 +8155,7 @@ package java.security {
   }
 
   public interface PrivateKey extends java.security.Key javax.security.auth.Destroyable {
-    field public static final long serialVersionUID = 6034044314589513430L; // 0x53bd3b559a12c6d6L
+    field @Deprecated @java.io.Serial public static final long serialVersionUID = 6034044314589513430L; // 0x53bd3b559a12c6d6L
   }
 
   public interface PrivilegedAction<T> {
@@ -8207,7 +8230,7 @@ package java.security {
   }
 
   public interface PublicKey extends java.security.Key {
-    field public static final long serialVersionUID = 7187392471159151072L; // 0x63bebf5f40c219e0L
+    field @Deprecated @java.io.Serial public static final long serialVersionUID = 7187392471159151072L; // 0x63bebf5f40c219e0L
   }
 
   public class SecureClassLoader extends java.lang.ClassLoader {
@@ -12702,6 +12725,7 @@ package java.util {
     method @NonNull public java.util.ArrayDeque<E> clone();
     method @NonNull public java.util.Iterator<E> descendingIterator();
     method public E element();
+    method public void forEach(@NonNull java.util.function.Consumer<? super E>);
     method public E getFirst();
     method public E getLast();
     method @NonNull public java.util.Iterator<E> iterator();
@@ -13351,6 +13375,7 @@ package java.util {
 
   public class DoubleSummaryStatistics implements java.util.function.DoubleConsumer {
     ctor public DoubleSummaryStatistics();
+    ctor public DoubleSummaryStatistics(long, double, double, double) throws java.lang.IllegalArgumentException;
     method public void accept(double);
     method public void combine(java.util.DoubleSummaryStatistics);
     method public final double getAverage();
@@ -13529,6 +13554,42 @@ package java.util {
     method public V remove(Object);
     method public int size();
     method public java.util.Collection<V> values();
+  }
+
+  public final class HexFormat {
+    method public String delimiter();
+    method public String formatHex(byte[]);
+    method public String formatHex(byte[], int, int);
+    method public <A extends java.lang.Appendable> A formatHex(A, byte[]);
+    method public <A extends java.lang.Appendable> A formatHex(A, byte[], int, int);
+    method public static int fromHexDigit(int);
+    method public static int fromHexDigits(CharSequence);
+    method public static int fromHexDigits(CharSequence, int, int);
+    method public static long fromHexDigitsToLong(CharSequence);
+    method public static long fromHexDigitsToLong(CharSequence, int, int);
+    method public static boolean isHexDigit(int);
+    method public boolean isUpperCase();
+    method public static java.util.HexFormat of();
+    method public static java.util.HexFormat ofDelimiter(String);
+    method public byte[] parseHex(CharSequence);
+    method public byte[] parseHex(CharSequence, int, int);
+    method public byte[] parseHex(char[], int, int);
+    method public String prefix();
+    method public String suffix();
+    method public <A extends java.lang.Appendable> A toHexDigits(A, byte);
+    method public String toHexDigits(byte);
+    method public String toHexDigits(char);
+    method public String toHexDigits(short);
+    method public String toHexDigits(int);
+    method public String toHexDigits(long);
+    method public String toHexDigits(long, int);
+    method public char toHighHexDigit(int);
+    method public char toLowHexDigit(int);
+    method public java.util.HexFormat withDelimiter(String);
+    method public java.util.HexFormat withLowerCase();
+    method public java.util.HexFormat withPrefix(String);
+    method public java.util.HexFormat withSuffix(String);
+    method public java.util.HexFormat withUpperCase();
   }
 
   public class IdentityHashMap<K, V> extends java.util.AbstractMap<K,V> implements java.lang.Cloneable java.util.Map<K,V> java.io.Serializable {
@@ -14076,6 +14137,7 @@ package java.util {
     ctor public PriorityQueue(java.util.PriorityQueue<? extends E>);
     ctor public PriorityQueue(java.util.SortedSet<? extends E>);
     method public java.util.Comparator<? super E> comparator();
+    method public void forEach(java.util.function.Consumer<? super E>);
     method public java.util.Iterator<E> iterator();
     method public boolean offer(E);
     method public E peek();
@@ -17264,7 +17326,9 @@ package java.util.regex {
 
   public final class Matcher implements java.util.regex.MatchResult {
     method @NonNull public java.util.regex.Matcher appendReplacement(@NonNull StringBuffer, @NonNull String);
+    method @NonNull public java.util.regex.Matcher appendReplacement(@NonNull StringBuilder, @NonNull String);
     method @NonNull public StringBuffer appendTail(@NonNull StringBuffer);
+    method @NonNull public StringBuilder appendTail(@NonNull StringBuilder);
     method public int end();
     method public int end(int);
     method public int end(@NonNull String);
@@ -17285,10 +17349,13 @@ package java.util.regex {
     method public int regionEnd();
     method public int regionStart();
     method @NonNull public String replaceAll(@NonNull String);
+    method @NonNull public String replaceAll(@NonNull java.util.function.Function<java.util.regex.MatchResult,java.lang.String>);
     method @NonNull public String replaceFirst(@NonNull String);
+    method @NonNull public String replaceFirst(@NonNull java.util.function.Function<java.util.regex.MatchResult,java.lang.String>);
     method public boolean requireEnd();
     method @NonNull public java.util.regex.Matcher reset();
     method @NonNull public java.util.regex.Matcher reset(@NonNull CharSequence);
+    method @NonNull public java.util.stream.Stream<java.util.regex.MatchResult> results();
     method public int start();
     method public int start(int);
     method public int start(@NonNull String);
@@ -17299,6 +17366,7 @@ package java.util.regex {
   }
 
   public final class Pattern implements java.io.Serializable {
+    method @NonNull public java.util.function.Predicate<java.lang.String> asMatchPredicate();
     method @NonNull public java.util.function.Predicate<java.lang.String> asPredicate();
     method @NonNull public static java.util.regex.Pattern compile(@NonNull String);
     method @NonNull public static java.util.regex.Pattern compile(@NonNull String, int);
@@ -17565,6 +17633,7 @@ package java.util.stream {
     method public static <T> java.util.stream.Stream<T> concat(java.util.stream.Stream<? extends T>, java.util.stream.Stream<? extends T>);
     method public long count();
     method public java.util.stream.Stream<T> distinct();
+    method public default java.util.stream.Stream<T> dropWhile(java.util.function.Predicate<? super T>);
     method public static <T> java.util.stream.Stream<T> empty();
     method public java.util.stream.Stream<T> filter(java.util.function.Predicate<? super T>);
     method public java.util.Optional<T> findAny();
@@ -17575,10 +17644,15 @@ package java.util.stream {
     method public java.util.stream.LongStream flatMapToLong(java.util.function.Function<? super T,? extends java.util.stream.LongStream>);
     method public void forEach(java.util.function.Consumer<? super T>);
     method public void forEachOrdered(java.util.function.Consumer<? super T>);
-    method public static <T> java.util.stream.Stream<T> generate(java.util.function.Supplier<T>);
+    method public static <T> java.util.stream.Stream<T> generate(java.util.function.Supplier<? extends T>);
     method public static <T> java.util.stream.Stream<T> iterate(T, java.util.function.UnaryOperator<T>);
+    method public static <T> java.util.stream.Stream<T> iterate(T, java.util.function.Predicate<? super T>, java.util.function.UnaryOperator<T>);
     method public java.util.stream.Stream<T> limit(long);
     method public <R> java.util.stream.Stream<R> map(java.util.function.Function<? super T,? extends R>);
+    method public default <R> java.util.stream.Stream<R> mapMulti(java.util.function.BiConsumer<? super T,? super java.util.function.Consumer<R>>);
+    method public default java.util.stream.DoubleStream mapMultiToDouble(java.util.function.BiConsumer<? super T,? super java.util.function.DoubleConsumer>);
+    method public default java.util.stream.IntStream mapMultiToInt(java.util.function.BiConsumer<? super T,? super java.util.function.IntConsumer>);
+    method public default java.util.stream.LongStream mapMultiToLong(java.util.function.BiConsumer<? super T,? super java.util.function.LongConsumer>);
     method public java.util.stream.DoubleStream mapToDouble(java.util.function.ToDoubleFunction<? super T>);
     method public java.util.stream.IntStream mapToInt(java.util.function.ToIntFunction<? super T>);
     method public java.util.stream.LongStream mapToLong(java.util.function.ToLongFunction<? super T>);
@@ -17587,6 +17661,7 @@ package java.util.stream {
     method public boolean noneMatch(java.util.function.Predicate<? super T>);
     method public static <T> java.util.stream.Stream<T> of(T);
     method @java.lang.SafeVarargs public static <T> java.util.stream.Stream<T> of(T...);
+    method public static <T> java.util.stream.Stream<T> ofNullable(T);
     method public java.util.stream.Stream<T> peek(java.util.function.Consumer<? super T>);
     method public T reduce(T, java.util.function.BinaryOperator<T>);
     method public java.util.Optional<T> reduce(java.util.function.BinaryOperator<T>);
@@ -17594,8 +17669,10 @@ package java.util.stream {
     method public java.util.stream.Stream<T> skip(long);
     method public java.util.stream.Stream<T> sorted();
     method public java.util.stream.Stream<T> sorted(java.util.Comparator<? super T>);
+    method public default java.util.stream.Stream<T> takeWhile(java.util.function.Predicate<? super T>);
     method public Object[] toArray();
     method public <A> A[] toArray(java.util.function.IntFunction<A[]>);
+    method public default java.util.List<T> toList();
   }
 
   public static interface Stream.Builder<T> extends java.util.function.Consumer<T> {
@@ -17624,8 +17701,6 @@ package java.util.zip {
     method public void reset();
     method public void update(int);
     method public void update(byte[], int, int);
-    method public void update(byte[]);
-    method public void update(java.nio.ByteBuffer);
   }
 
   public class CRC32 implements java.util.zip.Checksum {
@@ -17634,8 +17709,14 @@ package java.util.zip {
     method public void reset();
     method public void update(int);
     method public void update(byte[], int, int);
-    method public void update(byte[]);
-    method public void update(java.nio.ByteBuffer);
+  }
+
+  public final class CRC32C implements java.util.zip.Checksum {
+    ctor public CRC32C();
+    method public long getValue();
+    method public void reset();
+    method public void update(int);
+    method public void update(byte[], int, int);
   }
 
   public class CheckedInputStream extends java.io.FilterInputStream {
@@ -17652,7 +17733,9 @@ package java.util.zip {
     method public long getValue();
     method public void reset();
     method public void update(int);
+    method public default void update(byte[]);
     method public void update(byte[], int, int);
+    method public default void update(java.nio.ByteBuffer);
   }
 
   public class DataFormatException extends java.lang.Exception {

@@ -35,6 +35,8 @@ import java.nio.charset.StandardCharsets;
 import static java.util.zip.ZipConstants64.*;
 import static java.util.zip.ZipUtils.*;
 
+import dalvik.system.ZipPathValidator;
+
 /**
  * This class implements an input stream filter for reading files in the
  * ZIP file format. Includes support for both compressed and uncompressed
@@ -321,6 +323,9 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
         if ((flag & 1) == 1) {
             throw new ZipException("encrypted ZIP entry not supported");
         }
+        // BEGIN Android-added: Use ZipPathValidator to validate zip entry name.
+        ZipPathValidator.getInstance().onZipEntryAccess(e.name);
+        // END Android-added: Use ZipPathValidator to validate zip entry name.
         e.method = get16(tmpbuf, LOCHOW);
         e.xdostime = get32(tmpbuf, LOCTIM);
         if ((flag & 8) == 8) {
