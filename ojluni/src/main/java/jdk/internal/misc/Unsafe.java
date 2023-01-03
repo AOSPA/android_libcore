@@ -172,12 +172,12 @@ public final class Unsafe {
     @IntrinsicCandidate
     public native void putInt(Object o, long offset, int x);
 
-    // BEGIN Android-removed: Not used in Android.
-    /*
     /**
      * Fetches a reference value from a given Java variable.
      * @see #getInt(Object, long)
-     * /
+     */
+    // Android-added: FastNative annotation.
+    @FastNative
     @IntrinsicCandidate
     public native Object getReference(Object o, long offset);
 
@@ -190,11 +190,11 @@ public final class Unsafe {
      * other store barriers for that object (if the VM requires them)
      * are updated.
      * @see #putInt(Object, long, int)
-     * /
+     */
+    // Android-added: FastNative annotation.
+    @FastNative
     @IntrinsicCandidate
     public native void putReference(Object o, long offset, Object x);
-     */
-    // END Android-removed: Not used in Android.
 
     /** @see #getInt(Object, long) */
     // Android-added: FastNative annotation.
@@ -1565,6 +1565,9 @@ public final class Unsafe {
     /** Throws the exception without telling the verifier. * /
     public native void throwException(Throwable ee);
 
+     */
+    // END Android-removed: Not used in Android.
+
     /**
      * Atomically updates Java variable to {@code x} if it is currently
      * holding {@code expected}.
@@ -1573,12 +1576,16 @@ public final class Unsafe {
      * and write.  Corresponds to C11 atomic_compare_exchange_strong.
      *
      * @return {@code true} if successful
-     * /
+     */
+    // Android-added: FastNative annotation.
+    @FastNative
     @IntrinsicCandidate
     public final native boolean compareAndSetReference(Object o, long offset,
                                                        Object expected,
                                                        Object x);
 
+    // BEGIN Android-removed: Not used in Android.
+    /*
     @IntrinsicCandidate
     public final native Object compareAndExchangeReference(Object o, long offset,
                                                            Object expected,
@@ -1618,6 +1625,8 @@ public final class Unsafe {
                                                            Object x) {
         return compareAndSetReference(o, offset, expected, x);
     }
+     */
+    // END Android-removed: Not used in Android.
 
     @IntrinsicCandidate
     public final boolean weakCompareAndSetReference(Object o, long offset,
@@ -1625,8 +1634,6 @@ public final class Unsafe {
                                                     Object x) {
         return compareAndSetReference(o, offset, expected, x);
     }
-     */
-    // END Android-removed: Not used in Android.
 
     /**
      * Atomically updates Java variable to {@code x} if it is currently
@@ -1685,6 +1692,8 @@ public final class Unsafe {
                                                      int x) {
         return compareAndSetInt(o, offset, expected, x);
     }
+     */
+    // END Android-removed: Not used in Android.
 
     @IntrinsicCandidate
     public final boolean weakCompareAndSetInt(Object o, long offset,
@@ -1693,6 +1702,8 @@ public final class Unsafe {
         return compareAndSetInt(o, offset, expected, x);
     }
 
+    // BEGIN Android-removed: Not used in Android.
+    /*
     @IntrinsicCandidate
     public final byte compareAndExchangeByte(Object o, long offset,
                                              byte expected,
@@ -2236,22 +2247,26 @@ public final class Unsafe {
                                                long x) {
         return compareAndSetLong(o, offset, expected, x);
     }
+     */
+    // END Android-removed: Not used in Android.
 
     /**
      * Fetches a reference value from a given Java variable, with volatile
      * load semantics. Otherwise identical to {@link #getReference(Object, long)}
-     * /
+     */
+    // Android-added: FastNative annotation.
+    @FastNative
     @IntrinsicCandidate
     public native Object getReferenceVolatile(Object o, long offset);
 
     /**
      * Stores a reference value into a given Java variable, with
      * volatile store semantics. Otherwise identical to {@link #putReference(Object, long, Object)}
-     * /
+     */
+    // Android-added: FastNative annotation.
+    @FastNative
     @IntrinsicCandidate
     public native void putReferenceVolatile(Object o, long offset, Object x);
-     */
-    // END Android-removed: Not used in Android.
 
     /**
      * Gets an {@code int} field from the given object,
@@ -2358,15 +2373,18 @@ public final class Unsafe {
     /** Volatile version of {@link #putDouble(Object, long, double)}  * /
     @IntrinsicCandidate
     public native void    putDoubleVolatile(Object o, long offset, double x);
+     */
+    // END Android-removed: Not used in Android.
 
 
-
-    /** Acquire version of {@link #getReferenceVolatile(Object, long)} * /
+    /** Acquire version of {@link #getReferenceVolatile(Object, long)} */
     @IntrinsicCandidate
     public final Object getReferenceAcquire(Object o, long offset) {
         return getReferenceVolatile(o, offset);
     }
 
+    // BEGIN Android-removed: Not used in Android.
+    /*
     /** Acquire version of {@link #getBooleanVolatile(Object, long)} * /
     @IntrinsicCandidate
     public final boolean getBooleanAcquire(Object o, long offset) {
@@ -2432,13 +2450,17 @@ public final class Unsafe {
      *
      * Corresponds to C11 atomic_store_explicit(..., memory_order_release).
      * /
+     */
+    // END Android-removed: Not used in Android.
 
-    /** Release version of {@link #putReferenceVolatile(Object, long, Object)} * /
+    /** Release version of {@link #putReferenceVolatile(Object, long, Object)} */
     @IntrinsicCandidate
     public final void putReferenceRelease(Object o, long offset, Object x) {
         putReferenceVolatile(o, offset, x);
     }
 
+    // BEGIN Android-removed: Not used in Android.
+    /*
     /** Release version of {@link #putBooleanVolatile(Object, long, boolean)} * /
     @IntrinsicCandidate
     public final void putBooleanRelease(Object o, long offset, boolean x) {
@@ -2494,15 +2516,19 @@ public final class Unsafe {
     public final void putDoubleRelease(Object o, long offset, double x) {
         putDoubleVolatile(o, offset, x);
     }
+     */
+    // END Android-removed: Not used in Android.
 
     // ------------------------------ Opaque --------------------------------------
 
-    /** Opaque version of {@link #getReferenceVolatile(Object, long)} * /
+    /** Opaque version of {@link #getReferenceVolatile(Object, long)} */
     @IntrinsicCandidate
     public final Object getReferenceOpaque(Object o, long offset) {
         return getReferenceVolatile(o, offset);
     }
 
+    // BEGIN Android-removed: Not used in Android.
+    /*
     /** Opaque version of {@link #getBooleanVolatile(Object, long)} * /
     @IntrinsicCandidate
     public final boolean getBooleanOpaque(Object o, long offset) {
@@ -2526,37 +2552,49 @@ public final class Unsafe {
     public final char getCharOpaque(Object o, long offset) {
         return getCharVolatile(o, offset);
     }
+     */
+    // END Android-removed: Not used in Android.
 
-    /** Opaque version of {@link #getIntVolatile(Object, long)} * /
+    /** Opaque version of {@link #getIntVolatile(Object, long)} */
     @IntrinsicCandidate
     public final int getIntOpaque(Object o, long offset) {
         return getIntVolatile(o, offset);
     }
 
+    // BEGIN Android-removed: Not used in Android.
+    /*
     /** Opaque version of {@link #getFloatVolatile(Object, long)} * /
     @IntrinsicCandidate
     public final float getFloatOpaque(Object o, long offset) {
         return getFloatVolatile(o, offset);
     }
+     */
+    // END Android-removed: Not used in Android.
 
-    /** Opaque version of {@link #getLongVolatile(Object, long)} * /
+    /** Opaque version of {@link #getLongVolatile(Object, long)} */
     @IntrinsicCandidate
     public final long getLongOpaque(Object o, long offset) {
         return getLongVolatile(o, offset);
     }
 
+    // BEGIN Android-removed: Not used in Android.
+    /*
     /** Opaque version of {@link #getDoubleVolatile(Object, long)} * /
     @IntrinsicCandidate
     public final double getDoubleOpaque(Object o, long offset) {
         return getDoubleVolatile(o, offset);
     }
+     */
+    // END Android-removed: Not used in Android.
 
-    /** Opaque version of {@link #putReferenceVolatile(Object, long, Object)} * /
+    /** Opaque version of {@link #putReferenceVolatile(Object, long, Object)} */
     @IntrinsicCandidate
     public final void putReferenceOpaque(Object o, long offset, Object x) {
         putReferenceVolatile(o, offset, x);
     }
 
+    // BEGIN Android-removed: Not used in Android.
+    /*
     /** Opaque version of {@link #putBooleanVolatile(Object, long, boolean)} * /
     @IntrinsicCandidate
     public final void putBooleanOpaque(Object o, long offset, boolean x) {
@@ -2580,25 +2618,33 @@ public final class Unsafe {
     public final void putCharOpaque(Object o, long offset, char x) {
         putCharVolatile(o, offset, x);
     }
+     */
+    // END Android-removed: Not used in Android.
 
-    /** Opaque version of {@link #putIntVolatile(Object, long, int)} * /
+    /** Opaque version of {@link #putIntVolatile(Object, long, int)} */
     @IntrinsicCandidate
     public final void putIntOpaque(Object o, long offset, int x) {
         putIntVolatile(o, offset, x);
     }
 
+    // BEGIN Android-removed: Not used in Android.
+    /*
     /** Opaque version of {@link #putFloatVolatile(Object, long, float)} * /
     @IntrinsicCandidate
     public final void putFloatOpaque(Object o, long offset, float x) {
         putFloatVolatile(o, offset, x);
     }
+     */
+    // END Android-removed: Not used in Android.
 
-    /** Opaque version of {@link #putLongVolatile(Object, long, long)} * /
+    /** Opaque version of {@link #putLongVolatile(Object, long, long)} */
     @IntrinsicCandidate
     public final void putLongOpaque(Object o, long offset, long x) {
         putLongVolatile(o, offset, x);
     }
 
+    // BEGIN Android-removed: Not used in Android.
+    /*
     /** Opaque version of {@link #putDoubleVolatile(Object, long, double)} * /
     @IntrinsicCandidate
     public final void putDoubleOpaque(Object o, long offset, double x) {
@@ -2684,9 +2730,7 @@ public final class Unsafe {
         int v;
         do {
             v = getIntVolatile(o, offset);
-        // Android-changed: weakCompareAndSetInt not available.
-        // } while (!weakCompareAndSetInt(o, offset, v, v + delta));
-        } while (!compareAndSwapInt(o, offset, v, v + delta));
+        } while (!weakCompareAndSetInt(o, offset, v, v + delta));
         return v;
     }
 
@@ -2931,9 +2975,7 @@ public final class Unsafe {
         int v;
         do {
             v = getIntVolatile(o, offset);
-        // Android-changed: weakCompareAndSetInt not available.
-        // } while (!weakCompareAndSetInt(o, offset, v, newValue));
-        } while (!compareAndSwapInt(o, offset, v, newValue));
+        } while (!weakCompareAndSetInt(o, offset, v, newValue));
         return v;
     }
 
@@ -3000,6 +3042,8 @@ public final class Unsafe {
         } while (!weakCompareAndSetLongAcquire(o, offset, v, newValue));
         return v;
     }
+    */
+    // END Android-removed: Not used in Android.
 
     /**
      * Atomically exchanges the given reference value with the current
@@ -3011,7 +3055,7 @@ public final class Unsafe {
      * @param newValue new value
      * @return the previous value
      * @since 1.8
-     * /
+     */
     @IntrinsicCandidate
     public final Object getAndSetReference(Object o, long offset, Object newValue) {
         Object v;
@@ -3021,6 +3065,8 @@ public final class Unsafe {
         return v;
     }
 
+    // BEGIN Android-removed: Not used in Android.
+    /*
     @ForceInline
     public final Object getAndSetReferenceRelease(Object o, long offset, Object newValue) {
         Object v;
@@ -3441,9 +3487,11 @@ public final class Unsafe {
                                                current, (short) (current ^ mask)));
         return current;
     }
+     */
+    // END Android-removed: Not used in Android.
 
-
-    @ForceInline
+    // Android-removed: @ForceInline is an unsupported attribute.
+    // @ForceInline
     public final int getAndBitwiseOrInt(Object o, long offset, int mask) {
         int current;
         do {
@@ -3453,6 +3501,8 @@ public final class Unsafe {
         return current;
     }
 
+    // BEGIN Android-removed: Not used in Android.
+    /*
     @ForceInline
     public final int getAndBitwiseOrIntRelease(Object o, long offset, int mask) {
         int current;
@@ -3473,6 +3523,8 @@ public final class Unsafe {
                                                current, current | mask));
         return current;
     }
+     */
+    // END Android-removed: Not used in Android.
 
     /**
      * Atomically replaces the current value of a field or array element within
@@ -3484,8 +3536,9 @@ public final class Unsafe {
      * @param mask the mask value
      * @return the previous value
      * @since 9
-     * /
-    @ForceInline
+     */
+    // Android-removed: @ForceInline is an unsupported attribute.
+    // @ForceInline
     public final int getAndBitwiseAndInt(Object o, long offset, int mask) {
         int current;
         do {
@@ -3495,6 +3548,8 @@ public final class Unsafe {
         return current;
     }
 
+    // BEGIN Android-removed: Not used in Android.
+    /*
     @ForceInline
     public final int getAndBitwiseAndIntRelease(Object o, long offset, int mask) {
         int current;
@@ -3515,8 +3570,11 @@ public final class Unsafe {
                                                current, current & mask));
         return current;
     }
+     */
+    // END Android-removed: Not used in Android.
 
-    @ForceInline
+    // Android-removed: @ForceInline is an unsupported attribute.
+    // @ForceInline
     public final int getAndBitwiseXorInt(Object o, long offset, int mask) {
         int current;
         do {
@@ -3526,6 +3584,8 @@ public final class Unsafe {
         return current;
     }
 
+    // BEGIN Android-removed: Not used in Android.
+    /*
     @ForceInline
     public final int getAndBitwiseXorIntRelease(Object o, long offset, int mask) {
         int current;
@@ -3690,8 +3750,6 @@ public final class Unsafe {
     @IntrinsicCandidate
     public native void fullFence();
 
-    // BEGIN Android-removed: Not used in Android.
-    /*
     /**
      * Ensures that loads before the fence will not be reordered with
      * loads after the fence.
@@ -3700,7 +3758,7 @@ public final class Unsafe {
      * This method is operationally equivalent to {@link #loadFence()}.
      *
      * @since 9
-     * /
+     */
     public final void loadLoadFence() {
         loadFence();
     }
@@ -3713,12 +3771,14 @@ public final class Unsafe {
      * This method is operationally equivalent to {@link #storeFence()}.
      *
      * @since 9
-     * /
+     */
     public final void storeStoreFence() {
         storeFence();
     }
 
 
+    // BEGIN Android-removed: Not used in Android.
+    /*
     /**
      * Throws IllegalAccessError; for use by the VM for access control
      * error support.
@@ -4136,108 +4196,42 @@ public final class Unsafe {
      */
     // END Android-removed: Not used in Android.
 
-    /**
-     * Gets an {@code obj} field from the given object.
-     *
-     * @param obj non-{@code null}; object containing the field
-     * @param offset offset to the field within {@code obj}
-     * @return the retrieved value
-     */
-    // Android-added: FastNative annotation.
-    @FastNative
     @Deprecated(since="12", forRemoval=true)
-    public native Object getObject(Object obj, long offset);
-
-    /**
-     * Gets an {@code obj} field from the given object,
-     * using {@code volatile} semantics.
-     *
-     * @param obj non-{@code null}; object containing the field
-     * @param offset offset to the field within {@code obj}
-     * @return the retrieved value
-     */
-    // Android-added: FastNative annotation.
-    @FastNative
+    public final Object getObject(Object o, long offset) {
+        return getReference(o, offset);
+    }
     @Deprecated(since="12", forRemoval=true)
-    public native Object getObjectVolatile(Object obj, long offset);
-
-    /** Acquire version of {@link #getObjectVolatile(Object, long)} */
+    public final Object getObjectVolatile(Object o, long offset) {
+        return getReferenceVolatile(o, offset);
+    }
     @Deprecated(since="12", forRemoval=true)
-    @IntrinsicCandidate
     public final Object getObjectAcquire(Object o, long offset) {
-        return getObjectVolatile(o, offset);
+        return getReferenceAcquire(o, offset);
     }
 
-    /**
-     * Stores an {@code obj} field into the given object.
-     *
-     * @param obj non-{@code null}; object containing the field
-     * @param offset offset to the field within {@code obj}
-     * @param newValue the value to store
-     */
-    // Android-added: FastNative annotation.
-    @FastNative
     @Deprecated(since="12", forRemoval=true)
-    public native void putObject(Object obj, long offset, Object newValue);
+    public final void putObject(Object o, long offset, Object x) {
+        putReference(o, offset, x);
+    }
 
-    /**
-     * Stores an {@code obj} field into the given object,
-     * using {@code volatile} semantics.
-     *
-     * @param obj non-{@code null}; object containing the field
-     * @param offset offset to the field within {@code obj}
-     * @param newValue the value to store
-     */
-    // Android-added: FastNative annotation.
-    @FastNative
     @Deprecated(since="12", forRemoval=true)
-    public native void putObjectVolatile(Object obj, long offset,
-            Object newValue);
-
-    /** Release version of {@link #putObjectVolatile(Object, long, Object)} */
+    public final void putObjectVolatile(Object o, long offset, Object x) {
+        putReferenceVolatile(o, offset, x);
+    }
     @Deprecated(since="12", forRemoval=true)
-    @IntrinsicCandidate
     public final void putObjectRelease(Object o, long offset, Object x) {
-        putObjectVolatile(o, offset, x);
+        putReferenceRelease(o, offset, x);
     }
 
-    /**
-     * Atomically exchanges the given reference value with the current
-     * reference value of a field or array element within the given
-     * object {@code o} at the given {@code offset}.
-     *
-     * @param o object/array to update the field/element in
-     * @param offset field/element offset
-     * @param newValue new value
-     * @return the previous value
-     * @since 1.8
-     */
     @Deprecated(since="12", forRemoval=true)
-    @IntrinsicCandidate
     public final Object getAndSetObject(Object o, long offset, Object newValue) {
-        Object v;
-        do {
-            v = getObjectVolatile(o, offset);
-        } while (!compareAndSwapObject(o, offset, v, newValue));
-        return v;
+        return getAndSetReference(o, offset, newValue);
     }
 
-    /**
-     * Atomically updates Java variable to {@code x} if it is currently
-     * holding {@code expected}.
-     *
-     * <p>This operation has memory semantics of a {@code volatile} read
-     * and write.  Corresponds to C11 atomic_compare_exchange_strong.
-     *
-     * @return {@code true} if successful
-     */
-    // Android-added: FastNative annotation.
-    @FastNative
     @Deprecated(since="12", forRemoval=true)
-    @IntrinsicCandidate
-    public final native boolean compareAndSetObject(Object o, long offset,
-                                                    Object expected,
-                                                    Object x);
+    public final boolean compareAndSetObject(Object o, long offset, Object expected, Object x) {
+        return compareAndSetReference(o, offset, expected, x);
+    }
 
     // BEGIN Android-added: Methods added for the Android platform.
     @FastNative
