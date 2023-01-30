@@ -315,7 +315,9 @@ package android.system {
     field public static final int IFA_F_DADFAILED;
     field public static final int IFA_F_DEPRECATED;
     field public static final int IFA_F_HOMEADDRESS;
+    field public static final int IFA_F_MANAGETEMPADDR;
     field public static final int IFA_F_NODAD;
+    field public static final int IFA_F_NOPREFIXROUTE;
     field public static final int IFA_F_OPTIMISTIC;
     field public static final int IFA_F_PERMANENT;
     field public static final int IFA_F_SECONDARY;
@@ -748,6 +750,16 @@ package dalvik.annotation {
 
   @Deprecated @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE}) public @interface TestTargetClass {
     method @Deprecated public abstract Class<?> value();
+  }
+
+}
+
+package dalvik.annotation.optimization {
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface CriticalNative {
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface FastNative {
   }
 
 }
@@ -10600,7 +10612,7 @@ package java.text {
     method public final boolean equals(Object);
     method protected String getName();
     method public final int hashCode();
-    method protected Object readResolve() throws java.io.InvalidObjectException;
+    method @java.io.Serial protected Object readResolve() throws java.io.InvalidObjectException;
     field public static final java.text.AttributedCharacterIterator.Attribute INPUT_METHOD_SEGMENT;
     field public static final java.text.AttributedCharacterIterator.Attribute LANGUAGE;
     field public static final java.text.AttributedCharacterIterator.Attribute READING;
@@ -10899,6 +10911,7 @@ package java.text {
     method public String getInternationalCurrencySymbol();
     method public char getMinusSign();
     method public char getMonetaryDecimalSeparator();
+    method public char getMonetaryGroupingSeparator();
     method public String getNaN();
     method public char getPatternSeparator();
     method public char getPerMill();
@@ -10914,6 +10927,7 @@ package java.text {
     method public void setInternationalCurrencySymbol(String);
     method public void setMinusSign(char);
     method public void setMonetaryDecimalSeparator(char);
+    method public void setMonetaryGroupingSeparator(char);
     method public void setNaN(String);
     method public void setPatternSeparator(char);
     method public void setPerMill(char);
@@ -11101,12 +11115,10 @@ package java.text {
 
 package java.time {
 
-  public abstract class Clock {
+  public abstract class Clock implements java.time.InstantSource {
     ctor protected Clock();
     method public static java.time.Clock fixed(java.time.Instant, java.time.ZoneId);
     method public abstract java.time.ZoneId getZone();
-    method public abstract java.time.Instant instant();
-    method public long millis();
     method public static java.time.Clock offset(java.time.Clock, java.time.Duration);
     method public static java.time.Clock system(java.time.ZoneId);
     method public static java.time.Clock systemDefaultZone();
@@ -11239,6 +11251,16 @@ package java.time {
     field public static final java.time.Instant EPOCH;
     field public static final java.time.Instant MAX;
     field public static final java.time.Instant MIN;
+  }
+
+  public interface InstantSource {
+    method public static java.time.InstantSource fixed(java.time.Instant);
+    method public java.time.Instant instant();
+    method public default long millis();
+    method public static java.time.InstantSource offset(java.time.InstantSource, java.time.Duration);
+    method public static java.time.InstantSource system();
+    method public static java.time.InstantSource tick(java.time.InstantSource, java.time.Duration);
+    method public default java.time.Clock withZone(java.time.ZoneId);
   }
 
   public final class LocalDate implements java.time.chrono.ChronoLocalDate java.io.Serializable java.time.temporal.Temporal java.time.temporal.TemporalAdjuster {
@@ -14862,6 +14884,11 @@ package java.util.concurrent {
     method public static java.util.concurrent.Executor delayedExecutor(long, java.util.concurrent.TimeUnit, java.util.concurrent.Executor);
     method public static java.util.concurrent.Executor delayedExecutor(long, java.util.concurrent.TimeUnit);
     method public java.util.concurrent.CompletableFuture<T> exceptionally(java.util.function.Function<java.lang.Throwable,? extends T>);
+    method public java.util.concurrent.CompletableFuture<T> exceptionallyAsync(java.util.function.Function<java.lang.Throwable,? extends T>);
+    method public java.util.concurrent.CompletableFuture<T> exceptionallyAsync(java.util.function.Function<java.lang.Throwable,? extends T>, java.util.concurrent.Executor);
+    method public java.util.concurrent.CompletableFuture<T> exceptionallyCompose(java.util.function.Function<java.lang.Throwable,? extends java.util.concurrent.CompletionStage<T>>);
+    method public java.util.concurrent.CompletableFuture<T> exceptionallyComposeAsync(java.util.function.Function<java.lang.Throwable,? extends java.util.concurrent.CompletionStage<T>>);
+    method public java.util.concurrent.CompletableFuture<T> exceptionallyComposeAsync(java.util.function.Function<java.lang.Throwable,? extends java.util.concurrent.CompletionStage<T>>, java.util.concurrent.Executor);
     method public static <U> java.util.concurrent.CompletableFuture<U> failedFuture(Throwable);
     method public static <U> java.util.concurrent.CompletionStage<U> failedStage(Throwable);
     method public T get() throws java.util.concurrent.ExecutionException, java.lang.InterruptedException;
@@ -14940,6 +14967,11 @@ package java.util.concurrent {
     method public <U> java.util.concurrent.CompletionStage<U> applyToEitherAsync(java.util.concurrent.CompletionStage<? extends T>, java.util.function.Function<? super T,U>);
     method public <U> java.util.concurrent.CompletionStage<U> applyToEitherAsync(java.util.concurrent.CompletionStage<? extends T>, java.util.function.Function<? super T,U>, java.util.concurrent.Executor);
     method public java.util.concurrent.CompletionStage<T> exceptionally(java.util.function.Function<java.lang.Throwable,? extends T>);
+    method public default java.util.concurrent.CompletionStage<T> exceptionallyAsync(java.util.function.Function<java.lang.Throwable,? extends T>);
+    method public default java.util.concurrent.CompletionStage<T> exceptionallyAsync(java.util.function.Function<java.lang.Throwable,? extends T>, java.util.concurrent.Executor);
+    method public default java.util.concurrent.CompletionStage<T> exceptionallyCompose(java.util.function.Function<java.lang.Throwable,? extends java.util.concurrent.CompletionStage<T>>);
+    method public default java.util.concurrent.CompletionStage<T> exceptionallyComposeAsync(java.util.function.Function<java.lang.Throwable,? extends java.util.concurrent.CompletionStage<T>>);
+    method public default java.util.concurrent.CompletionStage<T> exceptionallyComposeAsync(java.util.function.Function<java.lang.Throwable,? extends java.util.concurrent.CompletionStage<T>>, java.util.concurrent.Executor);
     method public <U> java.util.concurrent.CompletionStage<U> handle(java.util.function.BiFunction<? super T,java.lang.Throwable,? extends U>);
     method public <U> java.util.concurrent.CompletionStage<U> handleAsync(java.util.function.BiFunction<? super T,java.lang.Throwable,? extends U>);
     method public <U> java.util.concurrent.CompletionStage<U> handleAsync(java.util.function.BiFunction<? super T,java.lang.Throwable,? extends U>, java.util.concurrent.Executor);
@@ -15330,9 +15362,9 @@ package java.util.concurrent {
     method public static java.util.concurrent.ScheduledExecutorService newSingleThreadScheduledExecutor(java.util.concurrent.ThreadFactory);
     method public static java.util.concurrent.ExecutorService newWorkStealingPool(int);
     method public static java.util.concurrent.ExecutorService newWorkStealingPool();
-    method public static <T> java.util.concurrent.Callable<T> privilegedCallable(java.util.concurrent.Callable<T>);
-    method public static <T> java.util.concurrent.Callable<T> privilegedCallableUsingCurrentClassLoader(java.util.concurrent.Callable<T>);
-    method public static java.util.concurrent.ThreadFactory privilegedThreadFactory();
+    method @Deprecated public static <T> java.util.concurrent.Callable<T> privilegedCallable(java.util.concurrent.Callable<T>);
+    method @Deprecated public static <T> java.util.concurrent.Callable<T> privilegedCallableUsingCurrentClassLoader(java.util.concurrent.Callable<T>);
+    method @Deprecated public static java.util.concurrent.ThreadFactory privilegedThreadFactory();
     method public static java.util.concurrent.ExecutorService unconfigurableExecutorService(java.util.concurrent.ExecutorService);
     method public static java.util.concurrent.ScheduledExecutorService unconfigurableScheduledExecutorService(java.util.concurrent.ScheduledExecutorService);
   }
