@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,26 +23,44 @@
  * questions.
  */
 
-package java.security;
+package sun.security.util;
 
-import java.util.Enumeration;
-import java.io.Serializable;
+import java.security.Key;
+import java.util.Date;
+import java.util.Set;
 
-
-// Android-changed: Stubbed the implementation.  Android doesn't support SecurityManager.
-// See comments in java.lang.SecurityManager for details.
 /**
- * Android doesn't support {@link SecurityManager}. Do not use this class.
+ * This interface contains parameters for checking against constraints that
+ * extend past the publicly available parameters in
+ * java.security.AlgorithmConstraints.
  */
+public interface ConstraintsParameters {
 
-public final class Permissions extends PermissionCollection
-implements Serializable
-{
-    public Permissions() { }
+    /**
+     * Returns true if a certificate chains back to a trusted JDK root CA.
+     */
+    boolean anchorIsJdkCA();
 
-    public void add(Permission permission) { }
+    /**
+     * Returns the set of keys that should be checked against the
+     * constraints, or an empty set if there are no keys to be checked.
+     */
+    Set<Key> getKeys();
 
-    public boolean implies(Permission permission) { return true; }
+    /**
+     * Returns the date that should be checked against the constraints, or
+     * null if not set.
+     */
+    Date getDate();
 
-    public Enumeration<Permission> elements() { return null; }
+    /**
+     * Returns the Validator variant.
+     */
+    String getVariant();
+
+    /**
+     * Returns an extended message used in exceptions. See
+     * DisabledAlgorithmConstraints for usage.
+     */
+    String extendedExceptionMsg();
 }
