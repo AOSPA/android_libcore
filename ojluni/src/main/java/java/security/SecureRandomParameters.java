@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -22,41 +22,18 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package java.security.interfaces;
-
-import java.security.PublicKey;
-import java.security.spec.ECPoint;
+package java.security;
 
 /**
- * The interface to an elliptic curve (EC) public key.
+ * A marker interface for parameters used in various {@code SecureRandom}
+ * methods.
+ * <p>
+ * Some {@code SecureRandom} implementations might require additional
+ * operational parameters. Objects of classes which implement this interface
+ * can be passed to those implementations that support them.
  *
- * @author Valerie Peng
- *
- *
- * @see PublicKey
- * @see ECKey
- * @see java.security.spec.ECPoint
- *
- * @since 1.5
+ * @see DrbgParameters
+ * @since 9
  */
-public interface ECPublicKey extends PublicKey, ECKey {
-
-   /**
-    * The class fingerprint that is set to indicate
-    * serialization compatibility.
-    */
-    // Android-removed: (b/260847206) revert once aosp/master is marked as V.
-    // * @deprecated A {@code serialVersionUID} field in an interface is
-    // * ineffectual. Do not use; no replacement.
-    // */
-    // @Deprecated
-    // @SuppressWarnings("serial")
-    // @java.io.Serial
-    static final long serialVersionUID = -3314988629879632826L;
-
-    /**
-     * Returns the public point W.
-     * @return the public point W.
-     */
-    ECPoint getW();
+public interface SecureRandomParameters {
 }
