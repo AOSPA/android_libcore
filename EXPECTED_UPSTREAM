@@ -282,6 +282,7 @@ ojluni/src/main/java/java/lang/reflect/Modifier.java,jdk11u/jdk-11.0.13-ga,src/j
 ojluni/src/main/java/java/lang/reflect/Parameter.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/lang/reflect/Parameter.java
 ojluni/src/main/java/java/lang/reflect/ParameterizedType.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/lang/reflect/ParameterizedType.java
 ojluni/src/main/java/java/lang/reflect/Proxy.java,jdk8u/jdk8u121-b13,jdk/src/share/classes/java/lang/reflect/Proxy.java
+ojluni/src/main/java/java/lang/reflect/RecordComponent.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/lang/reflect/RecordComponent.java
 ojluni/src/main/java/java/lang/reflect/ReflectPermission.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/lang/reflect/ReflectPermission.java
 ojluni/src/main/java/java/lang/reflect/Type.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/lang/reflect/Type.java
 ojluni/src/main/java/java/lang/reflect/TypeVariable.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/lang/reflect/TypeVariable.java
@@ -864,13 +865,13 @@ ojluni/src/main/java/java/time/zone/ZoneRules.java,jdk17u/jdk-17.0.6-ga,src/java
 ojluni/src/main/java/java/time/zone/ZoneRulesException.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/time/zone/ZoneRulesException.java
 ojluni/src/main/java/java/time/zone/ZoneRulesProvider.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/time/zone/ZoneRulesProvider.java
 ojluni/src/main/java/java/time/zone/package-info.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/time/zone/package-info.java
-ojluni/src/main/java/java/util/AbstractCollection.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/AbstractCollection.java
-ojluni/src/main/java/java/util/AbstractList.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/AbstractList.java
-ojluni/src/main/java/java/util/AbstractMap.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/AbstractMap.java
+ojluni/src/main/java/java/util/AbstractCollection.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/AbstractCollection.java
+ojluni/src/main/java/java/util/AbstractList.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/AbstractList.java
+ojluni/src/main/java/java/util/AbstractMap.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/AbstractMap.java
 ojluni/src/main/java/java/util/AbstractQueue.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/AbstractQueue.java
 ojluni/src/main/java/java/util/AbstractSequentialList.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/AbstractSequentialList.java
 ojluni/src/main/java/java/util/AbstractSet.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/AbstractSet.java
-ojluni/src/main/java/java/util/ArrayDeque.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/ArrayDeque.java
+ojluni/src/main/java/java/util/ArrayDeque.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/ArrayDeque.java
 ojluni/src/main/java/java/util/ArrayList.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/ArrayList.java
 ojluni/src/main/java/java/util/ArrayPrefixHelpers.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/ArrayPrefixHelpers.java
 ojluni/src/main/java/java/util/Arrays.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/Arrays.java
@@ -894,7 +895,7 @@ ojluni/src/main/java/java/util/DuplicateFormatFlagsException.java,jdk11u/jdk-11.
 ojluni/src/main/java/java/util/EmptyStackException.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/EmptyStackException.java
 ojluni/src/main/java/java/util/EnumMap.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/EnumMap.java
 ojluni/src/main/java/java/util/EnumSet.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/EnumSet.java
-ojluni/src/main/java/java/util/Enumeration.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/Enumeration.java
+ojluni/src/main/java/java/util/Enumeration.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/Enumeration.java
 ojluni/src/main/java/java/util/EventListener.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/EventListener.java
 ojluni/src/main/java/java/util/EventListenerProxy.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/EventListenerProxy.java
 ojluni/src/main/java/java/util/EventObject.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/EventObject.java
@@ -908,7 +909,7 @@ ojluni/src/main/java/java/util/HashMap.java,jdk17u/jdk-17.0.6-ga,src/java.base/s
 ojluni/src/main/java/java/util/HashSet.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/HashSet.java
 ojluni/src/main/java/java/util/Hashtable.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/Hashtable.java
 ojluni/src/main/java/java/util/HexFormat.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/HexFormat.java
-ojluni/src/main/java/java/util/IdentityHashMap.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/IdentityHashMap.java
+ojluni/src/main/java/java/util/IdentityHashMap.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/IdentityHashMap.java
 ojluni/src/main/java/java/util/IllegalFormatCodePointException.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/IllegalFormatCodePointException.java
 ojluni/src/main/java/java/util/IllegalFormatConversionException.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/IllegalFormatConversionException.java
 ojluni/src/main/java/java/util/IllegalFormatException.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/IllegalFormatException.java
@@ -916,7 +917,7 @@ ojluni/src/main/java/java/util/IllegalFormatFlagsException.java,jdk11u/jdk-11.0.
 ojluni/src/main/java/java/util/IllegalFormatPrecisionException.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/IllegalFormatPrecisionException.java
 ojluni/src/main/java/java/util/IllegalFormatWidthException.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/IllegalFormatWidthException.java
 ojluni/src/main/java/java/util/IllformedLocaleException.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/IllformedLocaleException.java
-ojluni/src/main/java/java/util/ImmutableCollections.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/ImmutableCollections.java
+ojluni/src/main/java/java/util/ImmutableCollections.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/ImmutableCollections.java
 ojluni/src/main/java/java/util/InputMismatchException.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/InputMismatchException.java
 ojluni/src/main/java/java/util/IntSummaryStatistics.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/IntSummaryStatistics.java
 ojluni/src/main/java/java/util/InvalidPropertiesFormatException.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/InvalidPropertiesFormatException.java
@@ -927,13 +928,13 @@ ojluni/src/main/java/java/util/KeyValueHolder.java,jdk11u/jdk-11.0.13-ga,src/jav
 ojluni/src/main/java/java/util/LinkedHashMap.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/LinkedHashMap.java
 ojluni/src/main/java/java/util/LinkedHashSet.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/LinkedHashSet.java
 ojluni/src/main/java/java/util/LinkedList.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/LinkedList.java
-ojluni/src/main/java/java/util/List.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/List.java
+ojluni/src/main/java/java/util/List.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/List.java
 ojluni/src/main/java/java/util/ListIterator.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/ListIterator.java
 ojluni/src/main/java/java/util/ListResourceBundle.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/ListResourceBundle.java
 ojluni/src/main/java/java/util/Locale.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/Locale.java
 ojluni/src/main/java/java/util/LocaleISOData.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/LocaleISOData.java
 ojluni/src/main/java/java/util/LongSummaryStatistics.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/LongSummaryStatistics.java
-ojluni/src/main/java/java/util/Map.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/Map.java
+ojluni/src/main/java/java/util/Map.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/Map.java
 ojluni/src/main/java/java/util/MissingFormatArgumentException.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/MissingFormatArgumentException.java
 ojluni/src/main/java/java/util/MissingFormatWidthException.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/MissingFormatWidthException.java
 ojluni/src/main/java/java/util/MissingResourceException.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/MissingResourceException.java
@@ -960,7 +961,7 @@ ojluni/src/main/java/java/util/ResourceBundle.java,jdk11u/jdk-11.0.13-ga,src/jav
 ojluni/src/main/java/java/util/Scanner.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/Scanner.java
 ojluni/src/main/java/java/util/ServiceConfigurationError.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/ServiceConfigurationError.java
 ojluni/src/main/java/java/util/ServiceLoader.java,jdk8u/jdk8u121-b13,jdk/src/share/classes/java/util/ServiceLoader.java
-ojluni/src/main/java/java/util/Set.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/java/util/Set.java
+ojluni/src/main/java/java/util/Set.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/Set.java
 ojluni/src/main/java/java/util/SimpleTimeZone.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/SimpleTimeZone.java
 ojluni/src/main/java/java/util/SortedMap.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/SortedMap.java
 ojluni/src/main/java/java/util/SortedSet.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/java/util/SortedSet.java
@@ -1363,7 +1364,7 @@ ojluni/src/main/java/javax/sql/RowSetWriter.java,jdk11u/jdk-11.0.13-ga,src/java.
 ojluni/src/main/java/javax/sql/StatementEvent.java,jdk7u/jdk7u40-b60,jdk/src/share/classes/javax/sql/StatementEvent.java
 ojluni/src/main/java/javax/sql/StatementEventListener.java,jdk7u/jdk7u40-b60,jdk/src/share/classes/javax/sql/StatementEventListener.java
 ojluni/src/main/java/jdk/internal/HotSpotIntrinsicCandidate.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/jdk/internal/HotSpotIntrinsicCandidate.java
-# jdk.internal.ValueBased earlier imports have elected not to bring this across, no technical reason to add it for now (not used by ART).
+ojluni/src/main/java/jdk/internal/ValueBased.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/jdk/internal/ValueBased.java
 ojluni/src/main/java/jdk/internal/math/DoubleConsts.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/jdk/internal/math/DoubleConsts.java
 ojluni/src/main/java/jdk/internal/math/FDBigInteger.java,jdk11u/jdk-11.0.13-ga,src/java.base/share/classes/jdk/internal/math/FDBigInteger.java
 ojluni/src/main/java/jdk/internal/math/FloatConsts.java,jdk17u/jdk-17.0.6-ga,src/java.base/share/classes/jdk/internal/math/FloatConsts.java
@@ -1942,6 +1943,7 @@ ojluni/src/test/java/lang/invoke/VarHandles/accessibility/pkg/subpkg/B_extends_A
 ojluni/src/test/java/lang/invoke/VarHandles/accessibility/pkg/subpkg/C.java,jdk17u/jdk-17.0.6-ga,test/jdk/java/lang/invoke/VarHandles/accessibility/pkg/subpkg/C.java
 ojluni/src/test/java/lang/invoke/VarHandles/generate-vh-tests.sh,jdk11u/jdk-11.0.13-ga,test/jdk/java/lang/invoke/VarHandles/generate-vh-tests.sh
 ojluni/src/test/java/lang/reflect/records/CheckEqualityIsBasedOnFields.java,jdk17u/jdk-17.0.6-ga,test/jdk/java/lang/reflect/records/CheckEqualityIsBasedOnFields.java
+ojluni/src/test/java/lang/reflect/records/RecordReflectionTest.java,jdk17u/jdk-17.0.6-ga,test/jdk/java/lang/reflect/records/RecordReflectionTest.java
 ojluni/src/test/java/math/BigDecimal/AddTests.java,jdk17u/jdk-17.0.6-ga,test/jdk/java/math/BigDecimal/AddTests.java
 ojluni/src/test/java/math/BigDecimal/CompareToTests.java,jdk17u/jdk-17.0.6-ga,test/jdk/java/math/BigDecimal/CompareToTests.java
 ojluni/src/test/java/math/BigDecimal/Constructor.java,jdk17u/jdk-17.0.6-ga,test/jdk/java/math/BigDecimal/Constructor.java
