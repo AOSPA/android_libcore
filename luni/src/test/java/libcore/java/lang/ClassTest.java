@@ -45,6 +45,7 @@ import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -498,6 +499,62 @@ public class ClassTest {
     }
 
     @Test
+    public void isSealed() {
+        assertTrue(SealedInterface.class.isSealed());
+        assertFalse(SealedFinalClass.class.isSealed());
+        assertTrue(SealedAbstractClass.class.isSealed());
+        assertFalse(NonSealedDerivedClass.class.isSealed());
+        assertFalse(DerivedClass.class.isSealed());
+    }
+
+    @Test
+    public void getPermittedSubclasses() {
+        assertNull(SealedFinalClass.class.getPermittedSubclasses());
+        assertNull(NonSealedDerivedClass.class.getPermittedSubclasses());
+        assertNull(DerivedClass.class.getPermittedSubclasses());
+
+        var sealedInterfaceSubclasses = SealedInterface.class.getPermittedSubclasses();
+        assertNotNull(sealedInterfaceSubclasses);
+        assertEquals(2, sealedInterfaceSubclasses.length);
+        assertTrue(Set.of(sealedInterfaceSubclasses).contains(SealedAbstractClass.class));
+        assertTrue(Set.of(sealedInterfaceSubclasses).contains(SealedFinalClass.class));
+
+        var sealedAbstractClass = SealedAbstractClass.class.getPermittedSubclasses();
+        assertNotNull(sealedAbstractClass);
+        assertEquals(1, sealedAbstractClass.length);
+        assertEquals(NonSealedDerivedClass.class, sealedAbstractClass[0]);
+    }
+
+    public static sealed interface SealedInterface permits SealedAbstractClass, SealedFinalClass {
+        int getNumber();
+    }
+
+    public static final class SealedFinalClass implements SealedInterface {
+        @Override
+        public int getNumber() {
+            return 1;
+        }
+    }
+
+    public static abstract sealed class SealedAbstractClass implements SealedInterface
+                                                                permits NonSealedDerivedClass {
+    }
+
+    public static non-sealed class NonSealedDerivedClass extends SealedAbstractClass {
+        @Override
+        public int getNumber() {
+            return 2;
+        }
+    }
+
+    public static class DerivedClass extends NonSealedDerivedClass {
+        @Override
+        public int getNumber() {
+            return 3;
+        }
+    }
+
+    @Test
     public void recordClass() {
         try {
             ClassLoader classLoader = createClassLoaderForResource("core-tests-smali.dex");
@@ -637,4 +694,33 @@ public class ClassTest {
         }
     }
 
+    @Test
+    public void testComponentType() {
+        assertNull(int.class.componentType());
+        assertNull(String.class.componentType());
+        assertNull(Object.class.componentType());
+
+        assertEquals(int.class, int[].class.componentType());
+        assertEquals(int[].class, int[][].class.componentType());
+        assertEquals(String.class, String[].class.componentType());
+        assertEquals(Foo.class, Foo[].class.componentType());
+    }
+
+    @Test
+    public void testArrayType() {
+        assertEquals(int[].class, int.class.arrayType());
+        assertEquals(int[][].class, int[].class.arrayType());
+        assertEquals(String[].class, String.class.arrayType());
+        assertEquals(Foo[].class, Foo.class.arrayType());
+    }
+
+    @Test
+    public void testDescriptorString() {
+        assertEquals("I", int.class.descriptorString());
+        assertEquals("V", void.class.descriptorString());
+        assertEquals("[I", int[].class.descriptorString());
+        assertEquals("[[I", int[][].class.descriptorString());
+        assertEquals("Ljava/lang/String;", String.class.descriptorString());
+        assertEquals("[Ljava/lang/String;", String[].class.descriptorString());
+    }
 }
