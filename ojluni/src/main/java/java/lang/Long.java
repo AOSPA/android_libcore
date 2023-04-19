@@ -75,8 +75,7 @@ import jdk.internal.vm.annotation.IntrinsicCandidate;
  * @author  Joseph D. Darcy
  * @since   1.0
  */
-// Android-removed: ValueBased
-// @jdk.internal.ValueBased
+@jdk.internal.ValueBased
 public final class Long extends Number
         implements Comparable<Long>
 // Android-removed: no Constable support.
@@ -235,12 +234,11 @@ public final class Long extends Number
         if (i >= 0)
             return toString(i, radix);
         else {
-            // Android-changed: use `switch (radix)` `switch return (radix)` until javac 17 lands.
-            switch (radix) {
-                case 2: return toBinaryString(i);
-                case 4: return toUnsignedString0(i, 2);
-                case 8:  return toOctalString(i);
-                case 10: {
+            return switch (radix) {
+                case 2  -> toBinaryString(i);
+                case 4  -> toUnsignedString0(i, 2);
+                case 8  -> toOctalString(i);
+                case 10 -> {
                     /*
                      * We can get the effect of an unsigned division by 10
                      * on a long value by first shifting right, yielding a
@@ -251,12 +249,12 @@ public final class Long extends Number
                      */
                     long quot = (i >>> 1) / 5;
                     long rem = i - quot * 10;
-                    return toString(quot) + rem;
+                    yield toString(quot) + rem;
                 }
-                case 16: return toHexString(i);
-                case 32: return toUnsignedString0(i, 5);
-                default: return toUnsignedBigInteger(i).toString(radix);
-            }
+                case 16 -> toHexString(i);
+                case 32 -> toUnsignedString0(i, 5);
+                default -> toUnsignedBigInteger(i).toString(radix);
+            };
         }
     }
 
