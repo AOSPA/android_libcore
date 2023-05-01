@@ -27,6 +27,7 @@
 package java.lang;
 
 import dalvik.annotation.optimization.FastNative;
+import dalvik.annotation.optimization.NeverInline;
 import java.io.ObjectStreamField;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Native;
@@ -2108,6 +2109,7 @@ public final class String
      * @return  the index of the first occurrence of the specified substring,
      *          or {@code -1} if there is no such occurrence.
      */
+    @NeverInline
     public int indexOf(String str) {
         // BEGIN Android-changed: Implement with indexOf() method that takes String parameters.
         /*
@@ -2141,6 +2143,7 @@ public final class String
      *          starting at the specified index,
      *          or {@code -1} if there is no such occurrence.
      */
+    @NeverInline
     public int indexOf(String str, int fromIndex) {
         // BEGIN Android-changed: Implement with indexOf() method that takes String parameters.
         /*
@@ -3688,12 +3691,7 @@ public final class String
         }
         char lastChar = charAt(length - 1);
         boolean optOut = lastChar == '\n' || lastChar == '\r';
-        // BEGIN Android-changed: Stream#toList() is not yet imported. See http://b/241231766.
-        /*
         List<String> lines = lines().toList();
-        */
-        List<String> lines = lines().collect(Collectors.toList());
-        // END Android-changed: Stream#toList() is not yet imported. See http://b/241231766.
         final int outdent = optOut ? 0 : outdent(lines);
         return lines.stream()
             .map(line -> {
