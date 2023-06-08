@@ -89,10 +89,18 @@ filegroup {
 // We have to escape \ as \\ and $ as $$ here because they get resolved by
 // different layers of the build tooling. The arguments are wrapped in '' so
 // that the shell doesn't add yet another level of escaping.
-rewrite_openjdk_doc_links = "sed 's" +
-    "!\\({@docRoot}/\\.\\.\\/\\|[./]\\+\\)\\(\\(platform\\|technotes\\).\\+\\)\">" +
+rewrite_openjdk_doc_links = "sed -E 's" +
+    "!(\\{@docRoot\\}/\\.\\./|[./]+)((platform|technotes).+)\">" +
     "!https://docs.oracle.com/javase/8/docs/\\2\">!' " +
-    "$(in) > $(out)"
+    "$(in) " +
+    "| sed -E 's" + // Android doesn't have java.base in the API docs
+    "!(\\{@docRoot\\}/)(java\\.base/)(.+)\">" +
+    "!\\1reference/\\3\">!' " +
+    "| sed -E 's" +
+    "!(\\{@docRoot\\}/\\.\\./)(specs/.+)\">" +
+    "!https://docs.oracle.com/en/java/javase/17/docs/\\2\">!' " +
+    " > $(out) " +
+    "&& ! grep '{@docRoot}/../' $(out)" // exit with 1 if "{@docRoot}/../" still exists.
 
 // OpenJDK source is not annotated with @hide so we need this separate
 // filegroup for just the parts that contribute to the API.
@@ -482,6 +490,9 @@ java_library {
         ":openjdk_lambda_stub_files",
     ],
     include_srcs: true,
+    // This jar is packaged as part of the SDK, use -target 8 so that it works
+    // with old JDKs.
+    java_version: "1.8",
 }
 
 // This is an empty jar that exists for backwards compatibility with T (and below).
